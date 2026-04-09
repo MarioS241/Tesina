@@ -517,9 +517,9 @@
     <div class="grammar-box">
       <div class="grammar-label">Testo corretto</div>
       <div id="grammar-output" style="cursor:default">Il testo corretto apparirà qui...</div>
-      <div id="dict-tooltip" class="tooltip-dict" style="display:none"></div>
     </div>
   </div>
+  <div id="dict-tooltip" class="tooltip-dict" style="display:none;position:fixed;z-index:900"></div>
 </section>
 
 <div class="divider">▼</div>
@@ -544,11 +544,22 @@
         <textarea id="trans-en-input" class="trans-area" placeholder="Enter English text here...&#10;&#10;e.g. Artificial intelligence is transforming every aspect of modern life."></textarea>
       </div>
       <div>
-        <div id="trans-en-output" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:160px;font-size:13px;line-height:1.7;color:var(--muted)">La traduzione apparirà qui...</div>
+        <div id="trans-en-output" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:160px;font-size:13px;line-height:1.7;color:var(--muted);cursor:default;position:relative">La traduzione apparirà qui...</div>
+        <div id="en-dict-tooltip" class="tooltip-dict" style="display:none;position:fixed;z-index:900"></div>
       </div>
     </div>
     <button id="trans-en-btn" onclick="translateEN()">🌐 Traduci in Italiano</button>
-    <div style="margin-top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;color:var(--muted)">
+    <p style="font-size:11px;color:var(--muted);margin-top:8px">💡 Usa ⇄ per invertire: scrivi in italiano → ottieni inglese → <strong style="color:var(--accent2)">clicca ogni parola inglese</strong> per vedere definizione, pronuncia e sinonimi</p>
+    <!-- Word lookup standalone -->
+    <div style="margin-top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px">
+      <div style="font-size:11px;color:var(--accent2);letter-spacing:2px;margin-bottom:8px">📖 DIZIONARIO INGLESE</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="en-dict-input" placeholder="Cerca una parola inglese... es. algorithm" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;outline:none">
+        <button onclick="lookupDictInput()" style="background:transparent;border:1px solid var(--accent2);color:var(--accent2);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;white-space:nowrap">Cerca</button>
+      </div>
+      <div id="en-dict-result" style="margin-top:10px;font-size:13px;color:var(--muted);min-height:0"></div>
+    </div>
+    <div style="margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;color:var(--muted)">
       <strong style="color:var(--text)">WordReference integrato:</strong> per definizioni avanzate e coniugazioni, visita
       <a href="https://www.wordreference.com/enit/" target="_blank" style="color:var(--accent2)">wordreference.com</a> — il dizionario bilingue più usato al mondo.
     </div>
@@ -679,18 +690,23 @@ fibonacci(10)
     <button class="shape-btn" onclick="setShape('cylinder')">🧱 Cilindro</button>
   </div>
   <!-- Controlli rotazione -->
-  <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center">
-    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:180px">
+  <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:160px">
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">Velocità</span>
       <input type="range" id="geom-speed" min="0" max="100" value="30" step="1" style="flex:1">
       <span id="geom-speed-val" style="font-size:11px;color:var(--accent);min-width:30px">1×</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:160px">
+      <span style="font-size:11px;color:var(--muted);white-space:nowrap">🔍 Zoom</span>
+      <input type="range" id="geom-zoom" min="0" max="100" value="40" step="1" style="flex:1">
+      <span id="geom-zoom-val" style="font-size:11px;color:var(--accent2);min-width:32px">40%</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">Colore</span>
       <input type="color" id="geom-color" value="#00ff88" style="width:36px;height:32px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;padding:2px">
       <input type="text" id="geom-hex" value="#00ff88" maxlength="7" style="width:72px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;text-transform:uppercase">
     </div>
-    <div style="font-size:11px;color:var(--muted)">Trascina per ruotare · 0 = fermo</div>
+    <div style="font-size:11px;color:var(--muted);width:100%">🖱 Trascina per ruotare · 🖱 Rotella per zoom · 📱 Pizzica per zoom</div>
   </div>
   <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;color:var(--muted)">
     Per funzioni avanzate (equazioni, grafici, costruzioni): <a href="https://www.geogebra.org/3d" target="_blank" style="color:var(--accent)">GeoGebra 3D →</a>
@@ -1028,13 +1044,79 @@ function showDef(el, e) {
   const meta = JSON.parse(el.getAttribute('data-meta').replace(/&quot;/g,'"'));
   tip.innerHTML = `<strong>${meta.word}</strong>${meta.isVerb?`<em style="color:var(--muted);font-size:11px;display:block">verbo · infinito: ${meta.inf}</em>`:''}${meta.def}`;
   tip.style.display = 'block';
-  const rect = el.getBoundingClientRect();
-  const outRect = document.getElementById('grammar-output').getBoundingClientRect();
-  tip.style.top = (rect.top - outRect.top + el.offsetHeight + 4) + 'px';
-  tip.style.left = (rect.left - outRect.left) + 'px';
+  positionTooltip(tip, e);
   e.stopPropagation();
 }
-document.addEventListener('click', () => { document.getElementById('dict-tooltip').style.display='none'; });
+
+function positionTooltip(tip, e) {
+  tip.style.display = 'block';
+  const tw = 240, th = 80;
+  let x = e.clientX + 10, y = e.clientY + 14;
+  if (x + tw > window.innerWidth - 8) x = e.clientX - tw - 6;
+  if (y + th > window.innerHeight - 8) y = e.clientY - th - 6;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+
+document.addEventListener('click', () => {
+  document.getElementById('dict-tooltip').style.display = 'none';
+  const et = document.getElementById('en-dict-tooltip');
+  if (et) et.style.display = 'none';
+});
+
+// ─── ENGLISH WORD DICTIONARY (Free Dictionary API) ───
+function renderEnOutput(text) {
+  const out = document.getElementById('trans-en-output');
+  // wrap each word in a clickable span
+  const wrapped = text.replace(/([a-zA-ZÀ-ÿ'-]+)/g, (w) =>
+    `<span class="en-word" onclick="lookupEnWord(this,event,'${w.toLowerCase().replace(/'/g,"\\'")}','${w}')" style="cursor:pointer;border-radius:3px;transition:background 0.1s" onmouseover="this.style.background='rgba(0,170,255,0.15)'" onmouseout="this.style.background=''">${w}</span>`
+  );
+  out.innerHTML = wrapped;
+  out.style.color = 'var(--text)';
+}
+
+async function lookupEnWord(el, e, word, display) {
+  e.stopPropagation();
+  const tip = document.getElementById('en-dict-tooltip');
+  tip.innerHTML = `<span class="spinner"></span> ${display}...`;
+  tip.style.display = 'block';
+  positionTooltip(tip, e);
+  await fetchDictEntry(word, display, tip);
+}
+
+async function lookupDictInput() {
+  const word = document.getElementById('en-dict-input').value.trim().toLowerCase();
+  if (!word) return;
+  const result = document.getElementById('en-dict-result');
+  result.innerHTML = `<span class="spinner"></span> Ricerca in corso...`;
+  result.style.color = 'var(--muted)';
+  const fakeEl = {innerHTML:''};
+  await fetchDictEntry(word, word, null, result);
+}
+
+document.getElementById('en-dict-input')?.addEventListener('keydown', e => { if(e.key==='Enter') lookupDictInput(); });
+
+async function fetchDictEntry(word, display, tooltipEl, resultEl) {
+  try {
+    const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!r.ok) throw new Error('not found');
+    const d = await r.json();
+    const entry = d[0];
+    const phonetic = entry.phonetics?.find(p=>p.text)?.text || '';
+    const meanings = entry.meanings?.slice(0,3).map(m => {
+      const def = m.definitions[0];
+      const syns = def.synonyms?.slice(0,3).join(', ');
+      return `<div style="margin-top:8px"><span style="color:var(--accent2);font-size:11px;font-style:italic">${m.partOfSpeech}</span> — ${def.definition}${def.example?`<br><span style="color:var(--muted);font-size:12px">"${def.example}"</span>`:''}${syns?`<br><span style="color:var(--muted);font-size:11px">sinonimi: ${syns}</span>`:''}`;
+    }).join('') || 'Nessuna definizione trovata';
+    const html = `<strong style="color:var(--text);font-size:14px">${display}</strong>${phonetic?` <span style="color:var(--muted);font-size:12px">${phonetic}</span>`:''}${meanings}`;
+    if (tooltipEl) { tooltipEl.innerHTML = html; }
+    if (resultEl) { resultEl.innerHTML = html; resultEl.style.color = 'var(--text)'; }
+  } catch(err) {
+    const msg = `<strong>${display}</strong><br><span style="color:var(--muted);font-size:12px">Parola non trovata nel dizionario</span>`;
+    if (tooltipEl) tooltipEl.innerHTML = msg;
+    if (resultEl) { resultEl.innerHTML = msg; }
+  }
+}
 
 // ─── MYMEMORY TRANSLATOR (gratuito, nessuna API key) ───
 async function myMemoryTranslate(text, langpair) {
@@ -1056,7 +1138,13 @@ async function translateEN() {
   try {
     const langpair = enSwapped ? 'it|en' : 'en|it';
     const reply = await myMemoryTranslate(txt, langpair);
-    out.style.color = 'var(--text)'; out.textContent = reply;
+    if (enSwapped) {
+      // output is English → make words clickable for dictionary
+      renderEnOutput(reply);
+    } else {
+      // input was English, output is Italian → just show text
+      out.style.color = 'var(--text)'; out.textContent = reply;
+    }
   } catch(e) { out.style.color='var(--muted)'; out.textContent = '❌ ' + e.message; }
   btn.innerHTML = enSwapped ? '🌐 Traduci in Inglese' : '🌐 Traduci in Italiano'; btn.disabled = false;
 }
@@ -1303,6 +1391,7 @@ function setShape(name) {
 }
 let rotAngle = 0, drag = false, lastMX = 0, lastMY = 0, extraRot = 0, extraRotX = 0;
 let rotSpeed = 0.012;
+let camDist = 3.5; // camera distance = zoom
 
 document.getElementById('geom-speed').addEventListener('input', function() {
   const v = parseInt(this.value);
@@ -1311,14 +1400,52 @@ document.getElementById('geom-speed').addEventListener('input', function() {
   document.getElementById('geom-speed-val').textContent = label;
 });
 
+// zoom slider
+document.getElementById('geom-zoom').addEventListener('input', function() {
+  camDist = 6.5 - (parseInt(this.value) / 100) * 5.0; // 6.5 (far) → 1.5 (close)
+  document.getElementById('geom-zoom-val').textContent = Math.round(parseInt(this.value)) + '%';
+});
+
+// mouse wheel zoom
+gc.addEventListener('wheel', e => {
+  e.preventDefault();
+  camDist = Math.max(1.5, Math.min(7, camDist + e.deltaY * 0.005));
+  // sync slider
+  const pct = Math.round((6.5 - camDist) / 5.0 * 100);
+  document.getElementById('geom-zoom').value = pct;
+  document.getElementById('geom-zoom-val').textContent = pct + '%';
+}, { passive: false });
+
+// mouse drag rotation
 gc.addEventListener('mousedown', e=>{ drag=true; lastMX=e.clientX; lastMY=e.clientY; });
 gc.addEventListener('mousemove', e=>{ if(drag){ extraRot+=(e.clientX-lastMX)*0.012; extraRotX+=(e.clientY-lastMY)*0.012; lastMX=e.clientX; lastMY=e.clientY; } });
 gc.addEventListener('mouseup', ()=>drag=false);
 gc.addEventListener('mouseleave', ()=>drag=false);
-// touch support
-gc.addEventListener('touchstart', e=>{ drag=true; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY; e.preventDefault(); },{passive:false});
-gc.addEventListener('touchmove', e=>{ if(drag){ extraRot+=(e.touches[0].clientX-lastMX)*0.012; extraRotX+=(e.touches[0].clientY-lastMY)*0.012; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY; e.preventDefault(); } },{passive:false});
-gc.addEventListener('touchend', ()=>drag=false);
+
+// touch: drag rotation + pinch zoom
+let lastPinchDist = null;
+gc.addEventListener('touchstart', e=>{
+  if(e.touches.length === 1){ drag=true; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY; }
+  if(e.touches.length === 2){ drag=false; lastPinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); }
+  e.preventDefault();
+},{passive:false});
+gc.addEventListener('touchmove', e=>{
+  if(e.touches.length === 1 && drag){
+    extraRot+=(e.touches[0].clientX-lastMX)*0.012;
+    extraRotX+=(e.touches[0].clientY-lastMY)*0.012;
+    lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY;
+  }
+  if(e.touches.length === 2 && lastPinchDist !== null){
+    const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    camDist = Math.max(1.5, Math.min(7, camDist - (dist - lastPinchDist) * 0.02));
+    lastPinchDist = dist;
+    const pct = Math.round((6.5 - camDist) / 5.0 * 100);
+    document.getElementById('geom-zoom').value = pct;
+    document.getElementById('geom-zoom-val').textContent = pct + '%';
+  }
+  e.preventDefault();
+},{passive:false});
+gc.addEventListener('touchend', e=>{ drag=false; if(e.touches.length < 2) lastPinchDist=null; });
 
 function render3D() {
   resizeGC();
@@ -1332,7 +1459,7 @@ function render3D() {
   gl.clearColor(0.04,0.07,0.13,1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.uniform3fv(uColor, shapeColor);
-  const mv = mat4mul(trans(0,0,-3.5), mat4mul(rotX(0.3+extraRotX), rotY(rotAngle+extraRot)));
+  const mv = mat4mul(trans(0,0,-camDist), mat4mul(rotX(0.3+extraRotX), rotY(rotAngle+extraRot)));
   const mvp = mat4mul(perspective(1, gc.width/gc.height, 0.1, 100), mv);
   gl.uniformMatrix4fv(uMVP,false,mvp); gl.uniformMatrix4fv(uMV,false,mv);
   gl.drawElements(gl.TRIANGLES, s.idx.length, gl.UNSIGNED_SHORT, 0);
