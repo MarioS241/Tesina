@@ -746,7 +746,9 @@ fibonacci(10)
       </select>
     </div>
     <button onclick="downloadPixelArt()" id="pixel-download-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">⬇ Scarica</button>
+    <button onclick="toggleGrid()" id="pixel-grid-btn" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">▦ Griglia: ON</button>
     <button onclick="document.getElementById('pixel-file-input').click()" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">📂 Cambia</button>
+    <button id="grid-toggle-btn" onclick="togglePixelGrid()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">⊞ Griglia: OFF</button>
   </div>
 
   <!-- Canvas + pixel info tooltip -->
@@ -1090,55 +1092,87 @@ async function correctGrammar() {
   const btn = document.getElementById('grammar-btn');
   const out = document.getElementById('grammar-output');
   btn.innerHTML = '<span class="spinner"></span>Correzione in corso...'; btn.disabled = true;
-  out.textContent = 'Analisi in corso...';
+  out.innerHTML = '<span style="color:var(--muted)">Analisi in corso...</span>';
+
   try {
     const body = new URLSearchParams({ text: txt, language: 'it' });
     const r = await fetch('https://api.languagetool.org/v2/check', { method:'POST', body });
     const d = await r.json();
+
     if (!d.matches || d.matches.length === 0) {
-      out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore trovato!</span>';
-      btn.innerHTML = '✦ Correggi con AI'; btn.disabled = false; return;
+      out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore trovato! Il testo è corretto.</span>';
+      btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false; return;
     }
-    // Apply corrections and build HTML
-    let corrected = txt;
-    // apply from end to start to preserve offsets
+
+    // Build corrected string by applying replacements from end→start
     const sorted = [...d.matches].sort((a,b) => b.offset - a.offset);
+    let corrected = txt;
     sorted.forEach(m => {
       if (m.replacements?.length) {
-        corrected = corrected.slice(0,m.offset) + m.replacements[0].value + corrected.slice(m.offset+m.length);
+        corrected = corrected.slice(0, m.offset) + m.replacements[0].value + corrected.slice(m.offset + m.length);
       }
     });
-    // Build highlighted HTML
-    let html = corrected;
-    const changes = d.matches.filter(m => m.replacements?.length).map(m => ({
-      fixed: m.replacements[0].value,
-      message: m.message,
-      rule: m.rule?.issueType || 'errore',
-      category: m.rule?.category?.name || ''
-    }));
-    changes.forEach(ch => {
-      if (!ch.fixed) return;
-      const escaped = ch.fixed.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      const meta = JSON.stringify({def: ch.message, isVerb: false, inf: '', word: ch.fixed, cat: ch.category}).replace(/"/g,'&quot;');
-      html = html.replace(new RegExp(`\\b${escaped}\\b`,''), `<span class="corrected" data-meta="${meta}" onclick="showDef(this,event)">${ch.fixed}</span>`);
+
+    // Build highlight map: positions in corrected string
+    const asc = [...d.matches].filter(m => m.replacements?.length).sort((a,b) => a.offset - b.offset);
+    const spans = [];
+    let shift = 0;
+    asc.forEach(m => {
+      const rep = m.replacements[0].value;
+      const start = m.offset + shift;
+      spans.push({ start, end: start + rep.length, word: rep, msg: m.message, cat: m.rule?.category?.name || '' });
+      shift += rep.length - m.length;
     });
-    out.innerHTML = html;
-    // show summary
-    const errCount = d.matches.length;
+
+    // Build safe HTML by walking corrected string
+    const frag = document.createDocumentFragment();
+    let cursor = 0;
+    spans.forEach(s => {
+      if (s.start > cursor) frag.appendChild(document.createTextNode(corrected.slice(cursor, s.start)));
+      const span = document.createElement('span');
+      span.className = 'corrected';
+      span.textContent = s.word;
+      const meta = { def: s.msg, isVerb: false, inf: '', word: s.word, cat: s.cat };
+      span.dataset.meta = JSON.stringify(meta);
+      span.addEventListener('click', function(e){ showDef(this, e); });
+      frag.appendChild(span);
+      cursor = s.end;
+    });
+    if (cursor < corrected.length) frag.appendChild(document.createTextNode(corrected.slice(cursor)));
+
+    out.innerHTML = '';
+    out.appendChild(frag);
+
     const summary = document.createElement('div');
     summary.style.cssText = 'font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
-    summary.textContent = `${errCount} correzione${errCount>1?'i':''} — clicca le parole evidenziate per dettagli`;
+    const n = d.matches.length;
+    summary.textContent = `${n} correzione${n !== 1 ? 'i' : ''} trovata${n !== 1 ? 'e' : ''} — clicca le parole evidenziate per dettagli`;
     out.appendChild(summary);
+
   } catch(e) {
     out.textContent = '❌ Errore di rete. Verifica la connessione.';
   }
   btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false;
 }
 
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function showDef(el, e) {
   const tip = document.getElementById('dict-tooltip');
-  const meta = JSON.parse(el.getAttribute('data-meta').replace(/&quot;/g,'"'));
-  tip.innerHTML = `<strong>${meta.word}</strong>${meta.isVerb?`<em style="color:var(--muted);font-size:11px;display:block">verbo · infinito: ${meta.inf}</em>`:''}${meta.def}`;
+  let meta;
+  try { meta = JSON.parse(el.dataset.meta || el.getAttribute('data-meta') || '{}'); }
+  catch(err) { meta = { word: el.textContent, def: '', isVerb: false, inf: '' }; }
+  tip.innerHTML = '';
+  const strong = document.createElement('strong'); strong.textContent = meta.word; tip.appendChild(strong);
+  if (meta.isVerb && meta.inf) {
+    const em = document.createElement('em');
+    em.style.cssText = 'color:var(--muted);font-size:11px;display:block';
+    em.textContent = 'verbo · infinito: ' + meta.inf;
+    tip.appendChild(em);
+  }
+  if (meta.def) { const p = document.createElement('span'); p.textContent = meta.def; tip.appendChild(p); }
   tip.style.display = 'block';
   positionTooltip(tip, e);
   e.stopPropagation();
@@ -1261,7 +1295,167 @@ async function translateFR() {
   btn.innerHTML = frSwapped ? '🌐 Traduci in Francese' : '🌐 Traduis en Italien'; btn.disabled = false;
 }
 
-// ─── MAP (Leaflet) ───
+// ─── PYTHON SIMULATOR (transpiler migliorato) ───
+function runPython() {
+  const code = document.getElementById('py-code').value;
+  const out = document.getElementById('py-output');
+  out.textContent = '';
+  const output = [];
+  const fakePrint = (...args) => {
+    output.push(args.map(a => {
+      if (a === null) return 'None';
+      if (a === undefined) return 'None';
+      if (typeof a === 'boolean') return a ? 'True' : 'False';
+      if (Array.isArray(a)) return '[' + a.join(', ') + ']';
+      return String(a);
+    }).join(' '));
+  };
+
+  try {
+    const js = pythonToJS(code);
+    const fn = new Function('print', 'range', 'len', 'sum', 'abs', 'max', 'min', 'round', 'int', 'float', 'str', 'list', 'reversed', 'enumerate', js);
+    fn(
+      fakePrint,
+      (a, b, c) => { // range(stop) or range(start,stop) or range(start,stop,step)
+        if (b === undefined) { b = a; a = 0; }
+        if (c === undefined) c = 1;
+        const arr = [];
+        if (c > 0) { for(let i=a;i<b;i+=c) arr.push(i); }
+        else { for(let i=a;i>b;i+=c) arr.push(i); }
+        return arr;
+      },
+      a => Array.isArray(a) ? a.length : String(a).length,
+      a => Array.isArray(a) ? a.reduce((s,v)=>s+v,0) : 0,
+      Math.abs, Math.max, Math.min, Math.round,
+      a => parseInt(a), a => parseFloat(a), a => String(a),
+      a => Array.isArray(a) ? [...a] : [...String(a)],
+      a => [...(Array.isArray(a)?a:String(a))].reverse(),
+      a => (Array.isArray(a)?a:[...String(a)]).map((v,i)=>[i,v])
+    );
+    out.textContent = output.join('\n') || '// Esecuzione completata (nessun output)';
+  } catch(e) {
+    out.textContent = '// Errore: ' + e.message;
+  }
+}
+
+function pythonToJS(code) {
+  const lines = code.split('\n');
+  const result = [];
+  const indentStack = [0]; // stack of indent levels
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const stripped = raw.trimEnd();
+    if (!stripped || stripped.trimStart().startsWith('#')) {
+      result.push(stripped.trimStart().startsWith('#') ? '//' + stripped.trimStart().slice(1) : '');
+      continue;
+    }
+
+    const indent = raw.length - raw.trimStart().length;
+    let line = stripped.trimStart();
+
+    // Close blocks based on dedent
+    while (indent < indentStack[indentStack.length - 1]) {
+      indentStack.pop();
+      result.push('  '.repeat(indentStack.length) + '}');
+    }
+
+    const pad = '  '.repeat(indentStack.length);
+
+    // def function
+    if (/^def (\w+)\(([^)]*)\):$/.test(line)) {
+      const m = line.match(/^def (\w+)\(([^)]*)\):$/);
+      result.push(`${pad}function ${m[1]}(${m[2]}) {`);
+      indentStack.push(indent + 1);
+      continue;
+    }
+    // if/elif/else
+    if (/^if (.+):$/.test(line)) {
+      const cond = line.match(/^if (.+):$/)[1];
+      result.push(`${pad}if (${transpileCond(cond)}) {`);
+      indentStack.push(indent + 1); continue;
+    }
+    if (/^elif (.+):$/.test(line)) {
+      result.push(`${pad}} else if (${transpileCond(line.match(/^elif (.+):$/)[1])}) {`);
+      indentStack.push(indent + 1); continue;
+    }
+    if (/^else:$/.test(line)) {
+      result.push(`${pad}} else {`);
+      indentStack.push(indent + 1); continue;
+    }
+    // for x in list/range
+    if (/^for (\w+) in (.+):$/.test(line)) {
+      const [,v,iter] = line.match(/^for (\w+) in (.+):$/);
+      result.push(`${pad}for (const ${v} of ${transpileExpr(iter)}) {`);
+      indentStack.push(indent + 1); continue;
+    }
+    // while
+    if (/^while (.+):$/.test(line)) {
+      result.push(`${pad}while (${transpileCond(line.match(/^while (.+):$/)[1])}) {`);
+      indentStack.push(indent + 1); continue;
+    }
+    // return
+    if (/^return(.*)$/.test(line)) {
+      result.push(`${pad}return ${transpileExpr(line.slice(6).trim())};`); continue;
+    }
+    // print
+    if (/^print\(/.test(line)) {
+      result.push(`${pad}${transpileExpr(line)};`); continue;
+    }
+    // assignment
+    if (/^(\w+)\s*([+\-*\/]?=)\s*(.+)$/.test(line)) {
+      const m = line.match(/^(\w+)\s*([+\-*\/]?=)\s*(.+)$/);
+      // check if variable already declared
+      const declared = result.some(l => new RegExp(`(let|const|var)\\s+${m[1]}\\b`).test(l));
+      const decl = declared ? '' : 'let ';
+      result.push(`${pad}${decl}${m[1]} ${m[2]} ${transpileExpr(m[3])};`); continue;
+    }
+    // bare expression / function call
+    result.push(`${pad}${transpileExpr(line)};`);
+  }
+
+  // close remaining blocks
+  while (indentStack.length > 1) {
+    indentStack.pop();
+    result.push('  '.repeat(indentStack.length) + '}');
+  }
+
+  return result.join('\n');
+}
+
+function transpileCond(s) {
+  return s
+    .replace(/\bnot\s+/g, '!')
+    .replace(/\band\b/g, '&&')
+    .replace(/\bor\b/g, '||')
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false')
+    .replace(/\bNone\b/g, 'null');
+}
+
+function transpileExpr(s) {
+  if (!s) return s;
+  return s
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false')
+    .replace(/\bNone\b/g, 'null')
+    .replace(/\band\b/g, '&&')
+    .replace(/\bor\b/g, '||')
+    .replace(/\bnot\s+/g, '!')
+    .replace(/\*\*/g, '**')
+    .replace(/\.append\(([^)]+)\)/g, '.push($1)')
+    .replace(/\.extend\(([^)]+)\)/g, '.push(...$1)')
+    .replace(/\.copy\(\)/g, '.slice()')
+    .replace(/\.lower\(\)/g, '.toLowerCase()')
+    .replace(/\.upper\(\)/g, '.toUpperCase()')
+    .replace(/\.strip\(\)/g, '.trim()')
+    .replace(/\.split\(([^)]*)\)/g, '.split($1)')
+    .replace(/\.join\(([^)]+)\)/g, '.join($1)')
+    .replace(/f"([^"]*)"/g, (m,s) => '`' + s.replace(/\{([^}]+)\}/g,'${$1}') + '`')
+    .replace(/f'([^']*)'/g, (m,s) => '`' + s.replace(/\{([^}]+)\}/g,'${$1}') + '`')
+    .replace(/print\(end=["']([^"']*)['"]\)/g, '')
+    .replace(/print\((.+),\s*end\s*=\s*["']([^"']*)["']\)/g, 'print($1)');
+}
 const map = L.map('map').setView([41.9, 12.5], 6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
 let marker = null;
@@ -1290,36 +1484,6 @@ if (navigator.geolocation) {
     marker = L.marker([lat,lng]).addTo(map).bindPopup('La tua posizione').openPopup();
     updateGeoInfo(lat,lng);
   });
-}
-
-// ─── PYTHON SIMULATOR ───
-function runPython() {
-  const code = document.getElementById('py-code').value;
-  const out = document.getElementById('py-output');
-  out.textContent = '';
-  let output = [];
-  const fakePrint = (...args) => { output.push(args.map(a=>a===undefined?'None':typeof a==='object'?JSON.stringify(a):String(a)).join(' ')); };
-  try {
-    let js = code
-      .replace(/def (\w+)\(([^)]*)\):/g, 'function $1($2) {')
-      .replace(/for (\w+) in range\((\w+)\):/g, 'for(let $1=0;$1<$2;$1++) {')
-      .replace(/for (\w+) in range\(0, ([^,]+)-([^,]+)-1\):/g, 'for(let $1=0;$1<$2-$3-1;$1++) {')
-      .replace(/for (\w+), (\w+) in enumerate\((\w+)\):/g, '$3.forEach(($2,$1)=>{')
-      .replace(/print\((.+)\)/g, 'fakePrint($1)')
-      .replace(/\.copy\(\)/g, '.slice()')
-      .replace(/len\((\w+)\)/g, '$1.length')
-      .replace(/range\((\w+)\)/g, '{length:$1}')
-      .replace(/f"([^"]*)"/g, (m,s)=>s.replace(/\{([^}]+)\}/g,'${$1}').replace(/^/,'`').replace(/$/,'`'))
-      .replace(/(^\s*)return /gm,'$1return ')
-      .replace(/sum\((\w+)\)/g,'$1.reduce((a,b)=>a+b,0)')
-      .replace(/(\w+) = \[([^\]]+)\]/g,'let $1 = [$2]')
-      .replace(/(\w+) = (\w+\(.*\))/g,'let $1=$2');
-    const fn = new Function('fakePrint', js + '\nreturn output;');
-    fn(fakePrint);
-    out.textContent = output.join('\n') || '// Esecuzione completata (nessun output)';
-  } catch(e) {
-    out.textContent = '// Errore: ' + e.message + '\n// Nota: questo è un simulatore semplificato. Per Python completo usa VSCode o repl.it';
-  }
 }
 
 // ─── 3D GEOMETRY ───
@@ -1761,6 +1925,7 @@ function playBeep() {
 
 // ─── PIXEL ART GENERATOR ───
 let pixelImg = null, pixelOrigW = 0, pixelOrigH = 0;
+let showGrid = true;
 
 function loadPixelArt(input) {
   const file = input.files[0];
@@ -1823,10 +1988,12 @@ function redrawPixelArt() {
   }
 
   // grid lines
-  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-  ctx.lineWidth = 0.5;
-  for(let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(c*pxSize,0); ctx.lineTo(c*pxSize,canvas.height); ctx.stroke(); }
-  for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*pxSize); ctx.lineTo(canvas.width,r*pxSize); ctx.stroke(); }
+  if (showGrid) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 0.5;
+    for(let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(c*pxSize,0); ctx.lineTo(c*pxSize,canvas.height); ctx.stroke(); }
+    for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*pxSize); ctx.lineTo(canvas.width,r*pxSize); ctx.stroke(); }
+  }
 
   // stats
   const avgR=Math.round(rSum/count), avgG=Math.round(gSum/count), avgB=Math.round(bSum/count);
@@ -1846,6 +2013,7 @@ function redrawPixelArt() {
   document.getElementById('rgb-b-bar').style.width = (avgB/255*100)+'%';
   document.getElementById('pixel-stats').style.display = 'block';
   document.getElementById('pixel-download-btn').style.display = 'inline-block';
+  document.getElementById('pixel-grid-btn').style.display = 'inline-block';
 
   // store data for click
   canvas._imgData = imgData;
@@ -1886,6 +2054,15 @@ document.addEventListener('click', e => {
     document.getElementById('pixel-tooltip').style.display = 'none';
   }
 });
+
+function toggleGrid() {
+  showGrid = !showGrid;
+  const btn = document.getElementById('pixel-grid-btn');
+  btn.textContent = showGrid ? '▦ Griglia: ON' : '▢ Griglia: OFF';
+  btn.style.borderColor = showGrid ? 'var(--accent2)' : 'var(--muted)';
+  btn.style.color = showGrid ? 'var(--accent2)' : 'var(--muted)';
+  redrawPixelArt();
+}
 
 function downloadPixelArt() {
   const canvas = document.getElementById('pixel-canvas');
