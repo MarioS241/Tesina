@@ -463,6 +463,7 @@
   <a class="menu-item" href="#geografia" onclick="closeMenu()"><span class="icon">🌍</span> Geografia</a>
   <a class="menu-item" href="#matematica" onclick="closeMenu()"><span class="icon">📐</span> Matematica</a>
   <a class="menu-item" href="#geometria" onclick="closeMenu()"><span class="icon">🔷</span> Geometria</a>
+  <a class="menu-item" href="#arte" onclick="closeMenu()"><span class="icon">🎨</span> Arte</a>
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu()"><span class="icon">🏋️</span> Ed. Fisica</a>
@@ -506,13 +507,13 @@
   <div class="section-bridge">🔗 La lingua italiana si intreccia con l'informatica: i modelli linguistici sono stati addestrati su miliardi di testi letterari per imparare grammatica, sintassi e semantica.</div>
   <div class="card">
     <h3>Come funziona</h3>
-    <p>Scrivi a <strong style="color:var(--text)">sinistra</strong> → premi Correggi → a <strong style="color:var(--text)">destra</strong> appare il testo corretto con le parole modificate evidenziate. <em>Clicca su una parola evidenziata</em> per vedere la definizione del dizionario.</p>
+    <p>Scrivi a <strong style="color:var(--text)">sinistra</strong> → premi Correggi → a <strong style="color:var(--text)">destra</strong> appare il testo corretto con le parole modificate evidenziate. <em>Clicca su una parola evidenziata</em> per vedere il dettaglio dell'errore. Powered by <strong style="color:var(--accent)">LanguageTool</strong> — gratuito, no API key.</p>
   </div>
   <div id="grammar-container">
     <div class="grammar-box">
       <div class="grammar-label">Il tuo testo</div>
       <textarea id="grammar-input" placeholder="Scrivi qui il testo da correggere...&#10;&#10;Es: io sono andato al mercato ieri sera e ho comprato dele mele rosse."></textarea>
-      <button id="grammar-btn" onclick="correctGrammar()">✦ Correggi con AI</button>
+      <button id="grammar-btn" onclick="correctGrammar()">✦ Correggi con LanguageTool</button>
     </div>
     <div class="grammar-box">
       <div class="grammar-label">Testo corretto</div>
@@ -715,9 +716,88 @@ fibonacci(10)
 
 <div class="divider">▼</div>
 
+<!-- ═══ ARTE ═══ -->
+<section id="arte">
+  <div class="section-label">08 — Arte</div>
+  <div class="section-title">Generatore Pixel Art</div>
+  <div class="section-bridge">🔗 L'arte digitale è informatica pura: ogni immagine è una griglia di pixel, ognuno codificato in RGB. La pixel art riporta questa verità alla luce — è l'arte più vicina al linguaggio del computer.</div>
+  <div class="card">
+    <h3>Come funziona</h3>
+    <p>Carica un'immagine → viene ridotta a una griglia di pixel colorati. Clicca su un pixel per vedere posizione e colore HEX. Sotto l'immagine trovi le statistiche: dimensioni, colore dominante, distribuzione RGB.</p>
+  </div>
+
+  <!-- Upload area -->
+  <div id="pixel-upload-area" onclick="document.getElementById('pixel-file-input').click()" style="border:2px dashed var(--border);border-radius:12px;padding:2.5rem;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:1rem" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:2rem;margin-bottom:8px">🖼️</div>
+    <div style="color:var(--text);font-size:14px;margin-bottom:4px">Clicca per caricare un'immagine</div>
+    <div style="color:var(--muted);font-size:12px">JPG, PNG, GIF, WEBP</div>
+    <input type="file" id="pixel-file-input" accept="image/*" style="display:none" onchange="loadPixelArt(this)">
+  </div>
+
+  <!-- Controls -->
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;align-items:center">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--muted)">Risoluzione pixel</span>
+      <select id="pixel-size" onchange="redrawPixelArt()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-family:var(--mono);font-size:12px;outline:none">
+        <option value="4">4px — Alta</option>
+        <option value="8" selected>8px — Media</option>
+        <option value="16">16px — Bassa</option>
+        <option value="32">32px — Pixel art</option>
+      </select>
+    </div>
+    <button onclick="downloadPixelArt()" id="pixel-download-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">⬇ Scarica</button>
+    <button onclick="document.getElementById('pixel-file-input').click()" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">📂 Cambia</button>
+  </div>
+
+  <!-- Canvas + pixel info tooltip -->
+  <div style="position:relative">
+    <canvas id="pixel-canvas" style="width:100%;border-radius:10px;border:1px solid var(--border);display:block;image-rendering:pixelated;cursor:crosshair"></canvas>
+    <div id="pixel-tooltip" style="display:none;position:fixed;z-index:900;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono);pointer-events:none;min-width:160px">
+      <div id="pixel-tooltip-content"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div id="pixel-stats" style="display:none;margin-top:1rem">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1rem">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div class="geo-stat"><div class="val" id="stat-size">—</div><div class="lbl">Dimensione originale</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div class="geo-stat"><div class="val" id="stat-pixels">—</div><div class="lbl">Pixel totali</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div class="geo-stat"><div class="val" id="stat-grid">—</div><div class="lbl">Griglia pixel art</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">
+        <div id="stat-dominant-swatch" style="width:32px;height:32px;border-radius:6px;border:1px solid var(--border);flex-shrink:0"></div>
+        <div class="geo-stat"><div class="val" id="stat-dominant">—</div><div class="lbl">Colore dominante</div></div>
+      </div>
+    </div>
+    <!-- RGB bars -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:10px">DISTRIBUZIONE RGB MEDIA</div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:#ff6b6b">Rosso</span><span id="rgb-r-val" style="color:var(--muted)">0</span></div>
+        <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden"><div id="rgb-r-bar" style="height:100%;background:#ff6b6b;border-radius:4px;transition:width 0.5s;width:0%"></div></div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:#51cf66">Verde</span><span id="rgb-g-val" style="color:var(--muted)">0</span></div>
+        <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden"><div id="rgb-g-bar" style="height:100%;background:#51cf66;border-radius:4px;transition:width 0.5s;width:0%"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:#339af0">Blu</span><span id="rgb-b-val" style="color:var(--muted)">0</span></div>
+        <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden"><div id="rgb-b-bar" style="height:100%;background:#339af0;border-radius:4px;transition:width 0.5s;width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">▼</div>
+
 <!-- ═══ SCIENZE ═══ -->
 <section id="scienze">
-  <div class="section-label">08 — Scienze</div>
+  <div class="section-label">09 — Scienze</div>
   <div class="section-title">Come funziona uno schermo</div>
   <div class="section-bridge">🔗 Lo schermo che stai guardando ora è fisica quantistica applicata: elettroni eccitati emettono fotoni di luce — la stessa fisica che alimenta i laser, i LED e le comunicazioni in fibra ottica.</div>
   <div class="card">
@@ -736,7 +816,7 @@ fibonacci(10)
 
 <!-- ═══ MUSICA ═══ -->
 <section id="musica">
-  <div class="section-label">09 — Musica</div>
+  <div class="section-label">10 — Musica</div>
   <div class="section-title">Notazione Digitale con MuseScore</div>
   <div class="section-bridge">🔗 La musica è matematica pura: le note sono frequenze (Hz), il ritmo è divisione matematica del tempo, e la notazione digitale usa algoritmi per trasformare simboli in suoni — lo stesso principio degli algoritmi informatici.</div>
   <div class="card">
@@ -809,7 +889,7 @@ fibonacci(10)
 
 <!-- ═══ ED. FISICA ═══ -->
 <section id="edfisica">
-  <div class="section-label">10 — Educazione Fisica</div>
+  <div class="section-label">11 — Educazione Fisica</div>
   <div class="section-title">Scheda Allenamento & Timer</div>
   <div class="section-bridge">🔗 Lo sport moderno è data science: wearable, app di fitness e algoritmi analizzano performance atletiche, battito cardiaco e recupero muscolare — la tecnologia ottimizza il corpo umano.</div>
   <div id="workout-app">
@@ -1003,7 +1083,7 @@ function addMsg(role, html, raw=false) {
 }
 document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 
-// ─── GRAMMAR CORRECTOR ───
+// ─── GRAMMAR CORRECTOR (LanguageTool — gratuito, no API key) ───
 async function correctGrammar() {
   const txt = document.getElementById('grammar-input').value.trim();
   if (!txt) return;
@@ -1012,31 +1092,47 @@ async function correctGrammar() {
   btn.innerHTML = '<span class="spinner"></span>Correzione in corso...'; btn.disabled = true;
   out.textContent = 'Analisi in corso...';
   try {
-    const reply = await callClaude(
-      `Sei un correttore grammaticale italiano preciso. Data una frase o testo, rispondi SOLO con un JSON così:
-{"corrected":"testo corretto completo","changes":[{"original":"parola sbagliata","fixed":"parola corretta","type":"grammatica|punteggiatura|ortografia","definition":"breve definizione della parola corretta (max 20 parole)","isVerb":true/false,"infinitive":"infinito se verbo"}]}
-Nessun testo fuori dal JSON.`,
-      `Testo da correggere: "${txt}"`
-    );
-    let data;
-    try { data = JSON.parse(reply.replace(/```json?|```/g,'')); }
-    catch(e) { out.textContent = reply; btn.innerHTML='✦ Correggi con AI'; btn.disabled=false; return; }
-    renderCorrected(data, txt);
-  } catch(e) { out.textContent = 'Errore di rete.'; }
-  btn.innerHTML = '✦ Correggi con AI'; btn.disabled = false;
-}
-
-function renderCorrected(data, original) {
-  const out = document.getElementById('grammar-output');
-  out.innerHTML = '';
-  let html = data.corrected;
-  if (data.changes && data.changes.length > 0) {
-    data.changes.forEach(ch => {
-      const meta = JSON.stringify({def:ch.definition, isVerb:ch.isVerb, inf:ch.infinitive, word:ch.fixed}).replace(/"/g,'&quot;');
-      html = html.replace(ch.fixed, `<span class="corrected" data-meta="${meta}" onclick="showDef(this,event)">${ch.fixed}</span>`);
+    const body = new URLSearchParams({ text: txt, language: 'it' });
+    const r = await fetch('https://api.languagetool.org/v2/check', { method:'POST', body });
+    const d = await r.json();
+    if (!d.matches || d.matches.length === 0) {
+      out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore trovato!</span>';
+      btn.innerHTML = '✦ Correggi con AI'; btn.disabled = false; return;
+    }
+    // Apply corrections and build HTML
+    let corrected = txt;
+    // apply from end to start to preserve offsets
+    const sorted = [...d.matches].sort((a,b) => b.offset - a.offset);
+    sorted.forEach(m => {
+      if (m.replacements?.length) {
+        corrected = corrected.slice(0,m.offset) + m.replacements[0].value + corrected.slice(m.offset+m.length);
+      }
     });
+    // Build highlighted HTML
+    let html = corrected;
+    const changes = d.matches.filter(m => m.replacements?.length).map(m => ({
+      fixed: m.replacements[0].value,
+      message: m.message,
+      rule: m.rule?.issueType || 'errore',
+      category: m.rule?.category?.name || ''
+    }));
+    changes.forEach(ch => {
+      if (!ch.fixed) return;
+      const escaped = ch.fixed.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const meta = JSON.stringify({def: ch.message, isVerb: false, inf: '', word: ch.fixed, cat: ch.category}).replace(/"/g,'&quot;');
+      html = html.replace(new RegExp(`\\b${escaped}\\b`,''), `<span class="corrected" data-meta="${meta}" onclick="showDef(this,event)">${ch.fixed}</span>`);
+    });
+    out.innerHTML = html;
+    // show summary
+    const errCount = d.matches.length;
+    const summary = document.createElement('div');
+    summary.style.cssText = 'font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
+    summary.textContent = `${errCount} correzione${errCount>1?'i':''} — clicca le parole evidenziate per dettagli`;
+    out.appendChild(summary);
+  } catch(e) {
+    out.textContent = '❌ Errore di rete. Verifica la connessione.';
   }
-  out.innerHTML = html || 'Nessuna correzione necessaria ✓';
+  btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false;
 }
 
 function showDef(el, e) {
@@ -1661,6 +1757,142 @@ function playBeep() {
       o.start(ctx.currentTime+i*0.3); o.stop(ctx.currentTime+i*0.3+0.25);
     }
   } catch(e) {}
+}
+
+// ─── PIXEL ART GENERATOR ───
+let pixelImg = null, pixelOrigW = 0, pixelOrigH = 0;
+
+function loadPixelArt(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      pixelImg = img;
+      pixelOrigW = img.naturalWidth;
+      pixelOrigH = img.naturalHeight;
+      redrawPixelArt();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function redrawPixelArt() {
+  if (!pixelImg) return;
+  const pxSize = parseInt(document.getElementById('pixel-size').value);
+  const canvas = document.getElementById('pixel-canvas');
+  const container = canvas.parentElement;
+  const displayW = container.offsetWidth || 600;
+  const aspect = pixelOrigH / pixelOrigW;
+
+  // grid dimensions
+  const cols = Math.floor(displayW / pxSize);
+  const rows = Math.floor(cols * aspect);
+
+  canvas.width = cols * pxSize;
+  canvas.height = rows * pxSize;
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
+
+  const ctx = canvas.getContext('2d');
+  // draw original image scaled to grid
+  const tmp = document.createElement('canvas');
+  tmp.width = cols; tmp.height = rows;
+  const tctx = tmp.getContext('2d');
+  tctx.drawImage(pixelImg, 0, 0, cols, rows);
+  const imgData = tctx.getImageData(0, 0, cols, rows);
+
+  // draw pixelated squares
+  let rSum=0, gSum=0, bSum=0, count=0;
+  const colorMap = {};
+
+  for (let row=0; row<rows; row++) {
+    for (let col=0; col<cols; col++) {
+      const i = (row*cols + col)*4;
+      const r=imgData.data[i], g=imgData.data[i+1], b=imgData.data[i+2];
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(col*pxSize, row*pxSize, pxSize, pxSize);
+      rSum+=r; gSum+=g; bSum+=b; count++;
+      // quantize to nearest 32 for dominant color
+      const qr=Math.round(r/32)*32, qg=Math.round(g/32)*32, qb=Math.round(b/32)*32;
+      const key = `${qr},${qg},${qb}`;
+      colorMap[key] = (colorMap[key]||0)+1;
+    }
+  }
+
+  // grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  ctx.lineWidth = 0.5;
+  for(let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(c*pxSize,0); ctx.lineTo(c*pxSize,canvas.height); ctx.stroke(); }
+  for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*pxSize); ctx.lineTo(canvas.width,r*pxSize); ctx.stroke(); }
+
+  // stats
+  const avgR=Math.round(rSum/count), avgG=Math.round(gSum/count), avgB=Math.round(bSum/count);
+  const dominant = Object.entries(colorMap).sort((a,b)=>b[1]-a[1])[0][0].split(',').map(Number);
+  const domHex = '#' + dominant.map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+
+  document.getElementById('stat-size').textContent = `${pixelOrigW}×${pixelOrigH}`;
+  document.getElementById('stat-pixels').textContent = (pixelOrigW*pixelOrigH).toLocaleString('it');
+  document.getElementById('stat-grid').textContent = `${cols}×${rows}`;
+  document.getElementById('stat-dominant').textContent = domHex;
+  document.getElementById('stat-dominant-swatch').style.background = domHex;
+  document.getElementById('rgb-r-val').textContent = avgR;
+  document.getElementById('rgb-g-val').textContent = avgG;
+  document.getElementById('rgb-b-val').textContent = avgB;
+  document.getElementById('rgb-r-bar').style.width = (avgR/255*100)+'%';
+  document.getElementById('rgb-g-bar').style.width = (avgG/255*100)+'%';
+  document.getElementById('rgb-b-bar').style.width = (avgB/255*100)+'%';
+  document.getElementById('pixel-stats').style.display = 'block';
+  document.getElementById('pixel-download-btn').style.display = 'inline-block';
+
+  // store data for click
+  canvas._imgData = imgData;
+  canvas._cols = cols;
+  canvas._rows = rows;
+  canvas._pxSize = pxSize;
+}
+
+// click on pixel → show info
+document.getElementById('pixel-canvas').addEventListener('click', function(e) {
+  if (!this._imgData) return;
+  const rect = this.getBoundingClientRect();
+  const scaleX = this._cols * this._pxSize / rect.width;
+  const scaleY = this._rows * this._pxSize / rect.height;
+  const x = Math.floor((e.clientX - rect.left) * scaleX / this._pxSize);
+  const y = Math.floor((e.clientY - rect.top) * scaleY / this._pxSize);
+  if (x < 0 || x >= this._cols || y < 0 || y >= this._rows) return;
+  const i = (y * this._cols + x) * 4;
+  const r=this._imgData.data[i], g=this._imgData.data[i+1], b=this._imgData.data[i+2], a=this._imgData.data[i+3];
+  const hex = '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+  const tip = document.getElementById('pixel-tooltip');
+  const content = document.getElementById('pixel-tooltip-content');
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="width:24px;height:24px;border-radius:4px;background:${hex};border:1px solid var(--border)"></div>
+      <strong style="color:var(--text)">${hex}</strong>
+    </div>
+    <div style="color:var(--muted);font-size:11px">Posizione: (${x}, ${y})</div>
+    <div style="color:var(--muted);font-size:11px">RGB: ${r}, ${g}, ${b}</div>
+    <div style="color:var(--muted);font-size:11px">Alpha: ${Math.round(a/255*100)}%</div>`;
+  tip.style.display = 'block';
+  positionTooltip(tip, e);
+  e.stopPropagation();
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#pixel-canvas')) {
+    document.getElementById('pixel-tooltip').style.display = 'none';
+  }
+});
+
+function downloadPixelArt() {
+  const canvas = document.getElementById('pixel-canvas');
+  const a = document.createElement('a');
+  a.download = 'pixel-art.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
 }
 </script>
 </body>
