@@ -689,13 +689,17 @@ fibonacci(10)
     <button class="shape-btn pyramid" onclick="setShape('pyramid')">🔺 Piramide</button>
     <button class="shape-btn" onclick="setShape('torus')">🍩 Toro</button>
     <button class="shape-btn" onclick="setShape('cylinder')">🧱 Cilindro</button>
+    <button class="shape-btn" onclick="setShape('octahedron')">💎 Ottaedro</button>
+    <button class="shape-btn" onclick="setShape('cone')">🔶 Cono</button>
+    <button class="shape-btn" onclick="setShape('tetrahedron')">🔷 Tetraedro</button>
+    <button class="shape-btn" onclick="setShape('icosahedron')">⬡ Icosaedro</button>
   </div>
   <!-- Controlli rotazione -->
   <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
     <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:160px">
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">Velocità</span>
-      <input type="range" id="geom-speed" min="0" max="100" value="30" step="1" style="flex:1">
-      <span id="geom-speed-val" style="font-size:11px;color:var(--accent);min-width:30px">1×</span>
+      <input type="range" id="geom-speed" min="0" max="100" value="19" step="1" style="flex:1">
+      <span id="geom-speed-val" style="font-size:11px;color:var(--accent);min-width:30px">0.5×</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:160px">
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">🔍 Zoom</span>
@@ -707,7 +711,8 @@ fibonacci(10)
       <input type="color" id="geom-color" value="#00ff88" style="width:36px;height:32px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;padding:2px">
       <input type="text" id="geom-hex" value="#00ff88" maxlength="7" style="width:72px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 8px;outline:none;text-transform:uppercase">
     </div>
-    <div style="font-size:11px;color:var(--muted);width:100%">🖱 Trascina per ruotare · 🖱 Rotella per zoom · 📱 Pizzica per zoom</div>
+    <button id="geom-dir-btn" onclick="toggleDirection()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;white-space:nowrap">↻ Orario</button>
+    <div style="font-size:11px;color:var(--muted);width:100%">🖱 Trascina per ruotare · Rotella per zoom · 📱 Pizzica per zoom</div>
   </div>
   <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;color:var(--muted)">
     Per funzioni avanzate (equazioni, grafici, costruzioni): <a href="https://www.geogebra.org/3d" target="_blank" style="color:var(--accent)">GeoGebra 3D →</a>
@@ -862,26 +867,53 @@ fibonacci(10)
     </div>
   </div>
 
-  <!-- Piano interattivo -->
+  <!-- Strumento interattivo -->
   <div style="margin-top:1.2rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-    <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border)">
-      <span style="font-size:11px;color:var(--accent);letter-spacing:2px">PIANOFORTE INTERATTIVO · WebAudio API</span>
-    </div>
-    <div style="padding:20px">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Suona le note direttamente nel browser — la stessa tecnologia usata dai DAW digitali. Clicca i tasti o usa la tastiera (A S D F G H J = Do Re Mi Fa Sol La Si).</p>
-      <div id="piano-keys" style="display:flex;justify-content:center;gap:2px;margin-bottom:16px"></div>
-      <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.4rem;color:var(--accent);min-height:2rem">—</div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap" id="piano-chords">
-        <button onclick="playChord('Do maggiore',[261.63,329.63,392])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">Do M</button>
-        <button onclick="playChord('Re minore',[293.66,349.23,440])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">Re m</button>
-        <button onclick="playChord('Mi minore',[329.63,392,493.88])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">Mi m</button>
-        <button onclick="playChord('Fa maggiore',[349.23,440,523.25])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">Fa M</button>
-        <button onclick="playChord('Sol maggiore',[392,493.88,587.33])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">Sol M</button>
-        <button onclick="playChord('La minore',[220,261.63,329.63])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">La m</button>
+    <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:var(--accent);letter-spacing:2px">STRUMENTO INTERATTIVO · WebAudio API</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:var(--muted)">Tasti:</span>
+        <select id="piano-keys-count" onchange="buildPiano()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:11px;outline:none">
+          <option value="1">1 ottava</option>
+          <option value="2" selected>2 ottave</option>
+          <option value="3">3 ottave</option>
+          <option value="4">4 ottave</option>
+        </select>
       </div>
-      <div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center">
-        Per comporre partiture complete: <a href="https://musescore.org/it" target="_blank" style="color:var(--accent)">Scarica MuseScore 4 →</a> · 
-        <a href="https://musescore.com/sheetmusic" target="_blank" style="color:var(--accent)">Libreria partiture →</a>
+    </div>
+    <div style="padding:16px 20px 20px">
+      <!-- Wheel + instrument selector -->
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:18px;flex-wrap:wrap">
+        <!-- Wheel -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+          <button onclick="wheelUp()" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);width:36px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1">▲</button>
+          <canvas id="instrument-wheel" width="72" height="120" style="border-radius:8px;border:1px solid var(--border);cursor:grab;touch-action:none"></canvas>
+          <button onclick="wheelDown()" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);width:36px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1">▼</button>
+        </div>
+        <!-- Instrument display -->
+        <div style="flex:1;min-width:160px">
+          <div id="inst-prev" style="font-size:12px;color:var(--muted);padding:6px 12px;border-radius:6px;background:var(--bg3);margin-bottom:4px;opacity:0.5;text-align:center"></div>
+          <div id="inst-current" style="font-size:16px;color:var(--text);padding:10px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--accent);text-align:center;font-family:var(--title);font-weight:700"></div>
+          <div id="inst-next" style="font-size:12px;color:var(--muted);padding:6px 12px;border-radius:6px;background:var(--bg3);margin-top:4px;opacity:0.5;text-align:center"></div>
+        </div>
+      </div>
+      <!-- Piano keys -->
+      <div id="piano-keys" style="overflow-x:auto;padding-bottom:4px">
+        <div id="piano-inner" style="display:inline-flex;position:relative;min-width:min-content"></div>
+      </div>
+      <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.2rem;color:var(--accent);min-height:1.8rem;margin-top:10px">—</div>
+      <!-- Chords -->
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <button onclick="playChord('Do M',[261.63,329.63,392])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Do M</button>
+        <button onclick="playChord('Re m',[293.66,349.23,440])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Re m</button>
+        <button onclick="playChord('Mi m',[329.63,392,493.88])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Mi m</button>
+        <button onclick="playChord('Fa M',[349.23,440,523.25])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Fa M</button>
+        <button onclick="playChord('Sol M',[392,493.88,587.33])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Sol M</button>
+        <button onclick="playChord('La m',[220,261.63,329.63])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">La m</button>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center">
+        Per comporre partiture: <a href="https://musescore.org/it" target="_blank" style="color:var(--accent)">MuseScore 4 →</a> · 
+        <a href="https://musescore.com/sheetmusic" target="_blank" style="color:var(--accent)">Libreria →</a>
       </div>
     </div>
   </div>
@@ -1435,6 +1467,12 @@ function transpileCond(s) {
 
 function transpileExpr(s) {
   if (!s) return s;
+  // Handle print(x, end="...") FIRST before any other replacement
+  s = s.replace(/^print\((.+),\s*end\s*=\s*["']([^"']*)["']\)$/, (m, arg, _end) => {
+    return `print(${arg})`;
+  });
+  // Handle print(end="...")
+  s = s.replace(/^print\(\s*end\s*=\s*["'][^"']*["']\s*\)$/, '');
   return s
     .replace(/\bTrue\b/g, 'true')
     .replace(/\bFalse\b/g, 'false')
@@ -1450,11 +1488,9 @@ function transpileExpr(s) {
     .replace(/\.upper\(\)/g, '.toUpperCase()')
     .replace(/\.strip\(\)/g, '.trim()')
     .replace(/\.split\(([^)]*)\)/g, '.split($1)')
-    .replace(/\.join\(([^)]+)\)/g, '.join($1)')
-    .replace(/f"([^"]*)"/g, (m,s) => '`' + s.replace(/\{([^}]+)\}/g,'${$1}') + '`')
-    .replace(/f'([^']*)'/g, (m,s) => '`' + s.replace(/\{([^}]+)\}/g,'${$1}') + '`')
-    .replace(/print\(end=["']([^"']*)['"]\)/g, '')
-    .replace(/print\((.+),\s*end\s*=\s*["']([^"']*)["']\)/g, 'print($1)');
+    .replace(/\.join\(([^)]+)\)/g, (m, sep) => `.join(${sep})`)
+    .replace(/f"((?:[^"\\]|\\.)*)"/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`')
+    .replace(/f'((?:[^'\\]|\\.)*)'/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`');
 }
 const map = L.map('map').setView([41.9, 12.5], 6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
@@ -1653,81 +1689,6 @@ let rotAngle = 0, drag = false, lastMX = 0, lastMY = 0, extraRot = 0, extraRotX 
 let rotSpeed = 0.012;
 let camDist = 3.5; // camera distance = zoom
 
-document.getElementById('geom-speed').addEventListener('input', function() {
-  const v = parseInt(this.value);
-  rotSpeed = (v / 100) * 0.08;
-  const label = v === 0 ? '0×' : (v <= 20 ? '0.5×' : v <= 40 ? '1×' : v <= 60 ? '2×' : v <= 80 ? '3×' : '5×');
-  document.getElementById('geom-speed-val').textContent = label;
-});
-
-// zoom slider
-document.getElementById('geom-zoom').addEventListener('input', function() {
-  camDist = 6.5 - (parseInt(this.value) / 100) * 5.0; // 6.5 (far) → 1.5 (close)
-  document.getElementById('geom-zoom-val').textContent = Math.round(parseInt(this.value)) + '%';
-});
-
-// mouse wheel zoom
-gc.addEventListener('wheel', e => {
-  e.preventDefault();
-  camDist = Math.max(1.5, Math.min(7, camDist + e.deltaY * 0.005));
-  // sync slider
-  const pct = Math.round((6.5 - camDist) / 5.0 * 100);
-  document.getElementById('geom-zoom').value = pct;
-  document.getElementById('geom-zoom-val').textContent = pct + '%';
-}, { passive: false });
-
-// mouse drag rotation
-gc.addEventListener('mousedown', e=>{ drag=true; lastMX=e.clientX; lastMY=e.clientY; });
-gc.addEventListener('mousemove', e=>{ if(drag){ extraRot+=(e.clientX-lastMX)*0.012; extraRotX+=(e.clientY-lastMY)*0.012; lastMX=e.clientX; lastMY=e.clientY; } });
-gc.addEventListener('mouseup', ()=>drag=false);
-gc.addEventListener('mouseleave', ()=>drag=false);
-
-// touch: drag rotation + pinch zoom
-let lastPinchDist = null;
-gc.addEventListener('touchstart', e=>{
-  if(e.touches.length === 1){ drag=true; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY; }
-  if(e.touches.length === 2){ drag=false; lastPinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); }
-  e.preventDefault();
-},{passive:false});
-gc.addEventListener('touchmove', e=>{
-  if(e.touches.length === 1 && drag){
-    extraRot+=(e.touches[0].clientX-lastMX)*0.012;
-    extraRotX+=(e.touches[0].clientY-lastMY)*0.012;
-    lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY;
-  }
-  if(e.touches.length === 2 && lastPinchDist !== null){
-    const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-    camDist = Math.max(1.5, Math.min(7, camDist - (dist - lastPinchDist) * 0.02));
-    lastPinchDist = dist;
-    const pct = Math.round((6.5 - camDist) / 5.0 * 100);
-    document.getElementById('geom-zoom').value = pct;
-    document.getElementById('geom-zoom-val').textContent = pct + '%';
-  }
-  e.preventDefault();
-},{passive:false});
-gc.addEventListener('touchend', e=>{ drag=false; if(e.touches.length < 2) lastPinchDist=null; });
-
-function render3D() {
-  resizeGC();
-  const s = shapes[curShape];
-  gl.bindBuffer(gl.ARRAY_BUFFER, vBuf); gl.bufferData(gl.ARRAY_BUFFER, s.v, gl.DYNAMIC_DRAW);
-  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
-  gl.bindBuffer(gl.ARRAY_BUFFER, nBuf); gl.bufferData(gl.ARRAY_BUFFER, s.n, gl.DYNAMIC_DRAW);
-  gl.enableVertexAttribArray(aNorm); gl.vertexAttribPointer(aNorm,3,gl.FLOAT,false,0,0);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, s.idx, gl.DYNAMIC_DRAW);
-  gl.viewport(0,0,gc.width,gc.height);
-  gl.clearColor(0.04,0.07,0.13,1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);
-  gl.uniform3fv(uColor, shapeColor);
-  const mv = mat4mul(trans(0,0,-camDist), mat4mul(rotX(0.3+extraRotX), rotY(rotAngle+extraRot)));
-  const mvp = mat4mul(perspective(1, gc.width/gc.height, 0.1, 100), mv);
-  gl.uniformMatrix4fv(uMVP,false,mvp); gl.uniformMatrix4fv(uMV,false,mv);
-  gl.drawElements(gl.TRIANGLES, s.idx.length, gl.UNSIGNED_SHORT, 0);
-  rotAngle += rotSpeed;
-  requestAnimationFrame(render3D);
-}
-render3D();
-
 // ─── SCIENZE CANVAS ───
 const sc = document.getElementById('scienze-canvas');
 const sctx = sc.getContext('2d');
@@ -1829,84 +1790,364 @@ function updateTimerDisplay() {
   const m=Math.floor(timerSeconds/60), s=timerSeconds%60;
   document.getElementById('timer-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
-// ─── PIANO INTERATTIVO ───
-const noteKeys = [
-  {note:'Do',freq:261.63,key:'a',black:false},{note:'Do#',freq:277.18,key:'',black:true},
-  {note:'Re',freq:293.66,key:'s',black:false},{note:'Re#',freq:311.13,key:'',black:true},
-  {note:'Mi',freq:329.63,key:'d',black:false},
-  {note:'Fa',freq:349.23,key:'f',black:false},{note:'Fa#',freq:369.99,key:'',black:true},
-  {note:'Sol',freq:392.00,key:'g',black:false},{note:'Sol#',freq:415.30,key:'',black:true},
-  {note:'La',freq:440.00,key:'h',black:false},{note:'La#',freq:466.16,key:'',black:true},
-  {note:'Si',freq:493.88,key:'j',black:false},
-  {note:'Do2',freq:523.25,key:'',black:false}
-];
-const pianoDiv = document.getElementById('piano-keys');
-if (pianoDiv) {
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:relative;display:inline-flex;align-items:flex-start;';
-  let wOffset = 0;
-  const whites = noteKeys.filter(n=>!n.black);
-  const keyW = 42, keyH = 130, blackW = 26, blackH = 80;
-  whites.forEach((n,wi)=>{
-    const el = document.createElement('div');
-    el.style.cssText = `width:${keyW}px;height:${keyH}px;background:#f0ece0;border:1px solid #333;border-radius:0 0 6px 6px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;color:#555;font-family:var(--mono);user-select:none;transition:background 0.08s;position:relative;z-index:1;`;
-    el.textContent = n.key ? n.key.toUpperCase() : '';
-    el.title = n.note;
-    el.addEventListener('mousedown',()=>playPianoNote(n));
-    el.addEventListener('touchstart',e=>{e.preventDefault();playPianoNote(n);});
-    el.addEventListener('mousedown',()=>{el.style.background='#c8e6c9';});
-    el.addEventListener('mouseup',()=>{el.style.background='#f0ece0';});
-    wrapper.appendChild(el);
+// ─── GEOMETRY: new shapes + direction toggle ───
+function makeOctahedron() {
+  const v=[], n=[], idx=[];
+  const pts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  const faces=[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]];
+  faces.forEach(f=>{
+    const base=v.length/3;
+    f.forEach(i=>v.push(...pts[i]));
+    const ax=pts[f[1]][0]-pts[f[0]][0],ay=pts[f[1]][1]-pts[f[0]][1],az=pts[f[1]][2]-pts[f[0]][2];
+    const bx=pts[f[2]][0]-pts[f[0]][0],by=pts[f[2]][1]-pts[f[0]][1],bz=pts[f[2]][2]-pts[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1; nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz);
+    idx.push(base,base+1,base+2);
   });
-  // Black keys
-  let blackIdx=0, whitePos=0;
-  noteKeys.forEach((n,i)=>{
-    if(n.black){
-      const prevWhiteIdx = noteKeys.slice(0,i).filter(x=>!x.black).length;
-      const el=document.createElement('div');
-      el.style.cssText=`position:absolute;left:${prevWhiteIdx*keyW-blackW/2}px;top:0;width:${blackW}px;height:${blackH}px;background:#1a1a2e;border-radius:0 0 4px 4px;cursor:pointer;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:9px;color:#888;user-select:none;transition:background 0.08s;`;
-      el.addEventListener('mousedown',e=>{e.stopPropagation();playPianoNote(n);el.style.background='#2d5a27';});
-      el.addEventListener('mouseup',()=>{el.style.background='#1a1a2e';});
-      wrapper.appendChild(el);
-    }
-  });
-  pianoDiv.appendChild(wrapper);
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
 }
+
+function makeCone(seg=24) {
+  const v=[],n=[],idx=[];
+  const apex=[0,1.3,0];
+  for(let i=0;i<seg;i++){
+    const a0=i/seg*2*Math.PI, a1=(i+1)/seg*2*Math.PI;
+    const x0=Math.cos(a0),z0=Math.sin(a0),x1=Math.cos(a1),z1=Math.sin(a1);
+    const base=v.length/3;
+    v.push(...apex, x0,-1,z0, x1,-1,z1);
+    const ex=x1-x0,ez=z1-z0, ax=apex[0]-x0,ay=apex[1]+1,az=apex[2]-z0;
+    let nx=ay*ez-0*ax,ny=0*ex-ax*ez,nz=ax*0-ay*ex; // simplified outward
+    // proper cross product of (b0→b1) × (b0→apex)
+    nx=ay*ez; ny=-ax*ez+ay*ex; nz=ax*0;
+    // just use outward radial for simplicity
+    const rm=Math.cos((a0+a1)/2), rz=Math.sin((a0+a1)/2);
+    const nl=Math.sqrt(rm*rm+0.5*0.5+rz*rz)||1;
+    n.push(rm/nl,0.5/nl,rz/nl, rm/nl,0.5/nl,rz/nl, rm/nl,0.5/nl,rz/nl);
+    idx.push(base,base+1,base+2);
+  }
+  // bottom cap
+  const bc=v.length/3; v.push(0,-1,0); n.push(0,-1,0);
+  for(let i=0;i<=seg;i++){const a=i/seg*2*Math.PI;v.push(Math.cos(a),-1,Math.sin(a));n.push(0,-1,0);}
+  for(let i=0;i<seg;i++) idx.push(bc,bc+2+i,bc+1+i);
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeTetrahedron() {
+  const s=Math.sqrt(8/3), h=Math.sqrt(2/3);
+  const pts=[[0,1,0],[s*Math.cos(0),-h/2,s*Math.sin(0)],[s*Math.cos(2.094),-h/2,s*Math.sin(2.094)],[s*Math.cos(4.189),-h/2,s*Math.sin(4.189)]];
+  const faces=[[0,1,2],[0,2,3],[0,3,1],[1,3,2]];
+  const v=[],n=[],idx=[];
+  faces.forEach(f=>{
+    const base=v.length/3;
+    f.forEach(i=>v.push(...pts[i]));
+    const ax=pts[f[1]][0]-pts[f[0]][0],ay=pts[f[1]][1]-pts[f[0]][1],az=pts[f[1]][2]-pts[f[0]][2];
+    const bx=pts[f[2]][0]-pts[f[0]][0],by=pts[f[2]][1]-pts[f[0]][1],bz=pts[f[2]][2]-pts[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz);
+    idx.push(base,base+1,base+2);
+  });
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeIcosahedron() {
+  const phi=(1+Math.sqrt(5))/2, s=1/Math.sqrt(1+phi*phi);
+  const raw=[[0,s,phi*s],[-s*phi,0,s],[s*phi,0,s],[0,s,-phi*s],[-s*phi,0,-s],[s*phi,0,-s],[0,-s,phi*s],[0,-s,-phi*s],[-s,phi*s,0],[s,phi*s,0],[-s,-phi*s,0],[s,-phi*s,0]];
+  const faces=[[0,1,6],[0,6,11],[0,11,2],[0,2,9],[0,9,8],[0,8,1],[3,5,9],[3,9,2],[3,2,11],[3,11,10],[3,10,4],[3,4,7],[3,7,5],[7,4,10],[7,10,6],[7,6,1],[7,1,8],[7,8,4],[9,5,2],[5,2,11]];
+  // fix winding
+  const v=[],n=[],idx=[];
+  faces.forEach(f=>{
+    const base=v.length/3;
+    f.forEach(i=>v.push(...raw[i]));
+    const ax=raw[f[1]][0]-raw[f[0]][0],ay=raw[f[1]][1]-raw[f[0]][1],az=raw[f[1]][2]-raw[f[0]][2];
+    const bx=raw[f[2]][0]-raw[f[0]][0],by=raw[f[2]][1]-raw[f[0]][1],bz=raw[f[2]][2]-raw[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz);
+    idx.push(base,base+1,base+2);
+  });
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+const shapes = {
+  cube:makeCube(), sphere:makeSphere(), pyramid:makePyramid(),
+  torus:makeTorus(), cylinder:makeCylinder(),
+  octahedron:makeOctahedron(), cone:makeCone(),
+  tetrahedron:makeTetrahedron(), icosahedron:makeIcosahedron()
+};
+let curShape = 'cube';
+const vBuf = gl.createBuffer(), nBuf = gl.createBuffer(), iBuf = gl.createBuffer();
+function setShape(name) {
+  curShape = name;
+  document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.shape-btn').forEach(b=>{ if(b.getAttribute('onclick')?.includes(name)) b.classList.add('active'); });
+}
+
+let rotDir = 1; // 1 = orario, -1 = antiorario
+function toggleDirection() {
+  rotDir *= -1;
+  const btn = document.getElementById('geom-dir-btn');
+  btn.textContent = rotDir === 1 ? '↻ Orario' : '↺ Antiorario';
+  btn.style.borderColor = rotDir === 1 ? 'var(--border)' : 'var(--accent2)';
+  btn.style.color = rotDir === 1 ? 'var(--muted)' : 'var(--accent2)';
+}
+
+let rotAngle = 0, drag = false, lastMX = 0, lastMY = 0, extraRot = 0, extraRotX = 0;
+let rotSpeed = 0.015; // ~0.5×
+let camDist = 3.5;
+
+document.getElementById('geom-speed').addEventListener('input', function() {
+  const v = parseInt(this.value);
+  rotSpeed = (v / 100) * 0.08;
+  const label = v === 0 ? '0×' : (v <= 20 ? '0.5×' : v <= 40 ? '1×' : v <= 60 ? '2×' : v <= 80 ? '3×' : '5×');
+  document.getElementById('geom-speed-val').textContent = label;
+});
+
+document.getElementById('geom-zoom').addEventListener('input', function() {
+  camDist = 6.5 - (parseInt(this.value) / 100) * 5.0;
+  const pct = Math.round(parseInt(this.value));
+  document.getElementById('geom-zoom-val').textContent = pct + '%';
+});
+
+gc.addEventListener('wheel', e => {
+  e.preventDefault();
+  camDist = Math.max(1.5, Math.min(7, camDist + e.deltaY * 0.005));
+  const pct = Math.round((6.5 - camDist) / 5.0 * 100);
+  document.getElementById('geom-zoom').value = pct;
+  document.getElementById('geom-zoom-val').textContent = pct + '%';
+}, { passive: false });
+
+gc.addEventListener('mousedown', e=>{ drag=true; lastMX=e.clientX; lastMY=e.clientY; });
+gc.addEventListener('mousemove', e=>{ if(drag){ extraRot+=(e.clientX-lastMX)*0.012; extraRotX+=(e.clientY-lastMY)*0.012; lastMX=e.clientX; lastMY=e.clientY; } });
+gc.addEventListener('mouseup', ()=>drag=false);
+gc.addEventListener('mouseleave', ()=>drag=false);
+let lastPinchDist = null;
+gc.addEventListener('touchstart', e=>{ if(e.touches.length===1){drag=true;lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;} if(e.touches.length===2){drag=false;lastPinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);} e.preventDefault();},{passive:false});
+gc.addEventListener('touchmove', e=>{ if(e.touches.length===1&&drag){extraRot+=(e.touches[0].clientX-lastMX)*0.012;extraRotX+=(e.touches[0].clientY-lastMY)*0.012;lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;} if(e.touches.length===2&&lastPinchDist){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);camDist=Math.max(1.5,Math.min(7,camDist-(d-lastPinchDist)*0.02));lastPinchDist=d;const pct=Math.round((6.5-camDist)/5*100);document.getElementById('geom-zoom').value=pct;document.getElementById('geom-zoom-val').textContent=pct+'%';} e.preventDefault();},{passive:false});
+gc.addEventListener('touchend',e=>{drag=false;if(e.touches.length<2)lastPinchDist=null;});
+
+function render3D() {
+  resizeGC();
+  const s = shapes[curShape];
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuf); gl.bufferData(gl.ARRAY_BUFFER, s.v, gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, nBuf); gl.bufferData(gl.ARRAY_BUFFER, s.n, gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(aNorm); gl.vertexAttribPointer(aNorm,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, s.idx, gl.DYNAMIC_DRAW);
+  gl.viewport(0,0,gc.width,gc.height);
+  gl.clearColor(0.04,0.07,0.13,1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.uniform3fv(uColor, shapeColor);
+  const mv = mat4mul(trans(0,0,-camDist), mat4mul(rotX(0.3+extraRotX), rotY(rotAngle+extraRot)));
+  const mvp = mat4mul(perspective(1, gc.width/gc.height, 0.1, 100), mv);
+  gl.uniformMatrix4fv(uMVP,false,mvp); gl.uniformMatrix4fv(uMV,false,mv);
+  gl.drawElements(gl.TRIANGLES, s.idx.length, gl.UNSIGNED_SHORT, 0);
+  rotAngle += rotSpeed * rotDir;
+  requestAnimationFrame(render3D);
+}
+render3D();
+
+// ─── INSTRUMENT WHEEL + PIANO ───
+const instruments = [
+  { name:'🎹 Pianoforte', type:'triangle', attack:0.01, decay:1.2, label:'Piano' },
+  { name:'🎸 Chitarra',   type:'sawtooth', attack:0.02, decay:0.8, label:'Guitar' },
+  { name:'🎷 Sassofono',  type:'square',   attack:0.05, decay:1.0, label:'Sax' },
+  { name:'🎺 Tromba',     type:'square',   attack:0.01, decay:0.6, label:'Trumpet' },
+  { name:'🎻 Violino',    type:'sawtooth', attack:0.1,  decay:1.5, label:'Violin' },
+  { name:'🪗 Fisarmonica',type:'sawtooth', attack:0.03, decay:1.0, label:'Accordion' },
+  { name:'🔔 Campana',    type:'sine',     attack:0.005,decay:2.5, label:'Bell' },
+  { name:'🥁 Organo',     type:'square',   attack:0.01, decay:2.0, label:'Organ' },
+];
+let instIndex = 0;
+let wheelAngle = 0, wheelTarget = 0, wheelAnimating = false;
+
+function updateInstrumentDisplay() {
+  const prev = instruments[(instIndex - 1 + instruments.length) % instruments.length];
+  const cur  = instruments[instIndex];
+  const next = instruments[(instIndex + 1) % instruments.length];
+  document.getElementById('inst-prev').textContent = prev.name;
+  document.getElementById('inst-current').textContent = cur.name;
+  document.getElementById('inst-next').textContent = next.name;
+}
+
+function wheelUp()   { instIndex = (instIndex - 1 + instruments.length) % instruments.length; spinWheel(-1); updateInstrumentDisplay(); }
+function wheelDown() { instIndex = (instIndex + 1) % instruments.length; spinWheel(1); updateInstrumentDisplay(); }
+
+function spinWheel(dir) {
+  playRevolverClick();
+  wheelTarget += dir * (Math.PI * 2 / 8);
+  if (!wheelAnimating) animateWheel();
+}
+
+function animateWheel() {
+  wheelAnimating = true;
+  function step() {
+    const diff = wheelTarget - wheelAngle;
+    if (Math.abs(diff) < 0.01) { wheelAngle = wheelTarget; wheelAnimating = false; drawWheel(); return; }
+    wheelAngle += diff * 0.18;
+    drawWheel();
+    requestAnimationFrame(step);
+  }
+  step();
+}
+
+function drawWheel() {
+  const wc = document.getElementById('instrument-wheel');
+  if (!wc) return;
+  const ctx = wc.getContext('2d');
+  const W = wc.width, H = wc.height;
+  ctx.clearRect(0,0,W,H);
+  const cx = W/2, cy = H/2, R = 28, slots = 8;
+  // draw cylinder body
+  ctx.fillStyle = '#0d1421'; ctx.beginPath(); ctx.ellipse(cx,cy,R,R*2.2,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,255,136,0.2)'; ctx.lineWidth=1; ctx.stroke();
+  // draw slots (like a revolver cylinder)
+  for(let i=0;i<slots;i++){
+    const ang = wheelAngle + (i/slots)*Math.PI*2;
+    const px = cx + Math.cos(ang)*(R-6);
+    const py = cy + Math.sin(ang)*(R-6)*2.2;
+    const isActive = i === 0;
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI*2);
+    ctx.fillStyle = isActive ? '#00ff88' : 'rgba(255,255,255,0.15)';
+    ctx.fill();
+  }
+  // center hole
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#060a10'; ctx.fill();
+  ctx.strokeStyle='rgba(0,255,136,0.4)'; ctx.lineWidth=1; ctx.stroke();
+}
+
+// Wheel drag support
+const wc = document.getElementById('instrument-wheel');
+let wDrag=false, wLastY=0;
+if(wc){
+  wc.addEventListener('mousedown',e=>{wDrag=true;wLastY=e.clientY;});
+  wc.addEventListener('touchstart',e=>{wDrag=true;wLastY=e.touches[0].clientY;e.preventDefault();},{passive:false});
+  document.addEventListener('mousemove',e=>{if(!wDrag)return;const dy=e.clientY-wLastY;if(Math.abs(dy)>20){dy>0?wheelDown():wheelUp();wLastY=e.clientY;}});
+  document.addEventListener('touchmove',e=>{if(!wDrag)return;const dy=e.touches[0].clientY-wLastY;if(Math.abs(dy)>20){dy>0?wheelDown():wheelUp();wLastY=e.touches[0].clientY;}},{passive:false});
+  document.addEventListener('mouseup',()=>wDrag=false);
+  document.addEventListener('touchend',()=>wDrag=false);
+}
+
+updateInstrumentDisplay();
+drawWheel();
+
+// Piano builder
+const baseOctave = [
+  {note:'Do', freq:261.63, black:false, key:'a'},
+  {note:'Do#',freq:277.18, black:true,  key:''},
+  {note:'Re', freq:293.66, black:false, key:'s'},
+  {note:'Re#',freq:311.13, black:true,  key:''},
+  {note:'Mi', freq:329.63, black:false, key:'d'},
+  {note:'Fa', freq:349.23, black:false, key:'f'},
+  {note:'Fa#',freq:369.99, black:true,  key:''},
+  {note:'Sol',freq:392.00, black:false, key:'g'},
+  {note:'Sol#',freq:415.30,black:true,  key:''},
+  {note:'La', freq:440.00, black:false, key:'h'},
+  {note:'La#',freq:466.16, black:true,  key:''},
+  {note:'Si', freq:493.88, black:false, key:'j'},
+];
+
+let allNoteKeys = [];
+
+function buildPiano() {
+  const octaves = parseInt(document.getElementById('piano-keys-count')?.value || 2);
+  const container = document.getElementById('piano-inner');
+  if (!container) return;
+  container.innerHTML = '';
+  allNoteKeys = [];
+  const keyW=36, keyH=110, bW=22, bH=68;
+
+  for(let oct=0;oct<octaves;oct++){
+    const mult = Math.pow(2, oct);
+    baseOctave.forEach(n => {
+      allNoteKeys.push({...n, freq: n.freq*mult, note: n.note+(oct>0?String(oct+1):'')});
+    });
+    // add final Do at end of last octave
+    if(oct===octaves-1) allNoteKeys.push({note:'Do'+(octaves+1),freq:261.63*Math.pow(2,octaves),black:false,key:''});
+  }
+
+  const whites = allNoteKeys.filter(n=>!n.black);
+  whites.forEach((n,wi)=>{
+    const el=document.createElement('div');
+    el.style.cssText=`width:${keyW}px;height:${keyH}px;background:#f0ece0;border:1px solid #444;border-radius:0 0 5px 5px;cursor:pointer;display:inline-flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-size:9px;color:#777;font-family:var(--mono);user-select:none;transition:background 0.07s;position:relative;z-index:1;flex-shrink:0;`;
+    el.textContent = n.key ? n.key.toUpperCase() : '';
+    el.addEventListener('mousedown',()=>{playPianoNote(n);el.style.background='#b8f0c8';});
+    el.addEventListener('mouseup',()=>el.style.background='#f0ece0');
+    el.addEventListener('touchstart',e=>{e.preventDefault();playPianoNote(n);el.style.background='#b8f0c8';},{passive:false});
+    el.addEventListener('touchend',()=>el.style.background='#f0ece0');
+    container.appendChild(el);
+  });
+
+  // Black keys — position absolute over whites
+  container.style.position='relative';
+  let wIdx=0;
+  allNoteKeys.forEach((n,i)=>{
+    if(!n.black){wIdx++;return;}
+    const prevWhites=allNoteKeys.slice(0,i).filter(x=>!x.black).length;
+    const el=document.createElement('div');
+    el.style.cssText=`position:absolute;left:${prevWhites*keyW-bW/2}px;top:0;width:${bW}px;height:${bH}px;background:#1a1a2e;border-radius:0 0 4px 4px;cursor:pointer;z-index:2;user-select:none;transition:background 0.07s;`;
+    el.addEventListener('mousedown',e=>{e.stopPropagation();playPianoNote(n);el.style.background='#2d6a3f';});
+    el.addEventListener('mouseup',()=>el.style.background='#1a1a2e');
+    el.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();playPianoNote(n);el.style.background='#2d6a3f';},{passive:false});
+    el.addEventListener('touchend',()=>el.style.background='#1a1a2e');
+    container.appendChild(el);
+  });
+}
+buildPiano();
 
 let pianoAudioCtx = null;
 function getPianoCtx(){ if(!pianoAudioCtx) pianoAudioCtx=new(window.AudioContext||window.webkitAudioContext)(); return pianoAudioCtx; }
 
 function playPianoNote(n) {
   const ctx = getPianoCtx();
+  const inst = instruments[instIndex];
   const o = ctx.createOscillator(), g = ctx.createGain();
   o.connect(g); g.connect(ctx.destination);
-  o.type = 'triangle';
+  o.type = inst.type;
   o.frequency.value = n.freq;
-  g.gain.setValueAtTime(0.4, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+1.2);
-  o.start(); o.stop(ctx.currentTime+1.2);
+  g.gain.setValueAtTime(0, ctx.currentTime);
+  g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + inst.attack);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + inst.decay);
+  o.start(); o.stop(ctx.currentTime + inst.decay + 0.1);
   const disp = document.getElementById('piano-display');
-  if(disp){ disp.textContent = `${n.note} — ${n.freq} Hz`; disp.style.color='var(--accent)'; }
+  if(disp){ disp.textContent = `${n.note} — ${n.freq.toFixed(1)} Hz · ${inst.label}`; disp.style.color='var(--accent)'; }
 }
 
 function playChord(name, freqs) {
   const ctx = getPianoCtx();
+  const inst = instruments[instIndex];
   freqs.forEach(f=>{
     const o=ctx.createOscillator(),g=ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
-    o.type='triangle'; o.frequency.value=f;
-    g.gain.setValueAtTime(0.2,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5);
-    o.start(); o.stop(ctx.currentTime+1.5);
+    o.type=inst.type; o.frequency.value=f;
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+inst.attack);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+inst.decay);
+    o.start(); o.stop(ctx.currentTime+inst.decay+0.1);
   });
   const disp=document.getElementById('piano-display');
-  if(disp){ disp.textContent=`Accordo: ${name}`; disp.style.color='var(--accent2)'; }
+  if(disp){disp.textContent=`Accordo: ${name} · ${instruments[instIndex].label}`;disp.style.color='var(--accent2)';}
+}
+
+function playRevolverClick() {
+  try {
+    const ctx = getPianoCtx();
+    const buf = ctx.createBuffer(1,ctx.sampleRate*0.08,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(d.length*0.15));
+    const src=ctx.createBufferSource(), g=ctx.createGain();
+    src.buffer=buf; src.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.3,ctx.currentTime);
+    src.start();
+  } catch(e){}
 }
 
 document.addEventListener('keydown', e=>{
   const tag = document.activeElement?.tagName;
-  if(tag==='INPUT'||tag==='TEXTAREA') return;
-  const n = noteKeys.find(k=>k.key===e.key.toLowerCase());
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+  const n = allNoteKeys.find(k=>k.key===e.key.toLowerCase());
   if(n) playPianoNote(n);
 });
 
