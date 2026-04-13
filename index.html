@@ -1561,30 +1561,6 @@ const uMVP = gl.getUniformLocation(prog,'uMVP');
 const uMV = gl.getUniformLocation(prog,'uMV');
 const uColor = gl.getUniformLocation(prog,'uColor');
 
-// current shape color
-let shapeColor = [0.0, 1.0, 0.533];
-
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16)/255;
-  const g = parseInt(hex.slice(3,5),16)/255;
-  const b = parseInt(hex.slice(5,7),16)/255;
-  return [r,g,b];
-}
-
-const colorPicker = document.getElementById('geom-color');
-const hexInput = document.getElementById('geom-hex');
-colorPicker.addEventListener('input', function(){
-  shapeColor = hexToRgb(this.value);
-  hexInput.value = this.value.toUpperCase();
-});
-hexInput.addEventListener('input', function(){
-  const v = this.value.trim();
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-    shapeColor = hexToRgb(v);
-    colorPicker.value = v.toLowerCase();
-  }
-});
-
 function mat4mul(a,b){ const r=new Float32Array(16); for(let i=0;i<4;i++) for(let j=0;j<4;j++) { r[j*4+i]=0; for(let k=0;k<4;k++) r[j*4+i]+=a[k*4+i]*b[j*4+k]; } return r; }
 function perspective(fov,asp,n,f){ const t=Math.tan(fov/2),r=new Float32Array(16); r[0]=1/(asp*t);r[5]=1/t;r[10]=-(f+n)/(f-n);r[11]=-1;r[14]=-2*f*n/(f-n); return r; }
 function rotY(a){ const c=Math.cos(a),s=Math.sin(a),r=new Float32Array(16); r[0]=c;r[2]=s;r[5]=1;r[8]=-s;r[10]=c;r[15]=1; return r; }
@@ -1674,6 +1650,70 @@ function makeCylinder(seg=24) {
   v.push(0,-1,0); n.push(0,-1,0);
   for(let i=0;i<=seg;i++){ const a=i/seg*2*Math.PI; v.push(Math.cos(a),-1,Math.sin(a)); n.push(0,-1,0); }
   for(let i=0;i<seg;i++) idx.push(botBase, botBase+2+i, botBase+1+i);
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeOctahedron() {
+  const pts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  const faces=[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]];
+  const v=[],n=[],idx=[];
+  faces.forEach(f=>{
+    const b=v.length/3; f.forEach(i=>v.push(...pts[i]));
+    const ax=pts[f[1]][0]-pts[f[0]][0],ay=pts[f[1]][1]-pts[f[0]][1],az=pts[f[1]][2]-pts[f[0]][2];
+    const bx=pts[f[2]][0]-pts[f[0]][0],by=pts[f[2]][1]-pts[f[0]][1],bz=pts[f[2]][2]-pts[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1; nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz); idx.push(b,b+1,b+2);
+  });
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeCone(seg=24) {
+  const v=[],n=[],idx=[]; const apex=[0,1.3,0];
+  for(let i=0;i<seg;i++){
+    const a0=i/seg*2*Math.PI,a1=(i+1)/seg*2*Math.PI;
+    const x0=Math.cos(a0),z0=Math.sin(a0),x1=Math.cos(a1),z1=Math.sin(a1);
+    const b=v.length/3; v.push(...apex,x0,-1,z0,x1,-1,z1);
+    const rm=Math.cos((a0+a1)/2),rz=Math.sin((a0+a1)/2);
+    const nl=Math.sqrt(rm*rm+0.25+rz*rz)||1;
+    n.push(rm/nl,0.5/nl,rz/nl,rm/nl,0.5/nl,rz/nl,rm/nl,0.5/nl,rz/nl);
+    idx.push(b,b+1,b+2);
+  }
+  const bc=v.length/3; v.push(0,-1,0); n.push(0,-1,0);
+  for(let i=0;i<=seg;i++){const a=i/seg*2*Math.PI;v.push(Math.cos(a),-1,Math.sin(a));n.push(0,-1,0);}
+  for(let i=0;i<seg;i++) idx.push(bc,bc+2+i,bc+1+i);
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeTetrahedron() {
+  const s=Math.sqrt(8/3),h=Math.sqrt(2/3);
+  const pts=[[0,1,0],[s,-h/2,0],[s*Math.cos(2.094),-h/2,s*Math.sin(2.094)],[s*Math.cos(4.189),-h/2,s*Math.sin(4.189)]];
+  const faces=[[0,1,2],[0,2,3],[0,3,1],[1,3,2]];
+  const v=[],n=[],idx=[];
+  faces.forEach(f=>{
+    const b=v.length/3; f.forEach(i=>v.push(...pts[i]));
+    const ax=pts[f[1]][0]-pts[f[0]][0],ay=pts[f[1]][1]-pts[f[0]][1],az=pts[f[1]][2]-pts[f[0]][2];
+    const bx=pts[f[2]][0]-pts[f[0]][0],by=pts[f[2]][1]-pts[f[0]][1],bz=pts[f[2]][2]-pts[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1; nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz); idx.push(b,b+1,b+2);
+  });
+  return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
+}
+
+function makeIcosahedron() {
+  const phi=(1+Math.sqrt(5))/2,s=1/Math.sqrt(1+phi*phi);
+  const raw=[[0,s,phi*s],[-s*phi,0,s],[s*phi,0,s],[0,s,-phi*s],[-s*phi,0,-s],[s*phi,0,-s],[0,-s,phi*s],[0,-s,-phi*s],[-s,phi*s,0],[s,phi*s,0],[-s,-phi*s,0],[s,-phi*s,0]];
+  const faces=[[0,1,6],[0,6,11],[0,11,2],[0,2,9],[0,9,8],[0,8,1],[3,5,9],[3,9,2],[3,2,11],[3,11,10],[3,10,4],[3,4,7],[3,7,5],[7,4,10],[7,10,6],[7,6,1],[7,1,8],[7,8,4],[9,5,2],[5,2,11]];
+  const v=[],n=[],idx=[];
+  faces.forEach(f=>{
+    const b=v.length/3; f.forEach(i=>v.push(...raw[i]));
+    const ax=raw[f[1]][0]-raw[f[0]][0],ay=raw[f[1]][1]-raw[f[0]][1],az=raw[f[1]][2]-raw[f[0]][2];
+    const bx=raw[f[2]][0]-raw[f[0]][0],by=raw[f[2]][1]-raw[f[0]][1],bz=raw[f[2]][2]-raw[f[0]][2];
+    let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1; nx/=l;ny/=l;nz/=l;
+    for(let k=0;k<3;k++) n.push(nx,ny,nz); idx.push(b,b+1,b+2);
+  });
   return {v:new Float32Array(v),n:new Float32Array(n),idx:new Uint16Array(idx)};
 }
 
