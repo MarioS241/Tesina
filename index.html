@@ -425,7 +425,15 @@
 
   textarea { font-family: var(--mono); }
 
-  /* ─── MOBILE ─── */
+  /* ─── PIANO SCROLL ─── */
+  .piano-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+  .piano-scroll-wrap::-webkit-scrollbar { height: 6px; }
+  .piano-scroll-wrap::-webkit-scrollbar-track { background: var(--bg3); border-radius: 3px; }
+  .piano-scroll-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+  @media(max-width:600px){
+    .piano-scroll-wrap::-webkit-scrollbar { height: 10px; }
+    .piano-scroll-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; }
+  }
   @media (max-width: 600px) {
     section { padding: 3.5rem 1rem 2.5rem; }
     .section-title { font-size: clamp(1.5rem, 7vw, 2.2rem); }
@@ -467,6 +475,7 @@
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu()"><span class="icon">🏋️</span> Ed. Fisica</a>
+  <a class="menu-item" href="#" onclick="closeMenu();enterFitnessApp()" style="color:var(--accent);border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">🏃</span> Modalità Fitness</a>
 </nav>
 
 <!-- ═══ HERO ═══ -->
@@ -750,9 +759,8 @@ fibonacci(10)
       </select>
     </div>
     <button onclick="downloadPixelArt()" id="pixel-download-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">⬇ Scarica</button>
-    <button onclick="toggleGrid()" id="pixel-grid-btn" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">▦ Griglia: ON</button>
+    <button onclick="toggleGrid()" id="pixel-grid-btn" style="background:transparent;border:1px solid var(--accent2);color:var(--accent2);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;display:none">▦ Griglia: ON</button>
     <button onclick="document.getElementById('pixel-file-input').click()" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">📂 Cambia</button>
-    <button id="grid-toggle-btn" onclick="togglePixelGrid()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">⊞ Griglia: OFF</button>
   </div>
 
   <!-- Canvas + pixel info tooltip -->
@@ -897,9 +905,10 @@ fibonacci(10)
         </div>
       </div>
       <!-- Piano keys -->
-      <div id="piano-keys" style="width:100%">
+      <div id="piano-keys" class="piano-scroll-wrap" style="width:100%">
         <div id="piano-inner" style="width:100%"></div>
       </div>
+      <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">← scorri per più tasti →</p>
       <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.2rem;color:var(--accent);min-height:1.8rem;margin-top:10px">—</div>
       <!-- Chords -->
       <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
@@ -952,13 +961,184 @@ fibonacci(10)
         <button id="add-ex-btn" onclick="addExercise()">+ Aggiungi</button>
       </div>
     </div>
+<!-- ═══ ED. FISICA — ENTRY ═══ -->
+<section id="edfisica">
+  <div class="section-label">11 — Educazione Fisica</div>
+  <div class="section-title">Modalità App Fitness</div>
+  <div class="section-bridge">🔗 Lo sport moderno è data science: wearable, app di fitness e algoritmi analizzano performance atletiche, battito cardiaco e recupero muscolare — la tecnologia ottimizza il corpo umano.</div>
+  <div class="card">
+    <h3>Cos'è la Modalità App?</h3>
+    <p>Un ambiente dedicato e separato dal resto della tesina, progettato per il fitness quotidiano. Include timer, calcolo forma fisica (BMI + analisi), obiettivi personali con accesso via PIN, scheda allenamenti con frequenza programmabile e assistente AI per consigli personalizzati.</p>
+  </div>
+  <div class="card">
+    <h3>📋 Funzionalità incluse</h3>
+    <p>⏱ Timer con preset · 📊 Calcolo BMI e forma fisica · 🎯 Obiettivi personali con PIN · 🏋️ Scheda allenamenti con frequenza (giornaliera/settimanale) · 🤖 AI per consigli su allenamento e alimentazione · 🎵 Playlist benessere · 📈 Storico sessioni</p>
+  </div>
+  <div style="text-align:center;margin-top:2rem">
+    <button onclick="enterFitnessApp()" style="background:var(--accent);color:#060a10;border:none;padding:16px 40px;border-radius:12px;font-family:var(--title);font-size:1.1rem;font-weight:800;cursor:pointer;letter-spacing:1px;transition:opacity 0.2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      🏃 Apri Modalità App Fitness
+    </button>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px">La tesina scomparirà — puoi tornare in qualsiasi momento</p>
   </div>
 </section>
 
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
   <p style="margin-top:8px">Tutte le materie · Anno scolastico 2025/26</p>
+  <p style="margin-top:12px;font-size:14px" id="visit-counter">👁️ Caricamento visite...</p>
 </footer>
+
+<!-- ═══ FITNESS APP OVERLAY ═══ -->
+<div id="fitness-app" style="display:none;position:fixed;inset:0;background:#060a10;z-index:2000;overflow-y:auto;font-family:'Space Mono',monospace">
+  <!-- Loading screen -->
+  <div id="fitness-loader" style="position:fixed;inset:0;background:#060a10;z-index:2001;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="width:4px;height:80vh;background:rgba(0,255,136,0.1);position:absolute;left:24px;border-radius:2px">
+      <div id="loader-bar-l" style="width:100%;height:0%;background:var(--accent);border-radius:2px;transition:height 1.2s ease-out"></div>
+    </div>
+    <div style="width:4px;height:80vh;background:rgba(0,255,136,0.1);position:absolute;right:24px;border-radius:2px">
+      <div id="loader-bar-r" style="width:100%;height:0%;background:var(--accent);border-radius:2px;transition:height 1.2s ease-out"></div>
+    </div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,5vw,3rem);font-weight:900;color:#fff;text-align:center;margin-bottom:1rem">FITNESS<br><span style="color:var(--accent)">MODE</span></div>
+    <div style="width:200px;height:4px;background:rgba(0,255,136,0.15);border-radius:2px;overflow:hidden;margin-bottom:1rem">
+      <div id="loader-prog" style="height:100%;width:0%;background:var(--accent);transition:width 1.2s ease-out;border-radius:2px"></div>
+    </div>
+    <div id="loader-txt" style="font-size:11px;color:var(--muted);letter-spacing:2px">INIZIALIZZAZIONE...</div>
+  </div>
+
+  <!-- App content -->
+  <div id="fitness-content" style="display:none;max-width:700px;margin:0 auto;padding:1.5rem 1rem 4rem">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-top:1rem">
+      <div style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff">FITNESS <span style="color:var(--accent)">APP</span></div>
+      <button onclick="exitFitnessApp()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">✕ Esci</button>
+    </div>
+
+    <!-- TIMER -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">⏱ TIMER</span>
+        <span id="fa-timer-phase" style="font-size:11px;color:var(--muted)">PRONTO</span>
+      </div>
+      <div id="fa-timer-display" style="font-family:'Orbitron',sans-serif;font-size:3.5rem;font-weight:900;color:var(--accent);text-align:center;padding:1.2rem 0 0.5rem">00:00</div>
+      <div style="display:flex;gap:6px;justify-content:center;padding:0 16px 10px;flex-wrap:wrap">
+        <button onclick="faSetTimer(30)" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">30s</button>
+        <button onclick="faSetTimer(60)" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">1 min</button>
+        <button onclick="faSetTimer(90)" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">1:30</button>
+        <button onclick="faSetTimer(180)" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">3 min</button>
+        <button onclick="faSetTimer(300)" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">5 min</button>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 16px 16px">
+        <button onclick="faStartTimer()" style="flex:1;background:var(--accent);color:#060a10;border:none;padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:700">▶ Start</button>
+        <button onclick="faPauseTimer()" style="flex:1;background:transparent;border:1px solid #fa0;color:#fa0;padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">⏸ Pausa</button>
+        <button onclick="faResetTimer()" style="flex:1;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">↩ Reset</button>
+      </div>
+    </div>
+
+    <!-- BMI / FORMA FISICA -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">📊 CALCOLO FORMA FISICA</span>
+      </div>
+      <div style="padding:16px">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px">🔒 I dati sono anonimi e non vengono salvati né inviati a nessun server.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Età</label><input type="number" id="fa-age" placeholder="es. 16" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:13px;outline:none"></div>
+          <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Altezza (cm)</label><input type="number" id="fa-height" placeholder="es. 170" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:13px;outline:none"></div>
+          <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Peso (kg)</label><input type="number" id="fa-weight" placeholder="es. 65" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:13px;outline:none"></div>
+          <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Sesso</label><select id="fa-sex" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:13px;outline:none"><option value="m">Maschio</option><option value="f">Femmina</option></select></div>
+        </div>
+        <div style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Livello attività</label><select id="fa-activity" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:13px;outline:none"><option value="1.2">Sedentario</option><option value="1.375">Lieve (1-2 volte/sett)</option><option value="1.55" selected>Moderato (3-5 volte/sett)</option><option value="1.725">Attivo (6-7 volte/sett)</option><option value="1.9">Molto attivo (2x/giorno)</option></select></div>
+        <button onclick="calcBMI()" style="width:100%;background:transparent;border:1px solid var(--accent);color:var(--accent);padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">📊 Calcola</button>
+        <div id="fa-bmi-result" style="margin-top:12px;display:none"></div>
+        <div id="fa-ai-advice" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <!-- OBIETTIVI + PIN -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🎯 OBIETTIVI PERSONALI</span>
+        <span id="fa-pin-status" style="font-size:10px;color:var(--muted)">🔒 Bloccato</span>
+      </div>
+      <div id="fa-pin-gate" style="padding:16px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Inserisci il tuo PIN (4 cifre) per accedere ai tuoi obiettivi personali. Prima volta? Crea un nuovo PIN.</p>
+        <div style="display:flex;gap:8px">
+          <input type="password" id="fa-pin-input" maxlength="4" placeholder="PIN 4 cifre" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:16px;outline:none;letter-spacing:4px">
+          <button onclick="unlockGoals()" style="background:var(--accent);color:#060a10;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">Sblocca</button>
+        </div>
+        <div id="fa-pin-error" style="font-size:11px;color:#f66;margin-top:6px;display:none">PIN errato</div>
+      </div>
+      <div id="fa-goals-content" style="padding:16px;display:none">
+        <div id="fa-goals-list"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input type="text" id="fa-new-goal" placeholder="Nuovo obiettivo..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:12px;outline:none">
+          <button onclick="addGoal()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">+</button>
+        </div>
+        <button onclick="lockGoals()" style="margin-top:10px;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🔒 Blocca obiettivi</button>
+      </div>
+    </div>
+
+    <!-- SCHEDA ALLENAMENTI -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🏋️ SCHEDA ALLENAMENTI</span>
+      </div>
+      <div style="padding:16px">
+        <div id="fa-exercise-list"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          <input type="text" id="fa-ex-name" placeholder="Nome esercizio..." style="flex:2;min-width:140px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:12px;outline:none">
+          <select id="fa-ex-freq" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:11px;outline:none">
+            <option value="ogni giorno">Ogni giorno</option>
+            <option value="ogni settimana">Ogni settimana</option>
+            <option value="lunedì e giovedì">Lun & Gio</option>
+            <option value="personalizzato">Personalizzato</option>
+          </select>
+          <button onclick="faAddExercise()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI COACH -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🤖 AI COACH PERSONALE</span>
+      </div>
+      <div style="padding:16px">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+          <button onclick="askAICoach('Come smaltire il grasso addominale?')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">🔥 Grasso addominale</button>
+          <button onclick="askAICoach('Allenamento per gambe e glutei')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">🦵 Gambe e glutei</button>
+          <button onclick="askAICoach('Alimentazione per aumentare massa muscolare')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">💪 Massa muscolare</button>
+          <button onclick="askAICoach('Stretching e recupero muscolare dopo l\'allenamento')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:11px">🧘 Stretching</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="text" id="fa-ai-input" placeholder="Chiedi al tuo coach..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:12px;outline:none">
+          <button onclick="askAICoach()" style="background:var(--accent);color:#060a10;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700">Chiedi</button>
+        </div>
+        <div id="fa-ai-output" style="min-height:60px;font-size:13px;color:var(--muted);line-height:1.6"></div>
+      </div>
+    </div>
+
+    <!-- MUSICA BENESSERE -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🎵 MUSICA BENESSERE</span>
+      </div>
+      <div style="padding:16px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Playlist scientificamente studiate per ottimizzare le performance fisiche e il recupero.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">🏃 Workout</a>
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">🧘 Yoga</a>
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">😴 Recupero</a>
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX70RN3TfWWJh" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">⚡ HIIT</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding-top:1rem">
+      <button onclick="exitFitnessApp()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 28px;border-radius:10px;cursor:pointer;font-family:var(--mono);font-size:13px">✕ Esci dalla Modalità App</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script>
@@ -1211,10 +1391,16 @@ function showDef(el, e) {
 
 function positionTooltip(tip, e) {
   tip.style.display = 'block';
-  const tw = 240, th = 80;
-  let x = e.clientX + 10, y = e.clientY + 14;
-  if (x + tw > window.innerWidth - 8) x = e.clientX - tw - 6;
-  if (y + th > window.innerHeight - 8) y = e.clientY - th - 6;
+  // measure after display
+  const tw = tip.offsetWidth || 240;
+  const th = tip.offsetHeight || 90;
+  // try to position above the click point
+  let x = e.clientX - tw/2;
+  let y = e.clientY - th - 10;
+  // clamp to viewport
+  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
+  if (x < 8) x = 8;
+  if (y < 8) y = e.clientY + 18; // flip below if no space above
   tip.style.left = x + 'px';
   tip.style.top = y + 'px';
 }
@@ -1433,6 +1619,17 @@ function pythonToJS(code) {
     if (/^print\(/.test(line)) {
       result.push(`${pad}${transpileExpr(line)};`); continue;
     }
+    // tuple swap / multiple assignment: a, b = expr, expr
+    if (/^(\w+(?:\[.+?\])?(?:,\s*\w+(?:\[.+?\])?)+)\s*=\s*(.+)$/.test(line)) {
+      const m = line.match(/^([\w\[\], ]+)\s*=\s*(.+)$/);
+      if (m && m[1].includes(',') && m[2].includes(',')) {
+        const lhs = m[1].split(',').map(s=>s.trim());
+        const rhs = m[2].split(',').map(s=>transpileExpr(s.trim()));
+        // use temp array for safe swap
+        result.push(`${pad}{ const _t=[${rhs.join(',')}]; ${lhs.map((l,i)=>`${l}=_t[${i}]`).join(';')}; }`);
+        continue;
+      }
+    }
     // assignment
     if (/^(\w+)\s*([+\-*\/]?=)\s*(.+)$/.test(line)) {
       const m = line.match(/^(\w+)\s*([+\-*\/]?=)\s*(.+)$/);
@@ -1488,6 +1685,7 @@ function transpileExpr(s) {
     .replace(/\.strip\(\)/g, '.trim()')
     .replace(/\.split\(([^)]*)\)/g, '.split($1)')
     .replace(/\.join\(([^)]+)\)/g, (m, sep) => `.join(${sep})`)
+    .replace(/\brange\((\d+),\s*([^,)]+)\)/g, (m,a,b)=> `range(${a},${transpileExpr(b)})`)
     .replace(/f"((?:[^"\\]|\\.)*)"/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`')
     .replace(/f'((?:[^'\\]|\\.)*)'/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`');
 }
@@ -2114,6 +2312,204 @@ document.addEventListener('keyup', e=>{
   const n = allNoteKeys.find(k=>k.key===e.key.toLowerCase());
   if(n) stopNote(n, null, '');
 });
+
+// ─── VISIT COUNTER (localStorage across devices via countapi.xyz) ───
+(async () => {
+  try {
+    const r = await fetch('https://api.countapi.xyz/hit/marios241-tesina/visits');
+    const d = await r.json();
+    const el = document.getElementById('visit-counter');
+    if(el && d.value) el.textContent = `👁️ Visitato da ${d.value.toLocaleString('it')} persone`;
+  } catch(e) {
+    const el = document.getElementById('visit-counter');
+    if(el) el.textContent = '';
+  }
+})();
+
+// ─── FITNESS APP ───
+function enterFitnessApp() {
+  const app = document.getElementById('fitness-app');
+  app.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // animate loader bars
+  setTimeout(()=>{
+    document.getElementById('loader-bar-l').style.height='100%';
+    document.getElementById('loader-bar-r').style.height='100%';
+    document.getElementById('loader-prog').style.width='100%';
+    const steps=['SISTEMA IN AVVIO...','CARICAMENTO DATI...','MODALITÀ ATTIVA ✓'];
+    let si=0;
+    const iv=setInterval(()=>{
+      const el=document.getElementById('loader-txt');
+      if(el&&si<steps.length) el.textContent=steps[si++];
+    },400);
+    setTimeout(()=>{
+      clearInterval(iv);
+      document.getElementById('fitness-loader').style.display='none';
+      document.getElementById('fitness-content').style.display='block';
+      document.body.style.overflow='auto';
+      faRenderExercises(); faRenderGoals();
+    },1400);
+  },50);
+}
+
+function exitFitnessApp() {
+  document.getElementById('fitness-app').style.display='none';
+  document.getElementById('fitness-loader').style.display='flex';
+  document.getElementById('fitness-content').style.display='none';
+  document.getElementById('loader-bar-l').style.height='0%';
+  document.getElementById('loader-bar-r').style.height='0%';
+  document.getElementById('loader-prog').style.width='0%';
+  document.getElementById('loader-txt').textContent='INIZIALIZZAZIONE...';
+}
+
+// ─── TIMER FITNESS ───
+let faTimerInterval=null,faTimerSecs=0,faTimerTotal=0,faTimerRunning=false;
+function faSetTimer(s){faResetTimer();faTimerTotal=s;faTimerSecs=s;faUpdateTimerDisplay();}
+function faStartTimer(){
+  if(faTimerRunning)return;
+  if(faTimerSecs<=0){faTimerTotal=faTimerTotal||60;faTimerSecs=faTimerTotal;}
+  faTimerRunning=true;
+  document.getElementById('fa-timer-phase').textContent='IN CORSO';
+  faTimerInterval=setInterval(()=>{
+    faTimerSecs--;faUpdateTimerDisplay();
+    if(faTimerSecs<=0){clearInterval(faTimerInterval);faTimerRunning=false;document.getElementById('fa-timer-phase').textContent='COMPLETATO ✓';document.getElementById('fa-timer-display').style.color='#fa0';playBeep();}
+  },1000);
+}
+function faPauseTimer(){if(!faTimerRunning)return;clearInterval(faTimerInterval);faTimerRunning=false;document.getElementById('fa-timer-phase').textContent='IN PAUSA';}
+function faResetTimer(){clearInterval(faTimerInterval);faTimerRunning=false;faTimerSecs=faTimerTotal||0;document.getElementById('fa-timer-phase').textContent='PRONTO';document.getElementById('fa-timer-display').style.color='var(--accent)';faUpdateTimerDisplay();}
+function faUpdateTimerDisplay(){const m=Math.floor(faTimerSecs/60),s=faTimerSecs%60;document.getElementById('fa-timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+
+// ─── BMI CALCULATOR ───
+function calcBMI() {
+  const age=parseInt(document.getElementById('fa-age').value)||0;
+  const h=parseFloat(document.getElementById('fa-height').value)||0;
+  const w=parseFloat(document.getElementById('fa-weight').value)||0;
+  const sex=document.getElementById('fa-sex').value;
+  const act=parseFloat(document.getElementById('fa-activity').value)||1.55;
+  if(!h||!w||!age){alert('Inserisci tutti i dati');return;}
+  const hm=h/100, bmi=w/(hm*hm);
+  let cat='',catColor='';
+  if(bmi<18.5){cat='Sottopeso';catColor='#0af';}
+  else if(bmi<25){cat='Normopeso ✓';catColor='var(--accent)';}
+  else if(bmi<30){cat='Sovrappeso';catColor='#fa0';}
+  else{cat='Obesità';catColor='#f66';}
+  const bmr = sex==='m' ? 10*w+6.25*h-5*age+5 : 10*w+6.25*h-5*age-161;
+  const tdee = Math.round(bmr*act);
+  const idealMin=Math.round(18.5*hm*hm), idealMax=Math.round(24.9*hm*hm);
+  const diff=w-idealMax; const diffStr=diff>0?`+${diff.toFixed(1)}kg da perdere`:diff<-1?`${Math.abs(diff).toFixed(1)}kg da guadagnare`:'Peso ideale ✓';
+  const el=document.getElementById('fa-bmi-result');
+  el.style.display='block';
+  el.innerHTML=`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:2rem;font-family:'Orbitron',sans-serif;font-weight:900;color:${catColor}">${bmi.toFixed(1)}</span>
+        <span style="font-size:13px;color:${catColor};font-weight:700">${cat}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>Fabbisogno calorico: <strong style="color:var(--text)">${tdee} kcal/giorno</strong></div>
+        <div>Peso ideale: <strong style="color:var(--text)">${idealMin}–${idealMax} kg</strong></div>
+        <div>Differenza: <strong style="color:${catColor}">${diffStr}</strong></div>
+        <div>Altezza: <strong style="color:var(--text)">${h} cm</strong></div>
+      </div>
+    </div>`;
+  // AI advice
+  const prompt=`Sono ${sex==='m'?'un ragazzo':'una ragazza'} di ${age} anni, ${h}cm, ${w}kg, BMI ${bmi.toFixed(1)} (${cat}). Fabbisogno ${tdee}kcal/giorno. Dammi 3 consigli pratici e diretti su alimentazione e allenamento. Sii breve (max 80 parole).`;
+  askBMIAdvice(prompt);
+}
+async function askBMIAdvice(prompt){
+  const el=document.getElementById('fa-ai-advice');
+  el.innerHTML='<span class="spinner"></span><span style="color:var(--muted);font-size:12px"> Analisi AI...</span>';
+  const reply=await callClaude('Sei un nutrizionista e personal trainer. Rispondi sempre in italiano in modo diretto e pratico.',prompt,300);
+  el.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text);line-height:1.6;margin-top:4px"><span style="font-size:10px;color:var(--accent);letter-spacing:2px;display:block;margin-bottom:6px">AI COACH</span>${reply}</div>`;
+}
+
+// ─── AI COACH ───
+async function askAICoach(preset) {
+  const q = preset || document.getElementById('fa-ai-input')?.value?.trim();
+  if(!q) return;
+  const out=document.getElementById('fa-ai-output');
+  out.innerHTML='<span class="spinner"></span><span style="color:var(--muted)"> Il coach sta pensando...</span>';
+  const reply=await callClaude('Sei un personal trainer e coach fitness esperto. Rispondi SEMPRE in italiano in modo pratico, motivante e diretto. Max 120 parole per risposta.',q,400);
+  out.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--text);line-height:1.6"><span style="font-size:10px;color:var(--accent);letter-spacing:2px;display:block;margin-bottom:6px">COACH AI</span>${reply}</div>`;
+  if(document.getElementById('fa-ai-input')) document.getElementById('fa-ai-input').value='';
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('fa-ai-input');
+  if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')askAICoach();});
+});
+
+// ─── GOALS (PIN-protected, localStorage) ───
+let goalsUnlocked=false;
+function unlockGoals(){
+  const pin=document.getElementById('fa-pin-input').value;
+  const stored=localStorage.getItem('fitness-pin');
+  const goals=localStorage.getItem('fitness-goals');
+  if(!stored){localStorage.setItem('fitness-pin',pin);localStorage.setItem('fitness-goals','[]');}
+  else if(pin!==stored){document.getElementById('fa-pin-error').style.display='block';return;}
+  document.getElementById('fa-pin-error').style.display='none';
+  document.getElementById('fa-pin-gate').style.display='none';
+  document.getElementById('fa-goals-content').style.display='block';
+  document.getElementById('fa-pin-status').textContent='🔓 Sbloccato';
+  goalsUnlocked=true; faRenderGoals();
+}
+function lockGoals(){
+  document.getElementById('fa-pin-gate').style.display='block';
+  document.getElementById('fa-goals-content').style.display='none';
+  document.getElementById('fa-pin-status').textContent='🔒 Bloccato';
+  document.getElementById('fa-pin-input').value='';
+  goalsUnlocked=false;
+}
+function faRenderGoals(){
+  if(!goalsUnlocked)return;
+  const goals=JSON.parse(localStorage.getItem('fitness-goals')||'[]');
+  const el=document.getElementById('fa-goals-list');
+  if(!el)return;
+  el.innerHTML=goals.map((g,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div onclick="toggleGoal(${i})" style="width:20px;height:20px;border-radius:5px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${g.done?'var(--accent)':'transparent'};color:${g.done?'#060a10':''}">
+        ${g.done?'✓':''}
+      </div>
+      <span style="flex:1;font-size:13px;${g.done?'text-decoration:line-through;color:var(--muted)':''}">${g.text}</span>
+      <button onclick="deleteGoal(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
+    </div>`).join('')||'<p style="color:var(--muted);font-size:12px">Nessun obiettivo — aggiungine uno!</p>';
+}
+function addGoal(){
+  const v=document.getElementById('fa-new-goal').value.trim(); if(!v)return;
+  const goals=JSON.parse(localStorage.getItem('fitness-goals')||'[]');
+  goals.push({text:v,done:false}); localStorage.setItem('fitness-goals',JSON.stringify(goals));
+  document.getElementById('fa-new-goal').value=''; faRenderGoals();
+}
+function toggleGoal(i){const goals=JSON.parse(localStorage.getItem('fitness-goals')||'[]');goals[i].done=!goals[i].done;localStorage.setItem('fitness-goals',JSON.stringify(goals));faRenderGoals();}
+function deleteGoal(i){const goals=JSON.parse(localStorage.getItem('fitness-goals')||'[]');goals.splice(i,1);localStorage.setItem('fitness-goals',JSON.stringify(goals));faRenderGoals();}
+
+// ─── EXERCISES ───
+let faExercises=JSON.parse(localStorage.getItem('fitness-exercises')||'null')||[
+  {name:'Riscaldamento',freq:'ogni giorno',done:false},
+  {name:'Squat 3×15',freq:'ogni settimana',done:false},
+  {name:'Flessioni 3×12',freq:'ogni settimana',done:false},
+  {name:'Plank 60s',freq:'ogni giorno',done:false},
+];
+function faRenderExercises(){
+  const el=document.getElementById('fa-exercise-list');if(!el)return;
+  el.innerHTML=faExercises.map((ex,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div onclick="faToggleEx(${i})" style="width:20px;height:20px;border-radius:5px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${ex.done?'var(--accent)':'transparent'};color:${ex.done?'#060a10':''}">
+        ${ex.done?'✓':''}
+      </div>
+      <span style="flex:1;font-size:13px;${ex.done?'text-decoration:line-through;color:var(--muted)':''}"><strong>${ex.name}</strong></span>
+      <span style="font-size:10px;color:var(--muted);white-space:nowrap">${ex.freq}</span>
+      <button onclick="faDeleteEx(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
+    </div>`).join('')||'<p style="color:var(--muted);font-size:12px">Nessun esercizio</p>';
+}
+function faAddExercise(){
+  const n=document.getElementById('fa-ex-name').value.trim();if(!n)return;
+  const freq=document.getElementById('fa-ex-freq').value;
+  faExercises.push({name:n,freq,done:false});
+  localStorage.setItem('fitness-exercises',JSON.stringify(faExercises));
+  document.getElementById('fa-ex-name').value=''; faRenderExercises();
+}
+function faToggleEx(i){faExercises[i].done=!faExercises[i].done;localStorage.setItem('fitness-exercises',JSON.stringify(faExercises));faRenderExercises();}
+function faDeleteEx(i){faExercises.splice(i,1);localStorage.setItem('fitness-exercises',JSON.stringify(faExercises));faRenderExercises();}
 
 function playBeep() {
   try {
