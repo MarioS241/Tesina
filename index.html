@@ -475,7 +475,7 @@
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu()"><span class="icon">🏋️</span> Ed. Fisica</a>
-  <a class="menu-item" href="#" onclick="closeMenu();enterFitnessApp()" style="color:var(--accent);border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">🏃</span> Modalità Fitness</a>
+  <a class="menu-item" href="#edfisica" onclick="closeMenu(); setTimeout(enterFitnessApp,400)" style="color:var(--accent);border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">🏃</span> Modalità Fitness</a>
 </nav>
 
 <!-- ═══ HERO ═══ -->
@@ -662,7 +662,7 @@ print("Lista ordinata: ", risultato)
 
 # Calcolo della media
 media = sum(numeri) / len(numeri)
-print(f"Media: {media:.2f}")
+print(f"Media: {round(media, 2)}")
 
 # Numeri di Fibonacci
 def fibonacci(n):
@@ -929,38 +929,6 @@ fibonacci(10)
 
 <div class="divider">▼</div>
 
-<!-- ═══ ED. FISICA ═══ -->
-<section id="edfisica">
-  <div class="section-label">11 — Educazione Fisica</div>
-  <div class="section-title">Scheda Allenamento & Timer</div>
-  <div class="section-bridge">🔗 Lo sport moderno è data science: wearable, app di fitness e algoritmi analizzano performance atletiche, battito cardiaco e recupero muscolare — la tecnologia ottimizza il corpo umano.</div>
-  <div id="workout-app">
-    <div class="workout-header">
-      <h3>⏱ Timer Allenamento</h3>
-      <span id="timer-phase" style="font-size:11px;color:var(--muted)">PRONTO</span>
-    </div>
-    <div id="timer-display">00:00</div>
-    <div class="timer-presets">
-      <button class="preset-btn" onclick="setTimer(30)">30s</button>
-      <button class="preset-btn" onclick="setTimer(60)">1 min</button>
-      <button class="preset-btn" onclick="setTimer(90)">1:30</button>
-      <button class="preset-btn" onclick="setTimer(180)">3 min</button>
-      <button class="preset-btn" onclick="setTimer(300)">5 min</button>
-    </div>
-    <div class="timer-controls">
-      <button class="timer-btn" id="timer-start" onclick="startTimer()">▶ Start</button>
-      <button class="timer-btn" id="timer-pause" onclick="pauseTimer()">⏸ Pausa</button>
-      <button class="timer-btn" id="timer-reset" onclick="resetTimer()">↩ Reset</button>
-    </div>
-    <hr class="workout-divider">
-    <div id="schedule-section">
-      <h4>📋 Scheda Allenamento</h4>
-      <div id="exercise-list"></div>
-      <div id="add-exercise-row">
-        <input type="text" id="new-ex-name" placeholder="Nome esercizio (es. Flessioni 3×12)">
-        <button id="add-ex-btn" onclick="addExercise()">+ Aggiungi</button>
-      </div>
-    </div>
 <!-- ═══ ED. FISICA — ENTRY ═══ -->
 <section id="edfisica">
   <div class="section-label">11 — Educazione Fisica</div>
@@ -985,8 +953,10 @@ fibonacci(10)
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
   <p style="margin-top:8px">Tutte le materie · Anno scolastico 2025/26</p>
-  <p style="margin-top:12px;font-size:14px" id="visit-counter">👁️ Caricamento visite...</p>
 </footer>
+
+<!-- Visit counter fixed bottom right -->
+<div id="visit-counter" style="position:fixed;bottom:16px;right:16px;z-index:500;background:var(--bg2);border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;color:var(--muted);font-family:var(--mono);pointer-events:none;opacity:0.85">👁️ ...</div>
 
 <!-- ═══ FITNESS APP OVERLAY ═══ -->
 <div id="fitness-app" style="display:none;position:fixed;inset:0;background:#060a10;z-index:2000;overflow-y:auto;font-family:'Space Mono',monospace">
@@ -1032,6 +1002,21 @@ fibonacci(10)
         <button onclick="faPauseTimer()" style="flex:1;background:transparent;border:1px solid #fa0;color:#fa0;padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">⏸ Pausa</button>
         <button onclick="faResetTimer()" style="flex:1;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">↩ Reset</button>
       </div>
+    </div>
+
+    <!-- STOPWATCH -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem">
+      <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--accent);letter-spacing:2px">⏱ CRONOMETRO</span>
+        <div id="fa-lap-list" style="font-size:10px;color:var(--muted)"></div>
+      </div>
+      <div id="fa-stopwatch-display" style="font-family:'Orbitron',sans-serif;font-size:3rem;font-weight:900;color:#0af;text-align:center;padding:1rem 0 0.5rem;letter-spacing:2px">00:00.0</div>
+      <div style="display:flex;gap:8px;padding:0 16px 16px">
+        <button onclick="faSwStart()" id="fa-sw-start" style="flex:1;background:var(--accent);color:#060a10;border:none;padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:700">▶ Start</button>
+        <button onclick="faSwLap()" style="flex:1;background:transparent;border:1px solid #0af;color:#0af;padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">🏁 Giro</button>
+        <button onclick="faSwReset()" style="flex:1;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px">↩ Reset</button>
+      </div>
+      <div id="fa-laps" style="padding:0 16px 12px;max-height:120px;overflow-y:auto;display:none"></div>
     </div>
 
     <!-- BMI / FORMA FISICA -->
@@ -1124,12 +1109,17 @@ fibonacci(10)
         <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🎵 MUSICA BENESSERE</span>
       </div>
       <div style="padding:16px">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Playlist scientificamente studiate per ottimizzare le performance fisiche e il recupero.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">🏃 Workout</a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">🧘 Yoga</a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">😴 Recupero</a>
-          <a href="https://open.spotify.com/playlist/37i9dQZF1DX70RN3TfWWJh" target="_blank" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;text-decoration:none;font-size:12px;font-family:var(--mono)">⚡ HIIT</a>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Musica generativa per workout e recupero — funziona offline, direttamente nel browser.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+          <button onclick="playFitnessTrack('energetic')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⚡ Energico</button>
+          <button onclick="playFitnessTrack('calm')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🧘 Calm</button>
+          <button onclick="playFitnessTrack('focus')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🎯 Focus</button>
+          <button onclick="stopFitnessTrack()" style="background:transparent;border:1px solid #f66;color:#f66;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⏹ Stop</button>
+        </div>
+        <div id="fa-music-display" style="font-size:12px;color:var(--muted);text-align:center;padding:8px;background:var(--bg3);border-radius:8px">Seleziona un brano per iniziare</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted)">
+          Per playlist complete: 
+          <a href="https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP" target="_blank" style="color:var(--accent)">Workout Spotify →</a>
         </div>
       </div>
     </div>
@@ -1686,8 +1676,8 @@ function transpileExpr(s) {
     .replace(/\.split\(([^)]*)\)/g, '.split($1)')
     .replace(/\.join\(([^)]+)\)/g, (m, sep) => `.join(${sep})`)
     .replace(/\brange\((\d+),\s*([^,)]+)\)/g, (m,a,b)=> `range(${a},${transpileExpr(b)})`)
-    .replace(/f"((?:[^"\\]|\\.)*)"/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`')
-    .replace(/f'((?:[^'\\]|\\.)*)'/g, (m, s) => '`' + s.replace(/\{([^}]+)\}/g, '${$1}') + '`');
+    .replace(/f"((?:[^"\\]|\\.)*)"/g, (m, s) => '`' + s.replace(/\{([^}:}]+)(?::[^}]*)?\}/g, '${$1}') + '`')
+    .replace(/f'((?:[^'\\]|\\.)*)'/g, (m, s) => '`' + s.replace(/\{([^}:}]+)(?::[^}]*)?\}/g, '${$1}') + '`');
 }
 const map = L.map('map').setView([41.9, 12.5], 6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
@@ -2379,7 +2369,7 @@ function faPauseTimer(){if(!faTimerRunning)return;clearInterval(faTimerInterval)
 function faResetTimer(){clearInterval(faTimerInterval);faTimerRunning=false;faTimerSecs=faTimerTotal||0;document.getElementById('fa-timer-phase').textContent='PRONTO';document.getElementById('fa-timer-display').style.color='var(--accent)';faUpdateTimerDisplay();}
 function faUpdateTimerDisplay(){const m=Math.floor(faTimerSecs/60),s=faTimerSecs%60;document.getElementById('fa-timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
 
-// ─── BMI CALCULATOR ───
+// ─── BMI CALCULATOR with gradient bar ───
 function calcBMI() {
   const age=parseInt(document.getElementById('fa-age').value)||0;
   const h=parseFloat(document.getElementById('fa-height').value)||0;
@@ -2387,34 +2377,63 @@ function calcBMI() {
   const sex=document.getElementById('fa-sex').value;
   const act=parseFloat(document.getElementById('fa-activity').value)||1.55;
   if(!h||!w||!age){alert('Inserisci tutti i dati');return;}
-  const hm=h/100, bmi=w/(hm*hm);
+  const hm=h/100, bmi=Math.round((w/(hm*hm))*10)/10;
+
+  // Determine category
   let cat='',catColor='';
-  if(bmi<18.5){cat='Sottopeso';catColor='#0af';}
-  else if(bmi<25){cat='Normopeso ✓';catColor='var(--accent)';}
-  else if(bmi<30){cat='Sovrappeso';catColor='#fa0';}
-  else{cat='Obesità';catColor='#f66';}
+  if(bmi<18.5){cat='SOTTOPESO';catColor='#4af';}
+  else if(bmi<25){cat='NORMOPESO ✓';catColor='#00ff88';}
+  else if(bmi<30){cat='SOVRAPPESO';catColor='#fa0';}
+  else if(bmi<35){cat='OBESITÀ I GRADO';catColor='#f80';}
+  else if(bmi<40){cat='OBESITÀ II GRADO';catColor='#f50';}
+  else{cat='OBESITÀ SEVERA';catColor='#f33';}
+
+  // BMI bar position: range 10–45, clamp
+  const barMin=10, barMax=45;
+  const pct=Math.min(100,Math.max(0,((bmi-barMin)/(barMax-barMin))*100));
+
   const bmr = sex==='m' ? 10*w+6.25*h-5*age+5 : 10*w+6.25*h-5*age-161;
   const tdee = Math.round(bmr*act);
   const idealMin=Math.round(18.5*hm*hm), idealMax=Math.round(24.9*hm*hm);
-  const diff=w-idealMax; const diffStr=diff>0?`+${diff.toFixed(1)}kg da perdere`:diff<-1?`${Math.abs(diff).toFixed(1)}kg da guadagnare`:'Peso ideale ✓';
+  const diff=w-idealMax;
+  const diffStr=diff>0?`+${diff.toFixed(1)} kg da perdere`:diff<-1?`${Math.abs(diff).toFixed(1)} kg da guadagnare`:'Peso ideale ✓';
+
   const el=document.getElementById('fa-bmi-result');
   el.style.display='block';
   el.innerHTML=`
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span style="font-size:2rem;font-family:'Orbitron',sans-serif;font-weight:900;color:${catColor}">${bmi.toFixed(1)}</span>
-        <span style="font-size:13px;color:${catColor};font-weight:700">${cat}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-size:2.2rem;font-family:'Orbitron',sans-serif;font-weight:900;color:${catColor}">${bmi}</span>
+        <span style="font-size:13px;color:${catColor};font-weight:700;text-align:right">${cat}</span>
       </div>
-      <div style="font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div>Fabbisogno calorico: <strong style="color:var(--text)">${tdee} kcal/giorno</strong></div>
+
+      <!-- Gradient BMI bar -->
+      <div style="margin-bottom:6px">
+        <div style="position:relative;height:16px;border-radius:8px;background:linear-gradient(to right,#4af 0%,#00ff88 25%,#fa0 45%,#f80 60%,#f50 75%,#f33 100%);overflow:visible">
+          <div style="position:absolute;top:-6px;left:${pct}%;transform:translateX(-50%);width:4px;height:28px;background:#fff;border-radius:2px;box-shadow:0 0 6px rgba(255,255,255,0.8)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:4px">
+          <span>&lt;18.5</span><span>25</span><span>30</span><span>35</span><span>40</span><span>&gt;40</span>
+        </div>
+      </div>
+
+      <!-- Scale legend -->
+      <div style="font-size:11px;color:var(--muted);margin:10px 0;line-height:1.8;background:var(--bg2);border-radius:8px;padding:8px 10px">
+        <div><span style="color:#4af">■</span> &lt; 18.5 — Sottopeso</div>
+        <div><span style="color:#00ff88">■</span> 18.5 – 24.9 — Normopeso</div>
+        <div><span style="color:#fa0">■</span> 25 – 29.9 — Sovrappeso</div>
+        <div><span style="color:#f80">■</span> 30 – 34.9 — Obesità di 1° grado</div>
+        <div><span style="color:#f50">■</span> 35 – 39.9 — Obesità di 2° grado</div>
+        <div><span style="color:#f33">■</span> ≥ 40 — Obesità Severa</div>
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+        <div>Fabbisogno: <strong style="color:var(--text)">${tdee} kcal/g</strong></div>
         <div>Peso ideale: <strong style="color:var(--text)">${idealMin}–${idealMax} kg</strong></div>
-        <div>Differenza: <strong style="color:${catColor}">${diffStr}</strong></div>
-        <div>Altezza: <strong style="color:var(--text)">${h} cm</strong></div>
+        <div style="grid-column:1/-1">Differenza: <strong style="color:${catColor}">${diffStr}</strong></div>
       </div>
     </div>`;
-  // AI advice
-  const prompt=`Sono ${sex==='m'?'un ragazzo':'una ragazza'} di ${age} anni, ${h}cm, ${w}kg, BMI ${bmi.toFixed(1)} (${cat}). Fabbisogno ${tdee}kcal/giorno. Dammi 3 consigli pratici e diretti su alimentazione e allenamento. Sii breve (max 80 parole).`;
-  askBMIAdvice(prompt);
+  askBMIAdvice(`Sono ${sex==='m'?'un ragazzo':'una ragazza'} di ${age} anni, ${h}cm, ${w}kg, BMI ${bmi} (${cat}). Fabbisogno ${tdee}kcal/giorno. Dammi 3 consigli pratici e diretti su alimentazione e allenamento. Sii breve (max 80 parole).`);
 }
 async function askBMIAdvice(prompt){
   const el=document.getElementById('fa-ai-advice');
@@ -2510,6 +2529,58 @@ function faAddExercise(){
 }
 function faToggleEx(i){faExercises[i].done=!faExercises[i].done;localStorage.setItem('fitness-exercises',JSON.stringify(faExercises));faRenderExercises();}
 function faDeleteEx(i){faExercises.splice(i,1);localStorage.setItem('fitness-exercises',JSON.stringify(faExercises));faRenderExercises();}
+
+// ─── STOPWATCH ───
+let faSwInterval=null, faSwMs=0, faSwRunning=false, faLaps=[];
+function faSwStart(){
+  if(faSwRunning){clearInterval(faSwInterval);faSwRunning=false;document.getElementById('fa-sw-start').textContent='▶ Start';return;}
+  faSwRunning=true;document.getElementById('fa-sw-start').textContent='⏸ Pausa';
+  const start=Date.now()-faSwMs;
+  faSwInterval=setInterval(()=>{
+    faSwMs=Date.now()-start;
+    const mins=Math.floor(faSwMs/60000),secs=Math.floor((faSwMs%60000)/1000),tenths=Math.floor((faSwMs%1000)/100);
+    document.getElementById('fa-stopwatch-display').textContent=`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}.${tenths}`;
+  },100);
+}
+function faSwLap(){
+  if(!faSwRunning)return;
+  faLaps.push(document.getElementById('fa-stopwatch-display').textContent);
+  const lapsEl=document.getElementById('fa-laps');
+  lapsEl.style.display='block';
+  lapsEl.innerHTML=faLaps.map((t,i)=>`<div style="font-size:11px;color:var(--muted);padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05)">Giro ${i+1}: <strong style="color:#0af">${t}</strong></div>`).reverse().join('');
+}
+function faSwReset(){clearInterval(faSwInterval);faSwRunning=false;faSwMs=0;faLaps=[];document.getElementById('fa-stopwatch-display').textContent='00:00.0';document.getElementById('fa-sw-start').textContent='▶ Start';document.getElementById('fa-laps').innerHTML='';document.getElementById('fa-laps').style.display='none';}
+
+// ─── GENERATIVE FITNESS MUSIC (WebAudio) ───
+let fitnessAudioCtx=null, fitnessNodes=[], fitnessPlaying=false;
+function getFitnessCtx(){if(!fitnessAudioCtx)fitnessAudioCtx=new(window.AudioContext||window.webkitAudioContext)();return fitnessAudioCtx;}
+function stopFitnessTrack(){fitnessNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect();}catch(e){}});fitnessNodes=[];fitnessPlaying=false;document.getElementById('fa-music-display').textContent='Riproduzione fermata';}
+function playFitnessTrack(type){
+  stopFitnessTrack();
+  const ctx=getFitnessCtx(); fitnessPlaying=true;
+  const names={'energetic':'⚡ Energico — BPM 140','calm':'🧘 Calm — BPM 60','focus':'🎯 Focus — BPM 90'};
+  document.getElementById('fa-music-display').textContent='▶ '+names[type];
+  const bpm=type==='energetic'?140:type==='calm'?60:90;
+  const beat=60/bpm;
+  // kick drum pattern
+  function playKick(t){const buf=ctx.createBuffer(1,ctx.sampleRate*0.3,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){d[i]=Math.sin(2*Math.PI*50*Math.exp(-i/(ctx.sampleRate*0.05))*i/ctx.sampleRate)*Math.exp(-i/(ctx.sampleRate*0.15));}const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(ctx.destination);g.gain.value=0.8;s.start(t);fitnessNodes.push(s);}
+  // hi-hat
+  function playHat(t){const buf=ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.02));const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(ctx.destination);g.gain.value=0.3;s.start(t);fitnessNodes.push(s);}
+  // bass note
+  function playBass(t,freq){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=freq;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+beat*0.8);o.start(t);o.stop(t+beat*0.8);fitnessNodes.push(o);}
+  const patterns={energetic:[60,60,0,80,60,0,80,60],calm:[40,0,0,40,0,0,40,0],focus:[50,0,50,0,70,0,50,0]};
+  const bassNotes=patterns[type];
+  const now=ctx.currentTime+0.1;
+  for(let bar=0;bar<8;bar++){
+    for(let step=0;step<8;step++){
+      const t=now+bar*beat*8+step*beat;
+      if(step%2===0) playKick(t);
+      playHat(t);
+      if(bassNotes[step]>0) playBass(t,bassNotes[step]);
+    }
+  }
+  setTimeout(()=>{if(fitnessPlaying)playFitnessTrack(type);},beat*8*8*1000+100);
+}
 
 function playBeep() {
   try {
