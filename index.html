@@ -905,10 +905,10 @@ fibonacci(10)
         </div>
       </div>
       <!-- Piano keys -->
-      <div id="piano-keys" style="width:100%;overflow:hidden">
-        <div id="piano-inner" style="width:100%;min-height:130px"></div>
+      <div id="piano-keys" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:0 0 10px 0">
+        <div id="piano-inner" style="display:inline-block;position:relative;height:125px;min-width:100%"></div>
       </div>
-      <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">← scorri per più tasti →</p>
+      <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px">← scorri per più tasti →</p>
       <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.2rem;color:var(--accent);min-height:1.8rem;margin-top:10px">—</div>
       <!-- Chords -->
       <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
@@ -952,7 +952,7 @@ fibonacci(10)
 
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
-  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Made in Italy with ❤️ by MarioS.</p>
+  <p style="margin-top:6px;font-size:13px;color:var(--muted)">🇮🇹 Made with ❤️ by MarioS.</p>
   <p style="margin-top:6px">Anno scolastico 2026</p>
 </footer>
 
@@ -2179,53 +2179,49 @@ function buildPiano() {
   if (!container) return;
   container.innerHTML = '';
   allNoteKeys = [];
-  const keyW=38, keyH=115, bW=24, bH=72;
+  const KW=38, KH=120, BW=24, BH=74;
 
   for(let oct=0;oct<octaves;oct++){
-    const mult = Math.pow(2, oct);
-    baseOctave.forEach(n => {
-      allNoteKeys.push({...n, freq: n.freq*mult, note: n.note+(oct>0?String(oct+1):'')});
+    const mult = Math.pow(2,oct);
+    baseOctave.forEach(n=>{
+      allNoteKeys.push({...n, freq:+(n.freq*mult).toFixed(2), note:n.note+(oct>0?oct+1:'')});
     });
-    if(oct===octaves-1) allNoteKeys.push({note:'Do'+(octaves+1),freq:261.63*Math.pow(2,octaves),black:false,key:''});
   }
+  allNoteKeys.push({note:'Do'+(octaves+1), freq:+(261.63*Math.pow(2,octaves)).toFixed(2), black:false, key:''});
 
-  // Scrollable wrapper, centered
-  const scroll = document.createElement('div');
-  scroll.style.cssText = 'overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:8px;width:100%;';
-  // Inner piano container — exact pixel width so it doesn't collapse
   const whites = allNoteKeys.filter(n=>!n.black);
-  const totalW = whites.length * keyW;
-  const inner = document.createElement('div');
-  inner.style.cssText = `position:relative;display:block;width:${totalW}px;height:${keyH}px;margin:0 auto;`;
+  const totalW = whites.length * KW + 4;
 
-  whites.forEach((n, wi)=>{
-    const el=document.createElement('div');
-    el.style.cssText=`position:absolute;left:${wi*keyW}px;top:0;width:${keyW-1}px;height:${keyH}px;background:#f0ece0;border:1px solid #555;border-radius:0 0 6px 6px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:9px;color:#666;font-family:monospace;user-select:none;transition:background 0.05s;z-index:1;box-sizing:border-box;`;
+  container.style.cssText = `width:${totalW}px;height:${KH}px;position:relative;display:block;`;
+
+  whites.forEach((n,wi)=>{
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute;left:${wi*KW+1}px;top:0;width:${KW-2}px;height:${KH}px;background:#f5f0e8;border:1px solid #444;border-radius:0 0 5px 5px;cursor:pointer;z-index:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:9px;color:#666;user-select:none;-webkit-user-select:none;box-sizing:border-box;transition:background 0.06s;`;
     el.textContent = n.key ? n.key.toUpperCase() : '';
-    el.addEventListener('mousedown', e=>{e.preventDefault();startNote(n,el,'#b8f0c8');});
-    el.addEventListener('mouseup',   ()=>stopNote(n,el,'#f0ece0'));
-    el.addEventListener('mouseleave',()=>stopNote(n,el,'#f0ece0'));
-    el.addEventListener('touchstart',e=>{e.preventDefault();startNote(n,el,'#b8f0c8');},{passive:false});
-    el.addEventListener('touchend',  e=>{e.preventDefault();stopNote(n,el,'#f0ece0');});
-    inner.appendChild(el);
+    const on=()=>startNote(n,el,'#b8f0c8'), off=()=>stopNote(n,el,'#f5f0e8');
+    el.addEventListener('mousedown',e=>{e.preventDefault();on();});
+    el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
+    el.addEventListener('touchstart',e=>{e.preventDefault();on();},{passive:false});
+    el.addEventListener('touchend',e=>{e.preventDefault();off();});
+    container.appendChild(el);
   });
 
-  // Black keys
   allNoteKeys.forEach((n,i)=>{
     if(!n.black) return;
-    const prevWhites = allNoteKeys.slice(0,i).filter(x=>!x.black).length;
-    const el=document.createElement('div');
-    el.style.cssText=`position:absolute;left:${prevWhites*keyW - bW/2}px;top:0;width:${bW}px;height:${bH}px;background:#111827;border-radius:0 0 4px 4px;cursor:pointer;z-index:3;user-select:none;transition:background 0.05s;border:1px solid #000;box-sizing:border-box;`;
-    el.addEventListener('mousedown',e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#1a5c2e');});
-    el.addEventListener('mouseup',  ()=>stopNote(n,el,'#111827'));
-    el.addEventListener('mouseleave',()=>stopNote(n,el,'#111827'));
-    el.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#1a5c2e');},{passive:false});
-    el.addEventListener('touchend',  e=>{e.preventDefault();stopNote(n,el,'#111827');});
-    inner.appendChild(el);
+    const pw = allNoteKeys.slice(0,i).filter(x=>!x.black).length;
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute;left:${pw*KW-BW/2+1}px;top:0;width:${BW}px;height:${BH}px;background:#111;border:1px solid #000;border-radius:0 0 4px 4px;cursor:pointer;z-index:3;user-select:none;-webkit-user-select:none;box-sizing:border-box;transition:background 0.06s;`;
+    const on=()=>startNote(n,el,'#1a6e35'), off=()=>stopNote(n,el,'#111');
+    el.addEventListener('mousedown',e=>{e.stopPropagation();e.preventDefault();on();});
+    el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
+    el.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();on();},{passive:false});
+    el.addEventListener('touchend',e=>{e.preventDefault();off();});
+    container.appendChild(el);
   });
 
-  scroll.appendChild(inner);
-  container.appendChild(scroll);
+  // Make parent scrollable
+  const pk = document.getElementById('piano-keys');
+  if(pk){ pk.style.overflowX='auto'; pk.style.overflowY='hidden'; pk.style.WebkitOverflowScrolling='touch'; pk.style.paddingBottom='10px'; }
 }
 buildPiano();
 
@@ -2306,21 +2302,23 @@ document.addEventListener('keyup', e=>{
 });
 
 // ─── VISIT COUNTER ───
-(async () => {
+// Uses localStorage — always visible, accumulates per browser
+(()=>{
+  const el = document.getElementById('visit-counter');
+  if(!el) return;
   try {
-    const r = await fetch('https://api.counterapi.dev/v1/marios241-tesina/visits/up');
-    const d = await r.json();
-    const el = document.getElementById('visit-counter');
-    const count = d.count || d.value || d.visits;
-    if(el && count) el.textContent = `👁️ ${Number(count).toLocaleString('it')} visite`;
-  } catch(e) {
-    // fallback: track with localStorage (device-local)
-    const key='tesina-visits';
-    let v=parseInt(localStorage.getItem(key)||'0')+1;
-    localStorage.setItem(key,v);
-    const el=document.getElementById('visit-counter');
-    if(el) el.textContent=`👁️ ${v} visite (locale)`;
-  }
+    const k = 'tesina_visits_v3';
+    let v = parseInt(localStorage.getItem(k)||'0') + 1;
+    localStorage.setItem(k, v);
+    el.textContent = `👁️ ${v.toLocaleString('it')} visite`;
+    el.style.display = 'block';
+  } catch(e){ el.style.display='none'; }
+  // Also try remote counter (best effort)
+  fetch('https://api.counterapi.dev/v1/marios241tesina/v1/up')
+    .then(r=>r.json()).then(d=>{
+      const n=d.count||d.value;
+      if(n&&el) el.textContent=`👁️ ${Number(n).toLocaleString('it')} visite`;
+    }).catch(()=>{});
 })();
 
 // ─── FITNESS APP ───
@@ -2565,8 +2563,17 @@ function faSwReset(){clearInterval(faSwInterval);faSwRunning=false;faSwMs=0;faLa
 
 // ─── GENERATIVE FITNESS MUSIC (WebAudio) ───
 let fitnessAudioCtx=null, fitnessNodes=[], fitnessPlaying=false;
-function getFitnessCtx(){if(!fitnessAudioCtx)fitnessAudioCtx=new(window.AudioContext||window.webkitAudioContext)();return fitnessAudioCtx;}
-function stopFitnessTrack(){fitnessNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect();}catch(e){}});fitnessNodes=[];fitnessPlaying=false;document.getElementById('fa-music-display').textContent='Riproduzione fermata';}
+function getFitnessCtx(){
+  if(!fitnessAudioCtx) fitnessAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(fitnessAudioCtx.state==='suspended') fitnessAudioCtx.resume();
+  return fitnessAudioCtx;
+}
+function stopFitnessTrack(){
+  fitnessNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect();}catch(e){}});
+  fitnessNodes=[];fitnessPlaying=false;
+  const d=document.getElementById('fa-music-display');
+  if(d) d.textContent='⏹ Riproduzione fermata';
+}
 function playFitnessTrack(type){
   stopFitnessTrack();
   const ctx=getFitnessCtx(); fitnessPlaying=true;
@@ -2614,18 +2621,28 @@ let showGrid = true;
 function loadPixelArt(input) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      pixelImg = img;
-      pixelOrigW = img.naturalWidth;
-      pixelOrigH = img.naturalHeight;
-      redrawPixelArt();
-    };
-    img.src = e.target.result;
+  // Show loading state
+  const canvas = document.getElementById('pixel-canvas');
+  const ctx2 = canvas.getContext('2d');
+  canvas.width = 200; canvas.height = 100;
+  ctx2.fillStyle = '#0d1421'; ctx2.fillRect(0,0,200,100);
+  ctx2.fillStyle = '#00ff88'; ctx2.font = '14px monospace';
+  ctx2.fillText('Caricamento...', 50, 55);
+
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    pixelImg = img;
+    pixelOrigW = img.naturalWidth;
+    pixelOrigH = img.naturalHeight;
+    URL.revokeObjectURL(url);
+    // Small delay to ensure DOM is ready
+    setTimeout(redrawPixelArt, 50);
   };
-  reader.readAsDataURL(file);
+  img.onerror = () => {
+    ctx2.fillStyle='#f66'; ctx2.fillText('Errore caricamento', 30, 55);
+  };
+  img.src = url;
 }
 
 function redrawPixelArt() {
