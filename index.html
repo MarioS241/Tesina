@@ -905,8 +905,8 @@ fibonacci(10)
         </div>
       </div>
       <!-- Piano keys -->
-      <div id="piano-keys" class="piano-scroll-wrap" style="width:100%">
-        <div id="piano-inner" style="width:100%"></div>
+      <div id="piano-keys" style="width:100%;overflow:hidden">
+        <div id="piano-inner" style="width:100%;min-height:130px"></div>
       </div>
       <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">← scorri per più tasti →</p>
       <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.2rem;color:var(--accent);min-height:1.8rem;margin-top:10px">—</div>
@@ -952,7 +952,8 @@ fibonacci(10)
 
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
-  <p style="margin-top:8px">Tutte le materie · Anno scolastico 2025/26</p>
+  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Made in Italy with ❤️ by MarioS.</p>
+  <p style="margin-top:6px">Anno scolastico 2026</p>
 </footer>
 
 <!-- Visit counter fixed bottom right -->
@@ -2178,7 +2179,7 @@ function buildPiano() {
   if (!container) return;
   container.innerHTML = '';
   allNoteKeys = [];
-  const keyW=36, keyH=110, bW=22, bH=68;
+  const keyW=38, keyH=115, bW=24, bH=72;
 
   for(let oct=0;oct<octaves;oct++){
     const mult = Math.pow(2, oct);
@@ -2188,20 +2189,22 @@ function buildPiano() {
     if(oct===octaves-1) allNoteKeys.push({note:'Do'+(octaves+1),freq:261.63*Math.pow(2,octaves),black:false,key:''});
   }
 
-  // wrapper centered
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'display:flex;justify-content:center;width:100%;overflow-x:auto;padding-bottom:4px;';
-  const inner = document.createElement('div');
-  inner.style.cssText = 'position:relative;display:inline-flex;flex-shrink:0;';
-
+  // Scrollable wrapper, centered
+  const scroll = document.createElement('div');
+  scroll.style.cssText = 'overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:8px;width:100%;';
+  // Inner piano container — exact pixel width so it doesn't collapse
   const whites = allNoteKeys.filter(n=>!n.black);
-  whites.forEach((n)=>{
+  const totalW = whites.length * keyW;
+  const inner = document.createElement('div');
+  inner.style.cssText = `position:relative;display:block;width:${totalW}px;height:${keyH}px;margin:0 auto;`;
+
+  whites.forEach((n, wi)=>{
     const el=document.createElement('div');
-    el.style.cssText=`width:${keyW}px;height:${keyH}px;background:#f0ece0;border:1px solid #444;border-right:none;border-radius:0 0 5px 5px;cursor:pointer;display:inline-flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-size:9px;color:#777;font-family:var(--mono);user-select:none;transition:background 0.05s;position:relative;z-index:1;flex-shrink:0;`;
+    el.style.cssText=`position:absolute;left:${wi*keyW}px;top:0;width:${keyW-1}px;height:${keyH}px;background:#f0ece0;border:1px solid #555;border-radius:0 0 6px 6px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:9px;color:#666;font-family:monospace;user-select:none;transition:background 0.05s;z-index:1;box-sizing:border-box;`;
     el.textContent = n.key ? n.key.toUpperCase() : '';
-    el.addEventListener('mousedown', e=>{e.preventDefault(); startNote(n, el, '#b8f0c8');});
-    el.addEventListener('mouseup',   ()=>stopNote(n, el, '#f0ece0'));
-    el.addEventListener('mouseleave',()=>stopNote(n, el, '#f0ece0'));
+    el.addEventListener('mousedown', e=>{e.preventDefault();startNote(n,el,'#b8f0c8');});
+    el.addEventListener('mouseup',   ()=>stopNote(n,el,'#f0ece0'));
+    el.addEventListener('mouseleave',()=>stopNote(n,el,'#f0ece0'));
     el.addEventListener('touchstart',e=>{e.preventDefault();startNote(n,el,'#b8f0c8');},{passive:false});
     el.addEventListener('touchend',  e=>{e.preventDefault();stopNote(n,el,'#f0ece0');});
     inner.appendChild(el);
@@ -2210,20 +2213,19 @@ function buildPiano() {
   // Black keys
   allNoteKeys.forEach((n,i)=>{
     if(!n.black) return;
-    const prevWhites=allNoteKeys.slice(0,i).filter(x=>!x.black).length;
+    const prevWhites = allNoteKeys.slice(0,i).filter(x=>!x.black).length;
     const el=document.createElement('div');
-    el.style.cssText=`position:absolute;left:${prevWhites*keyW-bW/2}px;top:0;width:${bW}px;height:${bH}px;background:#1a1a2e;border-radius:0 0 4px 4px;cursor:pointer;z-index:2;user-select:none;transition:background 0.05s;`;
-    el.addEventListener('mousedown', e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#2d6a3f');});
-    el.addEventListener('mouseup',   ()=>stopNote(n,el,'#1a1a2e'));
-    el.addEventListener('mouseleave',()=>stopNote(n,el,'#1a1a2e'));
-    el.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#2d6a3f');},{passive:false});
-    el.addEventListener('touchend',  e=>{e.preventDefault();stopNote(n,el,'#1a1a2e');});
+    el.style.cssText=`position:absolute;left:${prevWhites*keyW - bW/2}px;top:0;width:${bW}px;height:${bH}px;background:#111827;border-radius:0 0 4px 4px;cursor:pointer;z-index:3;user-select:none;transition:background 0.05s;border:1px solid #000;box-sizing:border-box;`;
+    el.addEventListener('mousedown',e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#1a5c2e');});
+    el.addEventListener('mouseup',  ()=>stopNote(n,el,'#111827'));
+    el.addEventListener('mouseleave',()=>stopNote(n,el,'#111827'));
+    el.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();startNote(n,el,'#1a5c2e');},{passive:false});
+    el.addEventListener('touchend',  e=>{e.preventDefault();stopNote(n,el,'#111827');});
     inner.appendChild(el);
   });
 
-  wrapper.appendChild(inner);
-  container.innerHTML = '';
-  container.appendChild(wrapper);
+  scroll.appendChild(inner);
+  container.appendChild(scroll);
 }
 buildPiano();
 
@@ -2303,16 +2305,21 @@ document.addEventListener('keyup', e=>{
   if(n) stopNote(n, null, '');
 });
 
-// ─── VISIT COUNTER (localStorage across devices via countapi.xyz) ───
+// ─── VISIT COUNTER ───
 (async () => {
   try {
-    const r = await fetch('https://api.countapi.xyz/hit/marios241-tesina/visits');
+    const r = await fetch('https://api.counterapi.dev/v1/marios241-tesina/visits/up');
     const d = await r.json();
     const el = document.getElementById('visit-counter');
-    if(el && d.value) el.textContent = `👁️ Visitato da ${d.value.toLocaleString('it')} persone`;
+    const count = d.count || d.value || d.visits;
+    if(el && count) el.textContent = `👁️ ${Number(count).toLocaleString('it')} visite`;
   } catch(e) {
-    const el = document.getElementById('visit-counter');
-    if(el) el.textContent = '';
+    // fallback: track with localStorage (device-local)
+    const key='tesina-visits';
+    let v=parseInt(localStorage.getItem(key)||'0')+1;
+    localStorage.setItem(key,v);
+    const el=document.getElementById('visit-counter');
+    if(el) el.textContent=`👁️ ${v} visite (locale)`;
   }
 })();
 
@@ -2321,7 +2328,8 @@ function enterFitnessApp() {
   const app = document.getElementById('fitness-app');
   app.style.display = 'block';
   document.body.style.overflow = 'hidden';
-  // animate loader bars
+  const vc = document.getElementById('visit-counter');
+  if(vc) vc.style.display='none';
   setTimeout(()=>{
     document.getElementById('loader-bar-l').style.height='100%';
     document.getElementById('loader-bar-r').style.height='100%';
@@ -2350,6 +2358,10 @@ function exitFitnessApp() {
   document.getElementById('loader-bar-r').style.height='0%';
   document.getElementById('loader-prog').style.width='0%';
   document.getElementById('loader-txt').textContent='INIZIALIZZAZIONE...';
+  document.body.style.overflow='';
+  const vc=document.getElementById('visit-counter');
+  if(vc) vc.style.display='block';
+  stopFitnessTrack();
 }
 
 // ─── TIMER FITNESS ───
@@ -2618,48 +2630,50 @@ function loadPixelArt(input) {
 
 function redrawPixelArt() {
   if (!pixelImg) return;
-  const pxSize = parseInt(document.getElementById('pixel-size').value);
+  const pxSize = parseInt(document.getElementById('pixel-size').value) || 8;
   const canvas = document.getElementById('pixel-canvas');
   const container = canvas.parentElement;
-  const displayW = container.offsetWidth || 600;
+  // Wait for layout if width is 0
+  const displayW = (container.offsetWidth || canvas.parentElement?.parentElement?.offsetWidth || window.innerWidth * 0.85);
+  if (displayW < 10) { requestAnimationFrame(redrawPixelArt); return; }
   const aspect = pixelOrigH / pixelOrigW;
 
-  // grid dimensions
-  const cols = Math.floor(displayW / pxSize);
-  const rows = Math.floor(cols * aspect);
+  const cols = Math.max(1, Math.floor(displayW / pxSize));
+  const rows = Math.max(1, Math.floor(cols * aspect));
 
   canvas.width = cols * pxSize;
   canvas.height = rows * pxSize;
   canvas.style.width = '100%';
   canvas.style.height = 'auto';
+  canvas.style.display = 'block';
 
   const ctx = canvas.getContext('2d');
-  // draw original image scaled to grid
+  ctx.imageSmoothingEnabled = false;
   const tmp = document.createElement('canvas');
   tmp.width = cols; tmp.height = rows;
   const tctx = tmp.getContext('2d');
+  tctx.imageSmoothingEnabled = false;
   tctx.drawImage(pixelImg, 0, 0, cols, rows);
-  const imgData = tctx.getImageData(0, 0, cols, rows);
+  let imgData;
+  try { imgData = tctx.getImageData(0, 0, cols, rows); }
+  catch(e) { ctx.drawImage(pixelImg, 0, 0, canvas.width, canvas.height); return; }
 
-  // draw pixelated squares
   let rSum=0, gSum=0, bSum=0, count=0;
   const colorMap = {};
 
   for (let row=0; row<rows; row++) {
     for (let col=0; col<cols; col++) {
-      const i = (row*cols + col)*4;
-      const r=imgData.data[i], g=imgData.data[i+1], b=imgData.data[i+2];
+      const idx = (row*cols + col)*4;
+      const r=imgData.data[idx], g=imgData.data[idx+1], b=imgData.data[idx+2];
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.fillRect(col*pxSize, row*pxSize, pxSize, pxSize);
       rSum+=r; gSum+=g; bSum+=b; count++;
-      // quantize to nearest 32 for dominant color
       const qr=Math.round(r/32)*32, qg=Math.round(g/32)*32, qb=Math.round(b/32)*32;
       const key = `${qr},${qg},${qb}`;
       colorMap[key] = (colorMap[key]||0)+1;
     }
   }
 
-  // grid lines
   if (showGrid) {
     ctx.strokeStyle = 'rgba(0,0,0,0.15)';
     ctx.lineWidth = 0.5;
@@ -2667,10 +2681,9 @@ function redrawPixelArt() {
     for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*pxSize); ctx.lineTo(canvas.width,r*pxSize); ctx.stroke(); }
   }
 
-  // stats
   const avgR=Math.round(rSum/count), avgG=Math.round(gSum/count), avgB=Math.round(bSum/count);
   const dominant = Object.entries(colorMap).sort((a,b)=>b[1]-a[1])[0][0].split(',').map(Number);
-  const domHex = '#' + dominant.map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+  const domHex = '#' + dominant.map(v=>Math.min(255,v).toString(16).padStart(2,'0')).join('').toUpperCase();
 
   document.getElementById('stat-size').textContent = `${pixelOrigW}×${pixelOrigH}`;
   document.getElementById('stat-pixels').textContent = (pixelOrigW*pixelOrigH).toLocaleString('it');
@@ -2687,7 +2700,6 @@ function redrawPixelArt() {
   document.getElementById('pixel-download-btn').style.display = 'inline-block';
   document.getElementById('pixel-grid-btn').style.display = 'inline-block';
 
-  // store data for click
   canvas._imgData = imgData;
   canvas._cols = cols;
   canvas._rows = rows;
