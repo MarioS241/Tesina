@@ -459,6 +459,15 @@
 <!-- MENU BUTTON -->
 <button id="menu-btn" onclick="toggleMenu()" title="Apri menu">☰</button>
 
+<!-- SETTINGS BUTTON -->
+<button onclick="toggleSettings()" title="Impostazioni" style="position:fixed;top:1rem;left:4rem;z-index:1000;background:var(--bg2);border:1px solid var(--border);color:var(--muted);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background 0.2s">⚙️</button>
+
+<!-- SETTINGS OVERLAY -->
+<div id="settings-overlay" onclick="toggleSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1998"></div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" style="display:none;position:fixed;top:0;right:0;width:280px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:1999;overflow-y:auto;padding-top:4rem"></div>
+
 <!-- SIDE MENU -->
 <div id="overlay" onclick="closeMenu()"></div>
 <nav id="side-menu">
@@ -952,7 +961,7 @@ fibonacci(10)
 
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
-  <p style="margin-top:6px;font-size:13px;color:var(--muted)">🇮🇹 Made with ❤️ by MarioS.</p>
+  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Made in 🇮🇹 with ❤️ by MarioS.</p>
   <p style="margin-top:6px">Anno scolastico 2026</p>
 </footer>
 
@@ -2035,7 +2044,6 @@ function addExercise() {
   document.getElementById('new-ex-name').value='';
   renderExercises();
 }
-renderExercises();
 
 function setTimer(s) { resetTimer(); timerTotal = s; timerSeconds = s; updateTimerDisplay(); }
 function startTimer() {
@@ -2139,10 +2147,11 @@ function drawWheel() {
   ctx.strokeStyle='rgba(0,255,136,0.4)'; ctx.lineWidth=1; ctx.stroke();
 }
 
-// Wheel drag support
-const wc = document.getElementById('instrument-wheel');
-let wDrag=false, wLastY=0;
-if(wc){
+// Wheel drag support — initialized in initAll()
+function setupWheelDrag() {
+  const wc = document.getElementById('instrument-wheel');
+  if(!wc) return;
+  let wDrag=false, wLastY=0;
   wc.addEventListener('mousedown',e=>{wDrag=true;wLastY=e.clientY;});
   wc.addEventListener('touchstart',e=>{wDrag=true;wLastY=e.touches[0].clientY;e.preventDefault();},{passive:false});
   document.addEventListener('mousemove',e=>{if(!wDrag)return;const dy=e.clientY-wLastY;if(Math.abs(dy)>20){dy>0?wheelDown():wheelUp();wLastY=e.clientY;}});
@@ -2151,8 +2160,6 @@ if(wc){
   document.addEventListener('touchend',()=>wDrag=false);
 }
 
-updateInstrumentDisplay();
-drawWheel();
 
 // Piano builder
 const baseOctave = [
@@ -2223,7 +2230,6 @@ function buildPiano() {
   const pk = document.getElementById('piano-keys');
   if(pk){ pk.style.overflowX='auto'; pk.style.overflowY='hidden'; pk.style.WebkitOverflowScrolling='touch'; pk.style.paddingBottom='10px'; }
 }
-buildPiano();
 
 let pianoAudioCtx = null;
 function getPianoCtx(){ if(!pianoAudioCtx) pianoAudioCtx=new(window.AudioContext||window.webkitAudioContext)(); return pianoAudioCtx; }
@@ -2772,6 +2778,91 @@ function downloadPixelArt() {
   a.href = canvas.toDataURL('image/png');
   a.click();
 }
+
+// ─── THEMES ───
+const THEMES = {
+  default: {
+    '--accent':'#00ff88','--accent2':'#0af','--bg':'#060a10','--bg2':'#0d1421',
+    '--bg3':'#111c2e','--text':'#e8f4fd','--muted':'#6a8aaa','--border':'rgba(0,255,136,0.18)',
+    '--card':'rgba(13,20,33,0.92)', label:'🌿 Default'
+  },
+  galaxy: {
+    '--accent':'#bf88ff','--accent2':'#ff66cc','--bg':'#05030f','--bg2':'#100a20',
+    '--bg3':'#1a1035','--text':'#e8d8ff','--muted':'#8a6aaa','--border':'rgba(191,136,255,0.2)',
+    '--card':'rgba(16,10,32,0.95)', label:'🌌 Galaxy'
+  },
+  ocean: {
+    '--accent':'#00d4ff','--accent2':'#0066ff','--bg':'#020d18','--bg2':'#061a2e',
+    '--bg3':'#0a2540','--text':'#d0eeff','--muted':'#5588aa','--border':'rgba(0,212,255,0.2)',
+    '--card':'rgba(6,26,46,0.95)', label:'🌊 Ocean'
+  },
+  sunset: {
+    '--accent':'#ff7a2a','--accent2':'#ff2266','--bg':'#100508','--bg2':'#1f0c10',
+    '--bg3':'#2d1218','--text':'#ffddd0','--muted':'#aa6655','--border':'rgba(255,122,42,0.2)',
+    '--card':'rgba(31,12,16,0.95)', label:'🌅 Sunset'
+  },
+  forest: {
+    '--accent':'#44dd77','--accent2':'#aaff44','--bg':'#030a05','--bg2':'#071510',
+    '--bg3':'#0e2016','--text':'#d0ffd8','--muted':'#558866','--border':'rgba(68,221,119,0.2)',
+    '--card':'rgba(7,21,16,0.95)', label:'🌲 Forest'
+  }
+};
+let currentTheme = localStorage.getItem('tesina-theme') || 'default';
+
+function applyTheme(name) {
+  const t = THEMES[name] || THEMES.default;
+  const root = document.documentElement;
+  Object.entries(t).forEach(([k,v])=>{ if(k.startsWith('--')) root.style.setProperty(k,v); });
+  currentTheme = name;
+  localStorage.setItem('tesina-theme', name);
+  // Update active button
+  document.querySelectorAll('.theme-btn').forEach(b=>{
+    b.style.borderColor = b.dataset.theme===name ? 'var(--accent)' : 'var(--border)';
+    b.style.color = b.dataset.theme===name ? 'var(--accent)' : 'var(--muted)';
+  });
+}
+
+function buildSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  if(!panel) return;
+  panel.innerHTML = `
+    <div style="padding:20px">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:14px">🎨 TEMA</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+        ${Object.entries(THEMES).map(([k,t])=>`
+          <button class="theme-btn" data-theme="${k}" onclick="applyTheme('${k}')"
+            style="background:var(--bg3);border:1px solid ${k===currentTheme?'var(--accent)':'var(--border)'};
+            color:${k===currentTheme?'var(--accent)':'var(--muted)'};padding:8px 16px;border-radius:8px;
+            cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s">
+            ${t.label}
+          </button>`).join('')}
+      </div>
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:10px">ℹ️ INFO</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8">
+        Versione: 2026<br>
+        Tema attivo: ${THEMES[currentTheme]?.label || 'Default'}<br>
+        🇮🇹 Made with ❤️ by MarioS.
+      </div>
+    </div>`;
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  const overlay = document.getElementById('settings-overlay');
+  if(!panel) return;
+  const isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  overlay.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) buildSettingsPanel();
+}
+
+// ─── ALL INITIALIZATIONS (after all functions defined) ───
+applyTheme(currentTheme);
+setupWheelDrag();
+buildPiano();
+updateInstrumentDisplay();
+drawWheel();
+renderExercises();
 </script>
 </body>
 </html>
