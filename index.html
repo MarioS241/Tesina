@@ -483,6 +483,7 @@
   <a class="menu-item" href="#arte" onclick="closeMenu()"><span class="icon">🎨</span> Arte</a>
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
+  <a class="menu-item" href="#edcivica" onclick="closeMenu()"><span class="icon">🏛️</span> Ed. Civica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu()"><span class="icon">🏋️</span> Ed. Fisica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu(); setTimeout(enterFitnessApp,400)" style="color:var(--accent);border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">🏃</span> Modalità Fitness</a>
 </nav>
@@ -646,47 +647,34 @@
     <h3>Cos'è un algoritmo?</h3>
     <p>Un algoritmo è una sequenza finita di istruzioni per risolvere un problema. In Python, gli algoritmi si esprimono in codice leggibile — quasi come matematica scritta in italiano.</p>
   </div>
-  <div id="py-editor">
-    <div class="py-header">
-      <div class="py-dot" style="background:#ff5f57"></div>
-      <div class="py-dot" style="background:#ffbd2e"></div>
-      <div class="py-dot" style="background:#28c840"></div>
-      <span style="margin-left:8px">algoritmi.py · Python 3</span>
+
+  <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+    <!-- Left: preset buttons -->
+    <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:160px">
+      <div style="font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:4px">OPERAZIONI</div>
+      <div id="py-preset-btns" style="display:flex;flex-direction:column;gap:5px"></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:2px">DIFFICOLTÀ</div>
+      <button id="py-diff-easy" onclick="setPyDiff('easy')" style="background:var(--accent);color:#060a10;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;text-align:left">⭐ Semplice</button>
+      <button id="py-diff-hard" onclick="setPyDiff('hard')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:6px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:11px;text-align:left">🔥 Avanzato</button>
     </div>
-    <textarea id="py-code">
-# Algoritmo di ordinamento: Bubble Sort
-def bubble_sort(lista):
-    n = len(lista)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            if lista[j] > lista[j+1]:
-                lista[j], lista[j+1] = lista[j+1], lista[j]
-    return lista
 
-# Test con una lista di numeri
-numeri = [64, 34, 25, 12, 22, 11, 90]
-print("Lista originale:", numeri)
-risultato = bubble_sort(numeri.copy())
-print("Lista ordinata: ", risultato)
-
-# Calcolo della media
-media = sum(numeri) / len(numeri)
-print(f"Media: {round(media, 2)}")
-
-# Numeri di Fibonacci
-def fibonacci(n):
-    a, b = 0, 1
-    for _ in range(n):
-        print(a, end=" ")
-        a, b = b, a + b
-
-print("\nFibonacci (10 termini):")
-fibonacci(10)
-    </textarea>
-    <button id="py-run" onclick="runPython()">▶ Esegui Codice</button>
-    <div id="py-output">// L'output del codice apparirà qui...</div>
+    <!-- Right: editor -->
+    <div style="flex:1;min-width:280px">
+      <div id="py-editor">
+        <div class="py-header">
+          <div class="py-dot" style="background:#ff5f57"></div>
+          <div class="py-dot" style="background:#ffbd2e"></div>
+          <div class="py-dot" style="background:#28c840"></div>
+          <span style="margin-left:8px" id="py-filename">algoritmi.py · Python 3</span>
+        </div>
+        <textarea id="py-code"></textarea>
+        <button id="py-run" onclick="runPython()">▶ Esegui Codice</button>
+        <div id="py-output">// L'output del codice apparirà qui...</div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px">Modifica il codice e premi Esegui · Simulazione Python nel browser</p>
+    </div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-top:10px">Modifica il codice e premi Esegui · Simulazione Python nel browser</p>
 </section>
 
 <div class="divider">▼</div>
@@ -938,9 +926,38 @@ fibonacci(10)
 
 <div class="divider">▼</div>
 
+<!-- ═══ ED. CIVICA ═══ -->
+<section id="edcivica">
+  <div class="section-label">11 — Ed. Civica</div>
+  <div class="section-title">Cittadinanza Digitale</div>
+  <div class="section-bridge">🔗 L'educazione civica nell'era digitale unisce informatica, diritto e sociologia: le stesse competenze di cittadinanza del mondo reale si applicano allo spazio virtuale — con nuove sfide e nuove responsabilità.</div>
+
+  <!-- Language switcher -->
+  <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:1.5rem">
+    <!-- Lang buttons vertical -->
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--accent);color:#060a10;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;writing-mode:horizontal-tb;transition:all 0.2s">🇮🇹 IT</button>
+      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s">🇫🇷 FR</button>
+    </div>
+
+    <!-- Main text -->
+    <div style="flex:1">
+      <div id="civica-text" style="transition:opacity 0.35s ease;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:13px;line-height:1.8;color:var(--text)">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Accordion buttons -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px" id="civica-btns"></div>
+      <div id="civica-accordion" style="margin-top:10px;transition:opacity 0.3s ease"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">▼</div>
+
 <!-- ═══ ED. FISICA — ENTRY ═══ -->
 <section id="edfisica">
-  <div class="section-label">11 — Educazione Fisica</div>
+  <div class="section-label">12 — Educazione Fisica</div>
   <div class="section-title">Modalità App Fitness</div>
   <div class="section-bridge">🔗 Lo sport moderno è data science: wearable, app di fitness e algoritmi analizzano performance atletiche, battito cardiaco e recupero muscolare — la tecnologia ottimizza il corpo umano.</div>
   <div class="card">
@@ -966,7 +983,7 @@ fibonacci(10)
 </footer>
 
 <!-- Visit counter fixed bottom right -->
-<div id="visit-counter" style="position:fixed;bottom:16px;right:16px;z-index:500;background:var(--bg2);border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;color:var(--muted);font-family:var(--mono);pointer-events:none;opacity:0.85">👁️ ...</div>
+<!-- Visit counter now shown only in settings panel -->
 
 <!-- ═══ FITNESS APP OVERLAY ═══ -->
 <div id="fitness-app" style="display:none;position:fixed;inset:0;background:#060a10;z-index:2000;overflow-y:auto;font-family:'Space Mono',monospace">
@@ -1119,7 +1136,12 @@ fibonacci(10)
         <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🎵 MUSICA BENESSERE</span>
       </div>
       <div style="padding:16px">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Musica generativa per workout e recupero — funziona offline, direttamente nel browser.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Musica generativa per workout e recupero — funziona offline, direttamente nel browser. Oppure incolla un link Spotify per aprirlo.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="fa-spotify-url" placeholder="Incolla link Spotify... es. https://open.spotify.com/track/..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:11px;outline:none">
+          <button onclick="openSpotify()" style="background:#1db954;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;white-space:nowrap">▶ Spotify</button>
+        </div>
+        <div id="fa-spotify-embed" style="margin-bottom:12px"></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
           <button onclick="playFitnessTrack('energetic')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⚡ Energico</button>
           <button onclick="playFitnessTrack('calm')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🧘 Calm</button>
@@ -2805,6 +2827,11 @@ const THEMES = {
     '--accent':'#44dd77','--accent2':'#aaff44','--bg':'#030a05','--bg2':'#071510',
     '--bg3':'#0e2016','--text':'#d0ffd8','--muted':'#558866','--border':'rgba(68,221,119,0.2)',
     '--card':'rgba(7,21,16,0.95)', label:'🌲 Forest'
+  },
+  birthday: {
+    '--accent':'#ff6eb4','--accent2':'#ffb6e0','--bg':'#1a0010','--bg2':'#2d0020',
+    '--bg3':'#3d0030','--text':'#fff0f8','--muted':'#cc88aa','--border':'rgba(255,110,180,0.25)',
+    '--card':'rgba(45,0,32,0.95)', label:'🧁 Compleanno'
   }
 };
 let currentTheme = localStorage.getItem('tesina-theme') || 'default';
@@ -2815,35 +2842,74 @@ function applyTheme(name) {
   Object.entries(t).forEach(([k,v])=>{ if(k.startsWith('--')) root.style.setProperty(k,v); });
   currentTheme = name;
   localStorage.setItem('tesina-theme', name);
-  // Update active button
   document.querySelectorAll('.theme-btn').forEach(b=>{
-    b.style.borderColor = b.dataset.theme===name ? 'var(--accent)' : 'var(--border)';
-    b.style.color = b.dataset.theme===name ? 'var(--accent)' : 'var(--muted)';
+    const active = b.dataset.theme===name;
+    b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
+    b.style.color = active ? 'var(--accent)' : 'var(--muted)';
+    b.style.background = active ? 'rgba(255,255,255,0.05)' : 'var(--bg3)';
   });
+  // Update label in panel if open
+  const lbl = document.getElementById('settings-active-theme');
+  if(lbl) lbl.textContent = t.label;
+}
+
+// ─── VISIT COUNTER (shared via simple hash-based countapi) ───
+let visitCount = 0;
+(()=>{
+  // Use a simple free service or fallback to incrementing a shared key via localStorage sync
+  // We use a 3rd party that works globally
+  const key = 'tesina_global_v1';
+  try {
+    // Get local count
+    let local = parseInt(localStorage.getItem(key)||'0');
+    // Check if we already counted this session
+    if(!sessionStorage.getItem('counted')){
+      local++;
+      localStorage.setItem(key, local);
+      sessionStorage.setItem('counted','1');
+    }
+    visitCount = local;
+  } catch(e){}
+  // Try remote counter (best effort, no crash if fails)
+  fetch('https://api.counterapi.dev/v1/marios241tesina2/visits/up',{mode:'cors'})
+    .then(r=>r.json()).then(d=>{ const n=d.count||d.value; if(n){visitCount=n;updateVisitDisplay();} })
+    .catch(()=>{});
+  updateVisitDisplay();
+})();
+
+function updateVisitDisplay(){
+  const el=document.getElementById('settings-visits');
+  if(el) el.textContent=`👁️ ${Number(visitCount).toLocaleString('it')} visite`;
 }
 
 function buildSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if(!panel) return;
   panel.innerHTML = `
-    <div style="padding:20px">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:14px">🎨 TEMA</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0">
+      <span style="font-family:var(--title);font-size:1rem;color:var(--text);font-weight:700">⚙️ Impostazioni</span>
+      <button onclick="toggleSettings()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0">✕</button>
+    </div>
+    <div style="padding:16px 20px">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:12px">🎨 TEMA</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
         ${Object.entries(THEMES).map(([k,t])=>`
           <button class="theme-btn" data-theme="${k}" onclick="applyTheme('${k}')"
-            style="background:var(--bg3);border:1px solid ${k===currentTheme?'var(--accent)':'var(--border)'};
-            color:${k===currentTheme?'var(--accent)':'var(--muted)'};padding:8px 16px;border-radius:8px;
+            style="background:${k===currentTheme?'rgba(255,255,255,0.05)':'var(--bg3)'};border:1px solid ${k===currentTheme?'var(--accent)':'var(--border)'};
+            color:${k===currentTheme?'var(--accent)':'var(--muted)'};padding:8px 14px;border-radius:8px;
             cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s">
             ${t.label}
           </button>`).join('')}
       </div>
-      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:10px">ℹ️ INFO</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.8">
-        Versione: 2026<br>
-        Tema attivo: ${THEMES[currentTheme]?.label || 'Default'}<br>
-        🇮🇹 Made with ❤️ by MarioS.
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:10px">📊 STATISTICHE</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--muted);line-height:2">
+        <div id="settings-visits">👁️ Caricamento...</div>
+        <div>Tema attivo: <span id="settings-active-theme">${THEMES[currentTheme]?.label||'Default'}</span></div>
+        <div>Versione: 2026</div>
+        <div style="margin-top:4px;color:var(--text)">Made in 🇮🇹 with ❤️ by MarioS.</div>
       </div>
     </div>`;
+  updateVisitDisplay();
 }
 
 function toggleSettings() {
@@ -2856,6 +2922,172 @@ function toggleSettings() {
   if(!isOpen) buildSettingsPanel();
 }
 
+// ─── SPOTIFY EMBED ───
+function openSpotify() {
+  const url = document.getElementById('fa-spotify-url').value.trim();
+  if(!url) return;
+  const embedDiv = document.getElementById('fa-spotify-embed');
+  // Convert spotify URL to embed URL
+  let embedUrl = url;
+  const m = url.match(/spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
+  if(m) {
+    embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0`;
+    embedDiv.innerHTML = `<iframe src="${embedUrl}" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:12px;margin-top:4px"></iframe>`;
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+// ─── ED. CIVICA ───
+const CIVICA_IT = {
+  intro: `L'educazione alla cittadinanza digitale è un percorso fondamentale per imparare a vivere nel mondo virtuale con la stessa consapevolezza e lo stesso rispetto che usiamo nel mondo reale. Non si tratta solo di saper usare un computer o uno smartphone, ma di capire l'impatto che le nostre azioni hanno online.`,
+  sections: [
+    {
+      btn: '👤 Chi è il cittadino digitale?',
+      text: `Essere un cittadino digitale significa essere un utente consapevole. Non è solo chi naviga su internet, ma chi lo fa rispettando le regole della convivenza civile, proteggendo la propria identità digitale e capendo che dietro ogni profilo c'è una persona reale.\n\n📋 Gestione dei dati e della privacy\nUno degli aspetti più importanti riguarda la protezione delle proprie informazioni. Online, i dati (nome, indirizzo, foto, preferenze) sono merce preziosa. Un comportamento corretto prevede di:\n• Non condividere password o dati sensibili con nessuno.\n• Impostare correttamente i profili social per decidere chi può vedere ciò che pubblichiamo.\n• Riflettere prima di postare, perché una volta che qualcosa è su internet, è difficilissimo cancellarlo del tutto (impronta digitale).`
+    },
+    {
+      btn: '⚖️ Rispetto e etica online',
+      text: `Internet è uno spazio pubblico. Comportarsi bene significa:\n• Evitare il cyberbullismo: non offendere, non deridere e non condividere contenuti che potrebbero ferire qualcuno.\n• Verificare le fonti: non diffondere notizie false (fake news) che possono creare confusione o danni.\n• Segnalare: se si nota un comportamento scorretto o pericoloso, è importante segnalarlo alle piattaforme o parlarne con un adulto.`
+    },
+    {
+      btn: '🛡️ Sicurezza e limiti',
+      text: `Navigare sicuri significa anche conoscere i propri limiti. Questo include rispettare le età minime per l'uso dei social (che servono a proteggere i più giovani) e saper gestire il tempo che passiamo davanti allo schermo per non isolarsi dalla realtà.`
+    }
+  ]
+};
+const CIVICA_FR = {
+  intro: `L'éducation à la citoyenneté numérique est un parcours fondamental pour apprendre à vivre dans le monde virtuel avec la même conscience et le même respect que nous utilisons dans le monde réel. Il ne s'agit pas seulement de savoir utiliser un ordinateur ou un smartphone, mais de comprendre l'impact de nos actions en ligne.`,
+  sections: [
+    {
+      btn: '👤 Qui est le citoyen numérique?',
+      text: `Être un citoyen numérique signifie être un utilisateur conscient. Ce n'est pas seulement quelqu'un qui navigue sur Internet, mais quelqu'un qui le fait en respectant les règles de la vie en société, en protégeant sa propre identité numérique et en comprenant que derrière chaque profil se trouve une personne réelle.\n\n📋 Gestion des données et de la vie privée\nL'un des aspects les plus importants concerne la protection de ses propres informations. En ligne, les données (nom, adresse, photos, préférences) sont des ressources précieuses. Un comportement correct implique de :\n• Ne partager son mot de passe ou ses données sensibles avec personne.\n• Paramétrer correctement ses profils sur les réseaux sociaux pour décider qui peut voir ce que nous publions.\n• Réfléchir avant de poster, car une fois que quelque chose est sur Internet, il est très difficile de l'effacer complètement (empreinte numérique).`
+    },
+    {
+      btn: '⚖️ Respect et éthique en ligne',
+      text: `Internet est un espace public. Bien se comporter signifie :\n• Éviter le cyberharcèlement : ne pas offenser, ne pas se moquer et ne pas partager de contenus qui pourraient blesser quelqu'un.\n• Vérifier les sources : ne pas diffuser de fausses informations (fake news) qui peuvent créer de la confusion ou des dommages.\n• Signaler : si l'on remarque un comportement incorrect ou dangereux, il est important de le signaler aux plateformes ou d'en parler à un adulte.`
+    },
+    {
+      btn: '🛡️ Sécurité et limites',
+      text: `Naviguer en toute sécurité signifie aussi connaître ses propres limites. Cela inclut le respect des âges minimums pour l'utilisation des réseaux sociaux (qui servent à protéger les plus jeunes) et savoir gérer le temps passé devant l'écran pour ne pas s'isoler de la réalité.`
+    }
+  ]
+};
+
+let civicaLang = 'it';
+let civicaOpenIdx = null;
+
+function setCivicaLang(lang) {
+  civicaLang = lang;
+  civicaOpenIdx = null;
+  document.getElementById('civica-btn-it').style.background = lang==='it' ? 'var(--accent)' : 'var(--bg3)';
+  document.getElementById('civica-btn-it').style.color = lang==='it' ? '#060a10' : 'var(--muted)';
+  document.getElementById('civica-btn-it').style.border = lang==='it' ? 'none' : '1px solid var(--border)';
+  document.getElementById('civica-btn-fr').style.background = lang==='fr' ? '#0055A4' : 'var(--bg3)';
+  document.getElementById('civica-btn-fr').style.color = lang==='fr' ? '#fff' : 'var(--muted)';
+  document.getElementById('civica-btn-fr').style.border = lang==='fr' ? 'none' : '1px solid var(--border)';
+  const el = document.getElementById('civica-text');
+  el.style.opacity='0';
+  setTimeout(()=>{
+    renderCivica();
+    el.style.opacity='1';
+  },300);
+  document.getElementById('civica-accordion').innerHTML='';
+}
+
+function renderCivica() {
+  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
+  const el = document.getElementById('civica-text');
+  if(el) el.textContent = data.intro;
+  const btnsEl = document.getElementById('civica-btns');
+  if(!btnsEl) return;
+  btnsEl.innerHTML = data.sections.map((s,i)=>`
+    <button onclick="toggleCivicaSection(${i})" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s" id="civica-sec-btn-${i}">
+      ${s.btn}
+    </button>`).join('');
+}
+
+function toggleCivicaSection(idx) {
+  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
+  const acc = document.getElementById('civica-accordion');
+  if(civicaOpenIdx===idx){ acc.innerHTML=''; civicaOpenIdx=null; return; }
+  civicaOpenIdx=idx;
+  const text = data.sections[idx].text.replace(/\n/g,'<br>').replace(/•/g,'•');
+  acc.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;color:var(--text);animation:fadeIn 0.3s ease">${text}</div>`;
+}
+
+// ─── PYTHON PRESETS ───
+const PY_PRESETS_EASY = [
+  { label:'1. Addizione (+)', code:`mele = 5\npere = 3\ntotale_frutta = mele + pere\nprint(f"Totale: {totale_frutta}")  # Risultato: 8` },
+  { label:'2. Sottrazione (−)', code:`budget = 20\nspesa = 12\nrimanente = budget - spesa\nprint(f"Soldi rimasti: {rimanente}")  # Risultato: 8` },
+  { label:'3. Moltiplicazione (*)', code:`prezzo_unitario = 2.5\nquantita = 4\ntotale_pagare = prezzo_unitario * quantita\nprint(f"Totale scontrino: {totale_pagare}")  # Risultato: 10.0` },
+  { label:'4. Divisione (/)', code:`pizza_totale = 8\npersone = 4\nfette_a_testa = pizza_totale / persone\nprint(f"Fette per persona: {fette_a_testa}")  # Risultato: 2.0` },
+  { label:'5. Divisione Intera (//)', code:`minuti_totali = 130\nore = minuti_totali // 60\nprint(f"Ore intere: {ore}")  # Risultato: 2` },
+  { label:'6. Modulo (%)', code:`numero = 7\nresto = numero % 2\nprint(f"Il resto è: {resto}")  # Risultato: 1 (dispari)` },
+  { label:'7. Potenza (**)', code:`lato = 5\narea_quadrato = lato ** 2\nprint(f"Area: {area_quadrato}")  # Risultato: 25` },
+  { label:'8. Valore Assoluto', code:`distanza = -50\nvalore_reale = abs(distanza)\nprint(f"Distanza positiva: {valore_reale}")  # Risultato: 50` },
+  { label:'9. Radice Quadrata', code:`import math\nnumero = 49\nradice = math.sqrt(numero)\nprint(f"La radice di 49 è: {radice}")  # Risultato: 7.0` },
+];
+const PY_PRESETS_HARD = [
+  { label:'1. Addizione avanzata', code:`# Somma cumulativa di una lista\nnumeri = [3, 7, 2, 9, 4, 6, 1, 8, 5]\nsomma_cumulativa = []\ntotale = 0\nfor n in numeri:\n    totale = totale + n\n    somma_cumulativa.append(totale)\nprint(f"Lista: {numeri}")\nprint(f"Somme cumulative: {somma_cumulativa}")\nprint(f"Totale finale: {totale}")` },
+  { label:'2. Sottrazione avanzata', code:`# Cambio: calcola le monete da restituire\nprezzo = 7.30\npagato = 20.00\nresto = pagato - prezzo\nmonete = [2.0, 1.0, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01]\nscambio = []\nfor m in monete:\n    while resto >= m - 0.001:\n        scambio.append(m)\n        resto = round(resto - m, 2)\nprint(f"Monete restituite: {scambio}")\nprint(f"Numero monete: {len(scambio)}")` },
+  { label:'3. Moltiplicazione avanzata', code:`# Tavola pitagorica\nprint("Tavola pitagorica 5x5:")\nfor i in range(1, 6):\n    riga = ""\n    for j in range(1, 6):\n        riga = riga + str(i * j).rjust(4)\n    print(riga)` },
+  { label:'4. Divisione avanzata', code:`# Divisione con gestione errori\ndef dividi_sicuro(a, b):\n    if b == 0:\n        return "Errore: divisione per zero!"\n    return a / b\n\ncoppie = [(10,2),(7,0),(15,4),(100,7)]\nfor a, b in coppie:\n    print(f"{a} / {b} = {dividi_sicuro(a, b)}")` },
+  { label:'5. Divisione intera avanzata', code:`# Converti secondi in ore, minuti, secondi\ndef converti_tempo(secondi_totali):\n    ore = secondi_totali // 3600\n    rimanenti = secondi_totali % 3600\n    minuti = rimanenti // 60\n    secondi = rimanenti % 60\n    return ore, minuti, secondi\n\nfor s in [3661, 7322, 90, 3600]:\n    h, m, sec = converti_tempo(s)\n    print(f"{s}s → {h}h {m}m {sec}s")` },
+  { label:'6. Modulo avanzato', code:`# Numeri primi con il modulo\ndef is_primo(n):\n    if n < 2:\n        return False\n    for i in range(2, n):\n        if n % i == 0:\n            return False\n    return True\n\nprimi = [n for n in range(2, 50) if is_primo(n)]\nprint(f"Numeri primi sotto 50: {primi}")\nprint(f"Trovati: {len(primi)}")` },
+  { label:'7. Potenza avanzata', code:`# Complessità algoritmica: O(log n) vs O(n)\ndef potenza_lenta(base, esp):\n    ris = 1\n    for _ in range(esp):\n        ris = ris * base\n    return ris\n\ndef potenza_veloce(base, esp):\n    if esp == 0: return 1\n    if esp % 2 == 0:\n        meta = potenza_veloce(base, esp // 2)\n        return meta * meta\n    return base * potenza_veloce(base, esp - 1)\n\nprint(potenza_lenta(2, 10))\nprint(potenza_veloce(2, 10))` },
+  { label:'8. Valore Assoluto avanzato', code:`# Distanza di Manhattan tra punti\ndef distanza_manhattan(p1, p2):\n    return abs(p1[0]-p2[0]) + abs(p1[1]-p2[1])\n\npunti = [(0,0),(3,4),(1,1),(5,2)]\norigine = (0,0)\nfor p in punti:\n    d = distanza_manhattan(origine, p)\n    print(f"Distanza da {origine} a {p}: {d}")` },
+  { label:'9. Radice avanzata', code:`import math\n# Formula quadratica: ax²+bx+c=0\ndef quadratica(a, b, c):\n    discriminante = b**2 - 4*a*c\n    if discriminante < 0:\n        return "Nessuna soluzione reale"\n    elif discriminante == 0:\n        x = -b / (2*a)\n        return f"Una soluzione: x = {x}"\n    else:\n        x1 = (-b + math.sqrt(discriminante)) / (2*a)\n        x2 = (-b - math.sqrt(discriminante)) / (2*a)\n        return f"x1={round(x1,2)}, x2={round(x2,2)}"\n\nprint(quadratica(1,-5,6))\nprint(quadratica(1,2,5))\nprint(quadratica(1,-2,1))` },
+];
+
+let pyDiff = 'easy';
+let pyCurrentPreset = 0;
+
+function initPyPresets() {
+  const container = document.getElementById('py-preset-btns');
+  if(!container) return;
+  const presets = pyDiff==='easy' ? PY_PRESETS_EASY : PY_PRESETS_HARD;
+  container.innerHTML = presets.map((p,i)=>`
+    <button onclick="loadPyPreset(${i})"
+      style="background:${i===pyCurrentPreset?'var(--accent)':'var(--bg3)'};color:${i===pyCurrentPreset?'#060a10':'var(--muted)'};border:1px solid ${i===pyCurrentPreset?'var(--accent)':'var(--border)'};padding:6px 10px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:10px;text-align:left;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px"
+      title="${p.label}">
+      ${p.label}
+    </button>`).join('');
+  loadPyPreset(pyCurrentPreset, false);
+}
+
+function loadPyPreset(idx, updateBtns=true) {
+  pyCurrentPreset = idx;
+  const presets = pyDiff==='easy' ? PY_PRESETS_EASY : PY_PRESETS_HARD;
+  const code = document.getElementById('py-code');
+  if(code) code.value = presets[idx].code;
+  const fname = document.getElementById('py-filename');
+  if(fname) fname.textContent = presets[idx].label.split('.')[1]?.trim().toLowerCase().replace(/[^a-z]/g,'_')+'.py · Python 3';
+  if(updateBtns) initPyPresets();
+  document.getElementById('py-output').textContent='// L\'output del codice apparirà qui...';
+}
+
+function setPyDiff(diff) {
+  pyDiff = diff;
+  pyCurrentPreset = 0;
+  document.getElementById('py-diff-easy').style.background = diff==='easy'?'var(--accent)':'var(--bg3)';
+  document.getElementById('py-diff-easy').style.color = diff==='easy'?'#060a10':'var(--muted)';
+  document.getElementById('py-diff-easy').style.border = diff==='easy'?'none':'1px solid var(--border)';
+  document.getElementById('py-diff-hard').style.background = diff==='hard'?'#f80':'var(--bg3)';
+  document.getElementById('py-diff-hard').style.color = diff==='hard'?'#fff':'var(--muted)';
+  document.getElementById('py-diff-hard').style.border = diff==='hard'?'none':'1px solid var(--border)';
+  initPyPresets();
+}
+
+// Add math.sqrt support to Python transpiler
+const _origTranspileExpr = transpileExpr;
+function transpileExpr(s) {
+  if(!s) return s;
+  s = s.replace(/\bmath\.sqrt\(([^)]+)\)/g, 'Math.sqrt($1)');
+  s = s.replace(/^import math\s*$/, '// import math (disponibile)');
+  return _origTranspileExpr(s);
+}
+
 // ─── ALL INITIALIZATIONS (after all functions defined) ───
 applyTheme(currentTheme);
 setupWheelDrag();
@@ -2863,6 +3095,8 @@ buildPiano();
 updateInstrumentDisplay();
 drawWheel();
 renderExercises();
+renderCivica();
+initPyPresets();
 </script>
 </body>
 </html>
