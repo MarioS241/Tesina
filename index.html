@@ -422,6 +422,8 @@
   /* ─── LOADING SPINNER ─── */
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translate(-50%,-60%)} to{opacity:1;transform:translate(-50%,-50%)} }
 
   textarea { font-family: var(--mono); }
 
@@ -936,20 +938,27 @@
   <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:1.5rem">
     <!-- Lang buttons vertical -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--accent);color:#060a10;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;writing-mode:horizontal-tb;transition:all 0.2s">🇮🇹 IT</button>
-      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s">🇫🇷 FR</button>
+      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--accent);color:#060a10;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;transition:all 0.25s">🇮🇹 IT</button>
+      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s">🇫🇷 FR</button>
     </div>
 
     <!-- Main text -->
     <div style="flex:1">
-      <div id="civica-text" style="transition:opacity 0.35s ease;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:13px;line-height:1.8;color:var(--text)">
-        <!-- Populated by JS -->
-      </div>
-
-      <!-- Accordion buttons -->
+      <div id="civica-text" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:13px;line-height:1.8;color:var(--text);transition:opacity 0.35s ease,transform 0.35s ease"></div>
+      <!-- Topic buttons -->
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px" id="civica-btns"></div>
-      <div id="civica-accordion" style="margin-top:10px;transition:opacity 0.3s ease"></div>
     </div>
+  </div>
+
+  <!-- Modal overlay -->
+  <div id="civica-modal-overlay" onclick="closeCivicaModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1500;align-items:center;justify-content:center;padding:16px"></div>
+  <!-- Modal -->
+  <div id="civica-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);opacity:0;z-index:1501;width:min(680px,94vw);max-height:80vh;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;transition:transform 0.35s cubic-bezier(.34,1.56,.64,1),opacity 0.3s ease">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div id="civica-modal-title" style="font-family:var(--title);font-size:1.1rem;color:var(--accent);font-weight:700"></div>
+      <button onclick="closeCivicaModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
+    </div>
+    <div id="civica-modal-body" style="font-size:13px;line-height:1.9;color:var(--text)"></div>
   </div>
 </section>
 
@@ -1585,8 +1594,9 @@ function pythonToJS(code) {
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
     const stripped = raw.trimEnd();
-    if (!stripped || stripped.trimStart().startsWith('#')) {
-      result.push(stripped.trimStart().startsWith('#') ? '//' + stripped.trimStart().slice(1) : '');
+    if (!stripped || stripped.trimStart().startsWith('#') || stripped.trimStart().startsWith('import math')) {
+      if(stripped.trimStart().startsWith('import math')) result.push('// import math — Math disponibile');
+      else result.push(stripped.trimStart().startsWith('#') ? '//' + stripped.trimStart().slice(1) : '');
       continue;
     }
 
@@ -1685,6 +1695,12 @@ function transpileCond(s) {
 
 function transpileExpr(s) {
   if (!s) return s;
+  // math module support
+  s = s.replace(/\bmath\.sqrt\(([^)]+)\)/g, 'Math.sqrt($1)');
+  s = s.replace(/\bmath\.pi\b/g, 'Math.PI');
+  s = s.replace(/\bmath\.floor\(([^)]+)\)/g, 'Math.floor($1)');
+  s = s.replace(/\bmath\.ceil\(([^)]+)\)/g, 'Math.ceil($1)');
+  s = s.replace(/\bmath\.pow\(([^,]+),([^)]+)\)/g, 'Math.pow($1,$2)');
   // Handle print(x, end="...") FIRST before any other replacement
   s = s.replace(/^print\((.+),\s*end\s*=\s*["']([^"']*)["']\)$/, (m, arg, _end) => {
     return `print(${arg})`;
@@ -2720,10 +2736,14 @@ function redrawPixelArt() {
   }
 
   if (showGrid) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-    ctx.lineWidth = 0.5;
-    for(let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(c*pxSize,0); ctx.lineTo(c*pxSize,canvas.height); ctx.stroke(); }
-    for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*pxSize); ctx.lineTo(canvas.width,r*pxSize); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(0,255,136,0.4)';
+    ctx.lineWidth = 1;
+    for(let c=0;c<=cols;c++){
+      ctx.beginPath(); ctx.moveTo(c*pxSize+0.5,0); ctx.lineTo(c*pxSize+0.5,canvas.height); ctx.stroke();
+    }
+    for(let r=0;r<=rows;r++){
+      ctx.beginPath(); ctx.moveTo(0,r*pxSize+0.5); ctx.lineTo(canvas.width,r*pxSize+0.5); ctx.stroke();
+    }
   }
 
   const avgR=Math.round(rSum/count), avgG=Math.round(gSum/count), avgB=Math.round(bSum/count);
@@ -2928,13 +2948,23 @@ function openSpotify() {
   if(!url) return;
   const embedDiv = document.getElementById('fa-spotify-embed');
   // Convert spotify URL to embed URL
-  let embedUrl = url;
-  const m = url.match(/spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
+  const m = url.match(/spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
   if(m) {
-    embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0`;
-    embedDiv.innerHTML = `<iframe src="${embedUrl}" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:12px;margin-top:4px"></iframe>`;
+    const embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0`;
+    embedDiv.innerHTML = `
+      <div style="border-radius:12px;overflow:hidden;margin-top:8px">
+        <iframe style="border-radius:12px" src="${embedUrl}" 
+          width="100%" height="152" frameborder="0" 
+          allowfullscreen 
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+          loading="lazy"></iframe>
+      </div>
+      <p style="font-size:10px;color:var(--muted);margin-top:4px">
+        ℹ️ Il player Spotify richiede un account Spotify per la riproduzione completa.
+        <a href="${url}" target="_blank" style="color:var(--accent)">Apri in Spotify →</a>
+      </p>`;
   } else {
-    window.open(url, '_blank');
+    embedDiv.innerHTML = `<p style="color:#f66;font-size:12px">Link Spotify non riconosciuto. Formato: https://open.spotify.com/track/...</p>`;
   }
 }
 
@@ -2979,20 +3009,17 @@ let civicaOpenIdx = null;
 
 function setCivicaLang(lang) {
   civicaLang = lang;
-  civicaOpenIdx = null;
-  document.getElementById('civica-btn-it').style.background = lang==='it' ? 'var(--accent)' : 'var(--bg3)';
-  document.getElementById('civica-btn-it').style.color = lang==='it' ? '#060a10' : 'var(--muted)';
-  document.getElementById('civica-btn-it').style.border = lang==='it' ? 'none' : '1px solid var(--border)';
-  document.getElementById('civica-btn-fr').style.background = lang==='fr' ? '#0055A4' : 'var(--bg3)';
-  document.getElementById('civica-btn-fr').style.color = lang==='fr' ? '#fff' : 'var(--muted)';
-  document.getElementById('civica-btn-fr').style.border = lang==='fr' ? 'none' : '1px solid var(--border)';
+  const btnIt = document.getElementById('civica-btn-it');
+  const btnFr = document.getElementById('civica-btn-fr');
+  if(btnIt){ btnIt.style.background=lang==='it'?'var(--accent)':'var(--bg3)'; btnIt.style.color=lang==='it'?'#060a10':'var(--muted)'; btnIt.style.border=lang==='it'?'none':'1px solid var(--border)'; }
+  if(btnFr){ btnFr.style.background=lang==='fr'?'#0055A4':'var(--bg3)'; btnFr.style.color=lang==='fr'?'#fff':'var(--muted)'; btnFr.style.border=lang==='fr'?'none':'1px solid var(--border)'; }
   const el = document.getElementById('civica-text');
-  el.style.opacity='0';
+  if(el){ el.style.opacity='0'; el.style.transform='translateX(12px)'; }
   setTimeout(()=>{
     renderCivica();
-    el.style.opacity='1';
+    if(el){ el.style.opacity='1'; el.style.transform='translateX(0)'; }
   },300);
-  document.getElementById('civica-accordion').innerHTML='';
+  closeCivicaModal();
 }
 
 function renderCivica() {
@@ -3002,19 +3029,60 @@ function renderCivica() {
   const btnsEl = document.getElementById('civica-btns');
   if(!btnsEl) return;
   btnsEl.innerHTML = data.sections.map((s,i)=>`
-    <button onclick="toggleCivicaSection(${i})" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s" id="civica-sec-btn-${i}">
+    <button onclick="openCivicaModal(${i})"
+      id="civica-sec-btn-${i}"
+      style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;position:relative;overflow:hidden"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
       ${s.btn}
     </button>`).join('');
 }
 
-function toggleCivicaSection(idx) {
+function openCivicaModal(idx) {
   const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
-  const acc = document.getElementById('civica-accordion');
-  if(civicaOpenIdx===idx){ acc.innerHTML=''; civicaOpenIdx=null; return; }
-  civicaOpenIdx=idx;
-  const text = data.sections[idx].text.replace(/\n/g,'<br>').replace(/•/g,'•');
-  acc.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;color:var(--text);animation:fadeIn 0.3s ease">${text}</div>`;
+  const s = data.sections[idx];
+  const overlay = document.getElementById('civica-modal-overlay');
+  const modal = document.getElementById('civica-modal');
+  const title = document.getElementById('civica-modal-title');
+  const body = document.getElementById('civica-modal-body');
+  if(!modal) return;
+  title.textContent = s.btn;
+  body.innerHTML = s.text.split('\n').map(line=>{
+    if(line.startsWith('•') || line.startsWith('*')) return `<div style="padding:4px 0 4px 16px;border-left:2px solid var(--accent);margin:4px 0;color:var(--text)">${line.replace(/^[•*]\s*/,'')}</div>`;
+    if(line.startsWith('📋') || line.match(/^[A-Z]/)) return `<div style="color:var(--accent);font-weight:700;margin-top:12px">${line}</div>`;
+    return `<div>${line}</div>`;
+  }).join('');
+  overlay.style.display = 'flex';
+  modal.style.display = 'block';
+  // Animate in
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      modal.style.transform = 'translate(-50%,-50%)';
+      modal.style.opacity = '1';
+    });
+  });
+  // Highlight active button
+  document.querySelectorAll('[id^=civica-sec-btn-]').forEach((b,i)=>{
+    b.style.background = i===idx ? 'rgba(0,255,136,0.1)' : 'var(--bg3)';
+    b.style.borderColor = i===idx ? 'var(--accent)' : 'var(--border)';
+    b.style.color = i===idx ? 'var(--accent)' : 'var(--text)';
+  });
 }
+
+function closeCivicaModal() {
+  const overlay = document.getElementById('civica-modal-overlay');
+  const modal = document.getElementById('civica-modal');
+  if(!modal) return;
+  modal.style.transform = 'translate(-50%,-60%)';
+  modal.style.opacity = '0';
+  setTimeout(()=>{ modal.style.display='none'; if(overlay) overlay.style.display='none'; },300);
+  document.querySelectorAll('[id^=civica-sec-btn-]').forEach(b=>{
+    b.style.background='var(--bg3)'; b.style.borderColor='var(--border)'; b.style.color='var(--text)';
+  });
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCivicaModal(); });
 
 // ─── PYTHON PRESETS ───
 const PY_PRESETS_EASY = [
@@ -3079,14 +3147,7 @@ function setPyDiff(diff) {
   initPyPresets();
 }
 
-// Add math.sqrt support to Python transpiler
-const _origTranspileExpr = transpileExpr;
-function transpileExpr(s) {
-  if(!s) return s;
-  s = s.replace(/\bmath\.sqrt\(([^)]+)\)/g, 'Math.sqrt($1)');
-  s = s.replace(/^import math\s*$/, '// import math (disponibile)');
-  return _origTranspileExpr(s);
-}
+// math.sqrt handled directly in transpileExpr above
 
 // ─── ALL INITIALIZATIONS (after all functions defined) ───
 applyTheme(currentTheme);
