@@ -903,6 +903,11 @@
           <div id="inst-next" style="font-size:12px;color:var(--muted);padding:6px 12px;border-radius:6px;background:var(--bg3);margin-top:4px;opacity:0.5;text-align:center"></div>
         </div>
       </div>
+      <!-- 3D Instrument Viewer -->
+      <div id="inst-3d-wrap" style="margin-bottom:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;background:var(--bg3);display:flex;flex-direction:column;align-items:center">
+        <canvas id="inst-3d-canvas" style="width:100%;max-height:220px;display:block;touch-action:none"></canvas>
+        <p id="inst-3d-hint" style="font-size:10px;color:var(--muted);padding:4px 0 8px;text-align:center">— Clicca/tocca le corde per suonare —</p>
+      </div>
       <!-- Piano keys -->
       <div id="piano-keys" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:0 0 10px 0">
         <div id="piano-inner" style="display:inline-block;position:relative;height:125px;min-width:100%"></div>
@@ -1603,6 +1608,17 @@ function pythonToJS(code) {
     const indent = raw.length - raw.trimStart().length;
     let line = stripped.trimStart();
 
+    // Strip inline comments like   # Risultato: 8
+    // But preserve # inside strings
+    line = line.replace(/\s+#[^'"]*$/, (match) => {
+      // Only strip if the # is not inside a string
+      const before = line.slice(0, line.length - match.length);
+      const singleQ = (before.match(/'/g)||[]).length;
+      const doubleQ = (before.match(/"/g)||[]).length;
+      if (singleQ % 2 === 0 && doubleQ % 2 === 0) return '';
+      return match;
+    });
+
     // Close blocks based on dedent
     while (indent < indentStack[indentStack.length - 1]) {
       indentStack.pop();
@@ -2136,6 +2152,7 @@ function updateInstrumentDisplay() {
   document.getElementById('inst-prev').textContent = prev.name;
   document.getElementById('inst-current').textContent = cur.name;
   document.getElementById('inst-next').textContent = next.name;
+  draw3DInstrument();
 }
 
 function wheelUp()   { instIndex = (instIndex - 1 + instruments.length) % instruments.length; spinWheel(-1); updateInstrumentDisplay(); }
@@ -2736,8 +2753,8 @@ function redrawPixelArt() {
   }
 
   if (showGrid) {
-    ctx.strokeStyle = 'rgba(0,255,136,0.4)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.lineWidth = 0.5;
     for(let c=0;c<=cols;c++){
       ctx.beginPath(); ctx.moveTo(c*pxSize+0.5,0); ctx.lineTo(c*pxSize+0.5,canvas.height); ctx.stroke();
     }
@@ -2947,24 +2964,27 @@ function openSpotify() {
   const url = document.getElementById('fa-spotify-url').value.trim();
   if(!url) return;
   const embedDiv = document.getElementById('fa-spotify-embed');
-  // Convert spotify URL to embed URL
-  const m = url.match(/spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
-  if(m) {
-    const embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0`;
+  // Match any Spotify URL including intl-it/, ?si= params etc
+  const typeMatch = url.match(/spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode|show)\//);
+  const idMatch = url.match(/\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
+  if(typeMatch && idMatch) {
+    const type = typeMatch[1];
+    const id = idMatch[2];
+    const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
     embedDiv.innerHTML = `
       <div style="border-radius:12px;overflow:hidden;margin-top:8px">
-        <iframe style="border-radius:12px" src="${embedUrl}" 
-          width="100%" height="152" frameborder="0" 
-          allowfullscreen 
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+        <iframe style="border-radius:12px" src="${embedUrl}"
+          width="100%" height="152" frameborder="0"
+          allowfullscreen
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"></iframe>
       </div>
       <p style="font-size:10px;color:var(--muted);margin-top:4px">
-        ℹ️ Il player Spotify richiede un account Spotify per la riproduzione completa.
+        ℹ️ Richiede account Spotify per la riproduzione completa.
         <a href="${url}" target="_blank" style="color:var(--accent)">Apri in Spotify →</a>
       </p>`;
   } else {
-    embedDiv.innerHTML = `<p style="color:#f66;font-size:12px">Link Spotify non riconosciuto. Formato: https://open.spotify.com/track/...</p>`;
+    embedDiv.innerHTML = `<p style="color:#f66;font-size:12px">❌ Link non riconosciuto. Esempio: https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh</p>`;
   }
 }
 
@@ -3004,7 +3024,7 @@ const CIVICA_FR = {
   ]
 };
 
-let civicaLang = 'it';
+let civicaLang = null; // null = no language chosen yet
 let civicaOpenIdx = null;
 
 function setCivicaLang(lang) {
@@ -3023,15 +3043,20 @@ function setCivicaLang(lang) {
 }
 
 function renderCivica() {
-  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
   const el = document.getElementById('civica-text');
-  if(el) el.textContent = data.intro;
   const btnsEl = document.getElementById('civica-btns');
+  if(!civicaLang) {
+    if(el) el.innerHTML = `<span style="color:var(--muted);font-style:italic">🌐 Scegli la lingua da mostrare per iniziare.</span>`;
+    if(btnsEl) btnsEl.innerHTML = '';
+    return;
+  }
+  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
+  if(el) el.textContent = data.intro;
   if(!btnsEl) return;
   btnsEl.innerHTML = data.sections.map((s,i)=>`
     <button onclick="openCivicaModal(${i})"
       id="civica-sec-btn-${i}"
-      style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;position:relative;overflow:hidden"
+      style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s"
       onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
       ${s.btn}
@@ -3149,9 +3174,237 @@ function setPyDiff(diff) {
 
 // math.sqrt handled directly in transpileExpr above
 
-// ─── ALL INITIALIZATIONS (after all functions defined) ───
+// ─── 3D INSTRUMENT VIEWER ───
+const GUITAR_STRINGS = [
+  { note:'Mi4', freq:329.63, color:'#c8a060' },
+  { note:'Si3', freq:246.94, color:'#b89050' },
+  { note:'Sol3',freq:196.00, color:'#c09060' },
+  { note:'Re3', freq:146.83, color:'#a87040' },
+  { note:'La2', freq:110.00, color:'#906030' },
+  { note:'Mi2', freq:82.41,  color:'#804820' },
+];
+const ORGAN_PIPES = [
+  {note:'Do', freq:261.63},{note:'Re',freq:293.66},{note:'Mi',freq:329.63},
+  {note:'Fa',freq:349.23},{note:'Sol',freq:392},{note:'La',freq:440},
+  {note:'Si',freq:493.88},{note:'Do2',freq:523.25},
+];
+let inst3dCanvas=null, inst3dCtx=null;
+let strumAnim = {}; // tracks vibrating strings {idx: {t, freq}}
+
+function init3DCanvas() {
+  inst3dCanvas = document.getElementById('inst-3d-canvas');
+  if(!inst3dCanvas) return;
+  inst3dCtx = inst3dCanvas.getContext('2d');
+  // Set canvas size
+  inst3dCanvas.width = inst3dCanvas.offsetWidth || 600;
+  inst3dCanvas.height = 200;
+  inst3dCanvas.addEventListener('click', on3DClick);
+  inst3dCanvas.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    const r=inst3dCanvas.getBoundingClientRect();
+    const t=e.touches[0];
+    on3DClick({clientX:t.clientX, clientY:t.clientY, rect:r});
+  },{passive:false});
+  window.addEventListener('resize',()=>{
+    inst3dCanvas.width=inst3dCanvas.offsetWidth||600;
+    draw3DInstrument();
+  });
+  requestAnimationFrame(animate3D);
+}
+
+function on3DClick(e) {
+  const r = inst3dCanvas.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+  const name = instruments[instIndex]?.name?.toLowerCase() || '';
+
+  if(name.includes('chitarra')) {
+    const W=inst3dCanvas.width, H=inst3dCanvas.height;
+    const bodyX=W*0.28, bodyW=W*0.55;
+    const strTop=H*0.22, strSpacing=(H*0.62)/5;
+    GUITAR_STRINGS.forEach((s,i)=>{
+      const sy = strTop + i*strSpacing;
+      if(Math.abs(y-sy)<14 && x>bodyX && x<bodyX+bodyW) {
+        pluckString(i, s.freq);
+      }
+    });
+  } else {
+    // Organ/piano — click pipes
+    const W=inst3dCanvas.width, H=inst3dCanvas.height;
+    const n=ORGAN_PIPES.length;
+    const pw=W/(n+1)*0.7;
+    ORGAN_PIPES.forEach((p,i)=>{
+      const px = W*(i+1)/(n+1) - pw/2;
+      if(x>px && x<px+pw && y>H*0.15) {
+        playFakeNote(p.freq);
+      }
+    });
+  }
+}
+
+function pluckString(idx, freq) {
+  strumAnim[idx] = {t:0, freq};
+  // play note
+  const ctx2 = getPianoCtx();
+  const inst = instruments[instIndex];
+  const o=ctx2.createOscillator(), g=ctx2.createGain();
+  o.connect(g); g.connect(ctx2.destination);
+  o.type='triangle'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.5,ctx2.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+1.2);
+  o.start(); o.stop(ctx2.currentTime+1.2);
+  const disp=document.getElementById('piano-display');
+  if(disp){disp.textContent=GUITAR_STRINGS[idx]?.note+' — '+freq.toFixed(1)+'Hz';disp.style.color='var(--accent)';}
+}
+
+function playFakeNote(freq) {
+  const ctx2=getPianoCtx();
+  const o=ctx2.createOscillator(),g=ctx2.createGain();
+  o.connect(g);g.connect(ctx2.destination);
+  o.type=instruments[instIndex]?.type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(0.4,ctx2.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.8);
+  o.start();o.stop(ctx2.currentTime+0.8);
+}
+
+function animate3D() {
+  // Advance string animations
+  Object.keys(strumAnim).forEach(k=>{strumAnim[k].t+=0.18;if(strumAnim[k].t>Math.PI*8)delete strumAnim[k];});
+  draw3DInstrument();
+  requestAnimationFrame(animate3D);
+}
+
+function draw3DInstrument() {
+  if(!inst3dCanvas||!inst3dCtx) return;
+  const W=inst3dCanvas.width, H=inst3dCanvas.height;
+  const ctx2=inst3dCtx;
+  const name=(instruments[instIndex]?.name||'').toLowerCase();
+  ctx2.clearRect(0,0,W,H);
+
+  if(name.includes('chitarra')) drawGuitar(ctx2,W,H);
+  else if(name.includes('organo')) drawOrgan(ctx2,W,H);
+  else drawGenericWave(ctx2,W,H,name);
+
+  const hint=document.getElementById('inst-3d-hint');
+  if(hint) hint.textContent = name.includes('chitarra')?'🎸 Clicca le corde per suonare':name.includes('organo')?'🎹 Clicca le canne per suonare':'🎵 '+instruments[instIndex]?.name;
+}
+
+function drawGuitar(ctx2,W,H) {
+  // Body
+  const bx=W*0.28, bw=W*0.55, by=H*0.1, bh=H*0.8;
+  // Guitar body shape
+  ctx2.save();
+  const grad=ctx2.createLinearGradient(bx,0,bx+bw,0);
+  grad.addColorStop(0,'#4a2200'); grad.addColorStop(0.4,'#8b4513'); grad.addColorStop(1,'#4a2200');
+  ctx2.fillStyle=grad;
+  // Upper bout
+  ctx2.beginPath();
+  ctx2.ellipse(bx+bw/2, by+bh*0.28, bw*0.38, bh*0.28, 0, 0, Math.PI*2);
+  ctx2.fill();
+  // Lower bout (larger)
+  ctx2.beginPath();
+  ctx2.ellipse(bx+bw/2, by+bh*0.68, bw*0.48, bh*0.32, 0, 0, Math.PI*2);
+  ctx2.fill();
+  // Waist connector
+  ctx2.fillRect(bx+bw*0.18, by+bh*0.34, bw*0.64, bh*0.26);
+  // Soundhole
+  ctx2.beginPath();
+  ctx2.arc(bx+bw/2, by+bh*0.48, bw*0.1, 0, Math.PI*2);
+  ctx2.fillStyle='#1a0a00';
+  ctx2.fill();
+  ctx2.strokeStyle='#c8a060'; ctx2.lineWidth=2;
+  ctx2.stroke();
+  ctx2.restore();
+
+  // Neck
+  ctx2.save();
+  const ng=ctx2.createLinearGradient(0,0,W*0.28,0);
+  ng.addColorStop(0,'#3a1a00'); ng.addColorStop(1,'#6b3a0a');
+  ctx2.fillStyle=ng;
+  ctx2.fillRect(W*0.04, H*0.44, W*0.24, H*0.12);
+  // Frets
+  ctx2.strokeStyle='rgba(255,220,120,0.7)'; ctx2.lineWidth=1.5;
+  for(let f=1;f<=5;f++){const fx=W*0.04+f*(W*0.24/6);ctx2.beginPath();ctx2.moveTo(fx,H*0.44);ctx2.lineTo(fx,H*0.56);ctx2.stroke();}
+  // Headstock
+  ctx2.fillStyle='#2a0e00';
+  ctx2.fillRect(W*0.01,H*0.42,W*0.04,H*0.16);
+  ctx2.restore();
+
+  // Strings
+  const strTop=H*0.22, strSpacing=(H*0.62)/5;
+  GUITAR_STRINGS.forEach((s,i)=>{
+    const sy=strTop+i*strSpacing;
+    const isVibrating=strumAnim[i];
+    ctx2.save();
+    ctx2.beginPath();
+    if(isVibrating){
+      const amp=Math.sin(strumAnim[i].t*1.5)*Math.max(0,1-strumAnim[i].t/(Math.PI*8))*6;
+      ctx2.moveTo(W*0.04,sy);
+      const segments=20;
+      for(let seg=0;seg<=segments;seg++){
+        const px=W*0.04+seg*(W*0.83/segments);
+        const py=sy+Math.sin((seg/segments)*Math.PI*5+strumAnim[i].t)*amp;
+        seg===0?ctx2.moveTo(px,py):ctx2.lineTo(px,py);
+      }
+    } else {
+      ctx2.moveTo(W*0.04,sy); ctx2.lineTo(W*0.87,sy);
+    }
+    ctx2.strokeStyle=isVibrating?'#ffe680':s.color;
+    ctx2.lineWidth=isVibrating?2:Math.max(0.8,2-i*0.2);
+    ctx2.shadowColor=isVibrating?'#ffe680':'transparent';
+    ctx2.shadowBlur=isVibrating?8:0;
+    ctx2.stroke();
+    // String label
+    ctx2.fillStyle=isVibrating?'#ffe680':'#999';
+    ctx2.font=`${Math.floor(H*0.06)}px monospace`;
+    ctx2.fillText(s.note,W*0.88+2,sy+4);
+    ctx2.restore();
+  });
+}
+
+function drawOrgan(ctx2,W,H) {
+  const n=ORGAN_PIPES.length;
+  ctx2.fillStyle=var3D('#0d1421');
+  ctx2.fillRect(0,0,W,H);
+  ORGAN_PIPES.forEach((p,i)=>{
+    const x=W*(i+1)/(n+1);
+    const pw=W/(n+1)*0.65;
+    const ph=H*(0.3+0.5*(i%2===0?1:0.75));
+    const px=x-pw/2;
+    const py=H*0.9-ph;
+    const g=ctx2.createLinearGradient(px,0,px+pw,0);
+    g.addColorStop(0,'#445'); g.addColorStop(0.5,'#88aacc'); g.addColorStop(1,'#445');
+    ctx2.fillStyle=g;
+    ctx2.fillRect(px,py,pw,ph);
+    ctx2.strokeStyle='rgba(0,200,255,0.4)';ctx2.lineWidth=1;
+    ctx2.strokeRect(px,py,pw,ph);
+    ctx2.fillStyle='#aad';ctx2.font=`${Math.floor(pw*0.55)}px monospace`;
+    ctx2.textAlign='center';ctx2.fillText(p.note,x,H*0.96);
+    ctx2.textAlign='start';
+  });
+}
+
+function drawGenericWave(ctx2,W,H,name) {
+  ctx2.fillStyle='#0a1020';ctx2.fillRect(0,0,W,H);
+  const t=Date.now()/800;
+  ctx2.strokeStyle='var(--accent,#00ff88)';ctx2.lineWidth=2;
+  ctx2.beginPath();
+  for(let x=0;x<=W;x++){
+    const y=H/2+Math.sin(x/30+t)*30+Math.sin(x/15+t*1.3)*15;
+    x===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
+  }
+  ctx2.stroke();
+  ctx2.fillStyle='rgba(0,255,136,0.15)';
+  ctx2.font=`bold ${Math.floor(H*0.18)}px Syne, sans-serif`;
+  ctx2.textAlign='center';
+  ctx2.fillText(instruments[instIndex]?.name||'',W/2,H/2+8);
+  ctx2.textAlign='start';
+}
+
+function var3D(def){return def;} // placeholder for CSS var
 applyTheme(currentTheme);
 setupWheelDrag();
+init3DCanvas();
 buildPiano();
 updateInstrumentDisplay();
 drawWheel();
