@@ -1519,21 +1519,55 @@ async function correctGrammar() {
   if (!txt) return;
   const btn = document.getElementById('grammar-btn');
   const out = document.getElementById('grammar-output');
-  btn.innerHTML = '<span class="spinner"></span>Correzione in corso...'; btn.disabled = true;
-  out.innerHTML = '<span style="color:var(--muted)">Analisi in corso...</span>';
+  btn.innerHTML = '<span class="spinner"></span> Analisi in corso...'; btn.disabled = true;
+  out.innerHTML = '<span style="color:var(--muted)">🔍 Analisi grammaticale...</span>';
 
   try {
-    const body = new URLSearchParams({ text: txt, language: 'it' });
+    // Disabled rules: capitalization at start, proper nouns, spelling of names
+    const disabledRules = [
+      'UPPERCASE_SENTENCE_START',   // Don't force capital at start
+      'PROFANITY',                  // Not relevant
+      'COMMA_PARENTHESIS_WHITESPACE',
+    ].join(',');
+
+    const body = new URLSearchParams({
+      text: txt,
+      language: 'it',
+      disabledRules,
+      // Only check real grammar issues, not style
+      level: 'default',
+    });
+
     const r = await fetch('https://api.languagetool.org/v2/check', { method:'POST', body });
+    if (!r.ok) throw new Error('Errore API: ' + r.status);
     const d = await r.json();
 
-    if (!d.matches || d.matches.length === 0) {
-      out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore trovato! Il testo è corretto.</span>';
-      btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false; return;
+    // Filter out matches that are only capitalisation fixes on possible proper nouns
+    const isProperNoun = (orig, repl) => {
+      // If the only difference is first letter capitalisation and original starts with lowercase but could be a name
+      if (!orig || !repl) return false;
+      if (orig.length < 2) return false;
+      const onlyCapChange = orig.toLowerCase() === repl.toLowerCase() && orig[0] !== repl[0];
+      return onlyCapChange;
+    };
+
+    const validMatches = (d.matches || []).filter(m => {
+      const rep = m.replacements?.[0]?.value || '';
+      const orig = txt.slice(m.offset, m.offset + m.length);
+      // Skip pure capitalisation fixes for potential proper nouns (names)
+      if (isProperNoun(orig, rep)) return false;
+      // Skip if rule is about sentence start and word might be a name
+      if (m.rule?.id === 'UPPERCASE_SENTENCE_START') return false;
+      return true;
+    });
+
+    if (validMatches.length === 0) {
+      out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore grammaticale trovato. Il testo è corretto.</span>';
+      btn.innerHTML = '✦ Correggi'; btn.disabled = false; return;
     }
 
-    // Build corrected string by applying replacements from end→start
-    const sorted = [...d.matches].sort((a,b) => b.offset - a.offset);
+    // Apply corrections end→start to preserve offsets
+    const sorted = [...validMatches].sort((a,b) => b.offset - a.offset);
     let corrected = txt;
     sorted.forEach(m => {
       if (m.replacements?.length) {
@@ -1541,18 +1575,17 @@ async function correctGrammar() {
       }
     });
 
-    // Build highlight map: positions in corrected string
-    const asc = [...d.matches].filter(m => m.replacements?.length).sort((a,b) => a.offset - b.offset);
+    // Build highlighted output
+    const asc = [...validMatches].filter(m => m.replacements?.length).sort((a,b) => a.offset - b.offset);
     const spans = [];
     let shift = 0;
     asc.forEach(m => {
       const rep = m.replacements[0].value;
       const start = m.offset + shift;
-      spans.push({ start, end: start + rep.length, word: rep, msg: m.message, cat: m.rule?.category?.name || '' });
+      spans.push({ start, end: start + rep.length, word: rep, msg: m.message, orig: txt.slice(m.offset, m.offset+m.length) });
       shift += rep.length - m.length;
     });
 
-    // Build safe HTML by walking corrected string
     const frag = document.createDocumentFragment();
     let cursor = 0;
     spans.forEach(s => {
@@ -1560,7 +1593,8 @@ async function correctGrammar() {
       const span = document.createElement('span');
       span.className = 'corrected';
       span.textContent = s.word;
-      const meta = { def: s.msg, isVerb: false, inf: '', word: s.word, cat: s.cat };
+      span.title = s.msg; // Native tooltip as backup
+      const meta = { def: s.msg, isVerb: false, inf: '', word: s.word };
       span.dataset.meta = JSON.stringify(meta);
       span.addEventListener('click', function(e){ showDef(this, e); });
       frag.appendChild(span);
@@ -1572,12 +1606,16 @@ async function correctGrammar() {
     out.appendChild(frag);
 
     const summary = document.createElement('div');
-    summary.style.cssText = 'font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
-    const n = d.matches.length;
-    summary.textContent = `${n} correzione${n !== 1 ? 'i' : ''} trovata${n !== 1 ? 'e' : ''} — clicca le parole evidenziate per dettagli`;
+    summary.style.cssText = 'font-size:11px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border)';
+    const n = validMatches.length;
+    summary.innerHTML = `<span style="color:var(--accent)">${n}</span> correzione${n!==1?'i':''} trovata${n!==1?'e':''} — clicca le parole evidenziate in verde per i dettagli`;
     out.appendChild(summary);
 
   } catch(e) {
+    out.innerHTML = `<span style="color:#f66">⚠️ Errore: ${e.message}. Controlla la connessione.</span>`;
+  }
+  btn.innerHTML = '✦ Correggi'; btn.disabled = false;
+}
     out.textContent = '❌ Errore di rete. Verifica la connessione.';
   }
   btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false;
@@ -1621,20 +1659,26 @@ function positionTooltip(tip, e) {
 }
 
 function positionTooltipOnEl(tip, el) {
-  // Position tooltip directly above the word element
+  // First show off-screen so browser renders it and we can measure
+  tip.style.visibility = 'hidden';
   tip.style.display = 'block';
-  const rect = el.getBoundingClientRect();
-  const tw = tip.offsetWidth || 240;
-  const th = tip.offsetHeight || 90;
-  let x = rect.left + rect.width/2 - tw/2;
-  let y = rect.top - th - 8;
-  // clamp horizontally
-  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
-  if (x < 8) x = 8;
-  // flip below if no space above
-  if (y < 8) y = rect.bottom + 6;
-  tip.style.left = x + 'px';
-  tip.style.top = y + 'px';
+  tip.style.left = '-9999px';
+  tip.style.top = '-9999px';
+  // Use rAF to ensure layout is computed before measuring
+  requestAnimationFrame(() => {
+    const rect = el.getBoundingClientRect();
+    const tw = tip.offsetWidth;
+    const th = tip.offsetHeight;
+    let x = rect.left + rect.width / 2 - tw / 2;
+    let y = rect.top - th - 10;
+    // Clamp horizontally within viewport
+    x = Math.max(8, Math.min(x, window.innerWidth - tw - 8));
+    // Flip below if not enough space above
+    if (y < 8) y = rect.bottom + 8;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+    tip.style.visibility = 'visible';
+  });
 }
 
 document.addEventListener('click', () => {
@@ -1658,10 +1702,10 @@ async function lookupEnWord(el, e, word, display) {
   e.stopPropagation();
   const tip = document.getElementById('en-dict-tooltip');
   tip.innerHTML = `<span class="spinner"></span> ${display}...`;
-  tip.style.display = 'block';
   positionTooltipOnEl(tip, el);
   await fetchDictEntry(word, display, tip);
-  positionTooltipOnEl(tip, el); // reposition after content loads
+  // Reposition after content has loaded and been rendered
+  requestAnimationFrame(() => positionTooltipOnEl(tip, el));
 }
 
 async function lookupDictInput() {
