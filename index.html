@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Informatica in Modo Digitale</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -27,7 +27,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 15px;
+    font-size: clamp(14px, 1.2vw, 18px);
     line-height: 1.7;
     overflow-x: hidden;
   }
@@ -121,12 +121,30 @@
   /* ─── SECTIONS ─── */
   section {
     position: relative; z-index: 1;
-    padding: 5rem 1rem 4rem;
-    max-width: 1000px; margin: 0 auto;
+    padding: 5rem clamp(1rem, 3vw, 4rem) 4rem;
+    max-width: min(1200px, 90vw); margin: 0 auto;
     opacity: 0; transform: translateY(40px);
     transition: opacity 0.7s ease, transform 0.7s ease;
   }
   section.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── 4K / LIM (≥2560px) ─── */
+  @media (min-width: 2560px) {
+    section { max-width: min(1800px, 85vw); }
+    .card { padding: 2rem 2.5rem; }
+    .card h3 { font-size: 1.4rem; }
+    .card p { font-size: 15px; }
+    #chat-messages { height: 500px; }
+    .msg { font-size: 15px; }
+    #side-menu { width: 360px; font-size: 16px; }
+    .menu-item { font-size: 17px; padding: 14px 16px; }
+    .menu-item .icon { font-size: 22px; }
+    #menu-btn, button[onclick="toggleSettings()"] { width: 56px; height: 56px; font-size: 24px; }
+    #piano-inner { height: 180px !important; }
+    #inst-3d-canvas { height: 280px !important; max-height: 280px !important; }
+    textarea, input[type="text"], input[type="number"], select { font-size: 16px !important; }
+    #py-code { font-size: 15px !important; }
+  }
 
   .section-label {
     font-size: 10px; letter-spacing: 4px; color: var(--accent);
@@ -424,6 +442,10 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   @keyframes slideUp { from{opacity:0;transform:translate(-50%,-60%)} to{opacity:1;transform:translate(-50%,-50%)} }
+  @keyframes scanMove { from{top:0} to{top:100%} }
+  @keyframes confettiFall { to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+  #svevo-container { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
+  @media(max-width:700px){ #svevo-container { grid-template-columns:1fr; } }
 
   textarea { font-family: var(--mono); }
 
@@ -451,6 +473,42 @@
     #timer-display { font-size: 2.2rem; }
     .shape-btns { gap: 6px; }
     .shape-btn { padding: 7px 12px; font-size: 11px; }
+  }
+
+  /* ─── TABLET (601–1023px) ─── */
+  @media (min-width: 601px) and (max-width: 1023px) {
+    section { max-width: 95vw; padding: 4rem 1.5rem 3rem; }
+    #grammar-container { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ─── LIM / 4K (≥2560px) ─── */
+  @media (min-width: 2560px) {
+    section { max-width: min(2000px, 82vw); padding: 6rem 3rem 5rem; }
+    .section-title { font-size: clamp(2.5rem, 3vw, 5rem); }
+    .section-label { font-size: 13px; letter-spacing: 5px; }
+    .section-bridge { font-size: 15px; }
+    .card { padding: 2rem 2.5rem; }
+    .card h3 { font-size: 1.5rem; }
+    .card p { font-size: 15px; }
+    .hero-sub { font-size: 18px; max-width: 800px; }
+    #side-menu { width: 380px; padding: 6rem 1.8rem 2rem; }
+    .menu-item { font-size: 18px; padding: 14px 16px; }
+    .menu-item .icon { font-size: 24px; width: 30px; }
+    #menu-btn { width: 56px; height: 56px; font-size: 26px; top: 1.5rem; left: 1.5rem; }
+    #chat-messages { height: 520px; }
+    .msg { font-size: 15px; max-width: 75%; }
+    #grammar-container { grid-template-columns: 1fr 1fr; }
+    #map { height: 600px; }
+    #geom-canvas { min-height: 600px; }
+    #scienze-canvas { min-height: 400px; }
+    #inst-3d-wrap { min-height: 320px; }
+    #piano-inner { height: 180px !important; }
+    .piano-scroll-wrap::-webkit-scrollbar { height: 14px; }
+    textarea, input[type="text"], input[type="number"], select { font-size: 16px !important; padding: 10px 14px !important; }
+    #py-code { font-size: 15px !important; min-height: 280px; }
+    button { min-height: 44px; }
+    .shape-btn { padding: 12px 20px; font-size: 15px; }
+    .menu-item:hover { background: var(--bg3); }
   }
 </style>
 </head>
@@ -524,22 +582,58 @@
 <!-- ═══ ITALIANO ═══ -->
 <section id="italiano">
   <div class="section-label">02 — Italiano</div>
-  <div class="section-title">Correttore Grammaticale AI</div>
+  <div class="section-title">Letteratura & AI</div>
   <div class="section-bridge">🔗 La lingua italiana si intreccia con l'informatica: i modelli linguistici sono stati addestrati su miliardi di testi letterari per imparare grammatica, sintassi e semantica.</div>
-  <div class="card">
-    <h3>Come funziona</h3>
-    <p>Scrivi a <strong style="color:var(--text)">sinistra</strong> → premi Correggi → a <strong style="color:var(--text)">destra</strong> appare il testo corretto con le parole modificate evidenziate. <em>Clicca su una parola evidenziata</em> per vedere il dettaglio dell'errore. Powered by <strong style="color:var(--accent)">LanguageTool</strong> — gratuito, no API key.</p>
+
+  <!-- SVEVO vs AI -->
+  <div class="card" style="margin-bottom:1.5rem">
+    <h3 style="margin-bottom:1rem">✍️ Italo Svevo vs 🤖 Intelligenza Artificiale</h3>
+    <p style="margin-bottom:1rem;font-size:12px;color:var(--muted)">A sinistra: un brano originale da <em>La coscienza di Zeno</em> di Italo Svevo (1923). A destra: lo stesso tema rielaborato dall'IA nello stile di Svevo. Clicca "Genera IA" per una nuova variante.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" id="svevo-container">
+      <!-- Svevo original - typewriter effect -->
+      <div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d4a060;flex-shrink:0"></span>
+          ITALO SVEVO · 1923
+        </div>
+        <div id="svevo-original" style="background:var(--bg3);border:1px solid rgba(212,160,96,0.25);border-radius:10px;padding:14px;font-size:13px;line-height:1.9;color:#d4c090;font-family:Georgia,serif;min-height:160px;position:relative">
+          <span id="svevo-text"></span><span id="svevo-cursor" style="display:inline-block;width:2px;height:1em;background:#d4a060;animation:pulse 1s infinite;vertical-align:text-bottom;margin-left:1px"></span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;padding:8px;background:var(--bg3);border-radius:8px;border-left:2px solid rgba(212,160,96,0.4)">
+          📖 <strong style="color:#d4a060">Stile:</strong> Coscienza psicologica, flusso interiore, ironia amara, primo persona narrativa indiretta.
+        </div>
+      </div>
+      <!-- AI version - digital/electronic effect -->
+      <div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span class="dot" style="flex-shrink:0"></span>
+          CLAUDE AI · <span id="ai-year" style="color:var(--accent)">2026</span>
+        </div>
+        <div id="svevo-ai" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.9;color:var(--text);font-family:var(--mono);min-height:160px;position:relative;overflow:hidden">
+          <div id="ai-scanline" style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--accent),transparent);opacity:0.4;animation:scanMove 2s linear infinite;pointer-events:none"></div>
+          <span id="ai-text" style="position:relative;z-index:1"></span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <button onclick="generateAISvevo()" id="svevo-ai-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s">⚡ Genera AI</button>
+          <div style="font-size:11px;color:var(--muted);flex:1;padding:8px;background:var(--bg3);border-radius:8px;border-left:2px solid var(--border)">
+            🤖 <strong style="color:var(--accent)">Stile AI:</strong> Stesso tema, struttura sintattica simile, ma linguaggio preciso e privo di ambiguità emotiva.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div id="grammar-container">
-    <div class="grammar-box">
-      <div class="grammar-label">Il tuo testo</div>
-      <textarea id="grammar-input" placeholder="Scrivi qui il testo da correggere...&#10;&#10;Es: io sono andato al mercato ieri sera e ho comprato dele mele rosse."></textarea>
-      <button id="grammar-btn" onclick="correctGrammar()">✦ Correggi con LanguageTool</button>
+
+  <!-- GRAMMAR CORRECTOR -->
+  <div class="card">
+    <h3>Correttore Grammaticale</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Incolla o scrivi un testo — il correttore evidenzierà gli errori grammaticali e suggerirà le correzioni. Powered by <strong style="color:var(--accent)">LanguageTool</strong> — gratuito, no API key.</p>
+    <textarea id="grammar-input" placeholder="Scrivi qui il testo da correggere...&#10;&#10;Es: ciao so lillo, come stai? io sono andato al marcato." style="width:100%;min-height:100px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:var(--mono);font-size:13px;outline:none;resize:vertical;line-height:1.6"></textarea>
+    <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
+      <button onclick="correctGrammar()" id="grammar-btn" style="flex:1;background:transparent;border:1px solid var(--accent);color:var(--accent);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px;min-width:200px;transition:all 0.2s">✦ Correggi con LanguageTool</button>
+      <button onclick="document.getElementById('grammar-input').value='';document.getElementById('grammar-output').innerHTML='<span style=\'color:var(--muted)\'>Il testo corretto apparirà qui...</span>'" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">✕ Pulisci</button>
     </div>
-    <div class="grammar-box">
-      <div class="grammar-label">Testo corretto</div>
-      <div id="grammar-output" style="cursor:default">Il testo corretto apparirà qui...</div>
-    </div>
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">TESTO CORRETTO</div>
+    <div id="grammar-output" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;min-height:80px;font-size:13px;line-height:1.8;cursor:default"><span style="color:var(--muted)">Il testo corretto apparirà qui...</span></div>
   </div>
   <div id="dict-tooltip" class="tooltip-dict" style="display:none;position:fixed;z-index:900"></div>
 </section>
@@ -997,6 +1091,9 @@
 </footer>
 
 <!-- Visit counter fixed bottom right -->
+<!-- Confetti button (visible only in birthday theme) -->
+<button id="confetti-btn" onclick="launchConfetti()" style="display:none;position:fixed;top:1rem;right:5rem;z-index:1000;background:linear-gradient(135deg,#ff6eb4,#ffb6e0);border:none;color:#fff;padding:8px 16px;border-radius:100px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700;box-shadow:0 2px 12px rgba(255,110,180,0.5);transition:transform 0.15s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">🎊 Coriandoli!</button>
+
 <!-- Visit counter now shown only in settings panel -->
 
 <!-- ═══ FITNESS APP OVERLAY ═══ -->
@@ -1331,6 +1428,90 @@ function addMsg(role, html, raw=false) {
   return el;
 }
 document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+
+// ─── SVEVO vs AI ───
+const SVEVO_TEXT = `Oggi ho deciso di smettere di fumare. Era la millesima volta che prendevo questa decisione, e come le precedenti, nasceva da un momento di debolezza mascherata da forza. Mia moglie mi aveva guardato con quegli occhi che sanno tutto — quegli occhi che non accusano, ma pesano più di qualsiasi accusa. Avevo posato la sigaretta sul bordo del tavolo, con quella solennità ridicola con cui si depongono le armi, e avevo detto: "L'ultima." Lei non aveva risposto. Sapeva, come sapevo io, che non era l'ultima. Era solo la penultima dell'ultima.`;
+
+function typewriterEffect(elId, text, speed, onDone) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.textContent = '';
+  let i = 0;
+  const iv = setInterval(()=>{
+    if(i < text.length){ el.textContent += text[i]; i++; }
+    else { clearInterval(iv); if(onDone) onDone(); }
+  }, speed);
+}
+
+function digitalTypeEffect(elId, text, onDone) {
+  const el = document.getElementById(elId);
+  if(!el){ if(onDone) onDone(); return; }
+  el.textContent = '';
+  const chars = '█▓▒░01ABCDEF';
+  let i = 0;
+  function step(){
+    if(i >= text.length){ if(onDone) onDone(); return; }
+    let scrambles = 0;
+    const interval = setInterval(()=>{
+      el.textContent = text.slice(0,i) + chars[Math.floor(Math.random()*chars.length)] + '▒'.repeat(Math.min(3,text.length-i-1));
+      scrambles++;
+      if(scrambles > 3){
+        clearInterval(interval);
+        el.textContent = text.slice(0,i+1);
+        i++;
+        setTimeout(step, 18);
+      }
+    }, 25);
+  }
+  step();
+}
+
+function initSvevo() {
+  const cursor = document.getElementById('svevo-cursor');
+  typewriterEffect('svevo-text', SVEVO_TEXT, 22, ()=>{ if(cursor) cursor.style.display='none'; });
+  // Pre-load AI text
+  const preloadAI = `Elaborazione del flusso coscienziale: registro l'istante della rinuncia con la precisione di chi sa che la rinuncia stessa è un atto performativo. La sigaretta — oggetto-simbolo di una volontà frammentata — viene deposta. La moglie osserva. I suoi occhi operano come sensori calibrati sul pattern comportamentale ripetuto: promessa → fallimento → nuova promessa. Il sistema non ha mai raggiunto convergenza. "L'ultima", ho dichiarato. Il modello predittivo interno stima: probabilità 3.7%. L'ultima è sempre la penultima.`;
+  digitalTypeEffect('ai-text', preloadAI);
+}
+
+async function generateAISvevo() {
+  const btn = document.getElementById('svevo-ai-btn');
+  btn.textContent = '⏳ Generazione...'; btn.disabled = true;
+  const el = document.getElementById('ai-text');
+  if(el) el.textContent = '';
+  const prompt = `Scrivi un breve brano (massimo 80 parole) nello stile di Italo Svevo, con la stessa struttura narrativa de "La coscienza di Zeno": flusso di coscienza, ironia amara, dipendenza, autoanalisi. Tema: il vizio del fumo e la volontà di smettere. Scrivi in prima persona. Non spiegare lo stile, scrivi solo il brano.`;
+  const reply = await callClaude('Sei un modello linguistico che scrive letteratura italiana nello stile di Italo Svevo.', prompt, 200);
+  digitalTypeEffect('ai-text', reply, ()=>{ btn.textContent='⚡ Genera AI'; btn.disabled=false; });
+}
+
+// ─── CONFETTI (birthday theme) ───
+let confettiActive = false;
+function launchConfetti() {
+  if(confettiActive) return;
+  confettiActive = true;
+  const colors = ['#ff6eb4','#ffb6e0','#fff0f8','#ff99cc','#ffd6eb','#ff3399','#cc0066','#ffffff'];
+  const container = document.createElement('div');
+  container.id = 'confetti-container';
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden';
+  document.body.appendChild(container);
+  // Create 80 confetti pieces
+  for(let i=0;i<80;i++){
+    const c = document.createElement('div');
+    const size = 6+Math.random()*10;
+    const x = Math.random()*100;
+    const dur = 2+Math.random()*2.5;
+    const delay = Math.random()*1.2;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const shape = Math.random()>0.5?'50%':'2px';
+    c.style.cssText = `position:absolute;top:-20px;left:${x}%;width:${size}px;height:${size*0.6}px;background:${color};border-radius:${shape};animation:confettiFall ${dur}s ease-in ${delay}s forwards;transform:rotate(${Math.random()*360}deg)`;
+    container.appendChild(c);
+  }
+  // Remove after 5s
+  setTimeout(()=>{
+    container.remove();
+    confettiActive = false;
+  }, 5500);
+}
 
 // ─── GRAMMAR CORRECTOR (LanguageTool — gratuito, no API key) ───
 async function correctGrammar() {
@@ -1792,7 +1973,7 @@ if (navigator.geolocation) {
 // ─── 3D GEOMETRY ───
 const gc = document.getElementById('geom-canvas');
 const gl = gc.getContext('webgl') || gc.getContext('experimental-webgl');
-function resizeGC(){ gc.width = gc.offsetWidth || 600; gc.height = Math.min(gc.offsetWidth * 0.6, 400) || 360; if(gl) gl.viewport(0,0,gc.width,gc.height); }
+function resizeGC(){ gc.width = gc.offsetWidth || 600; gc.height = Math.min(gc.offsetWidth * 0.6, window.innerHeight > 1500 ? 700 : 400) || 360; if(gl) gl.viewport(0,0,gc.width,gc.height); }
 resizeGC();
 window.addEventListener('resize', resizeGC);
 
@@ -2394,33 +2575,11 @@ document.addEventListener('keyup', e=>{
   if(n) stopNote(n, null, '');
 });
 
-// ─── VISIT COUNTER ───
-// Uses localStorage — always visible, accumulates per browser
-(()=>{
-  const el = document.getElementById('visit-counter');
-  if(!el) return;
-  try {
-    const k = 'tesina_visits_v3';
-    let v = parseInt(localStorage.getItem(k)||'0') + 1;
-    localStorage.setItem(k, v);
-    el.textContent = `👁️ ${v.toLocaleString('it')} visite`;
-    el.style.display = 'block';
-  } catch(e){ el.style.display='none'; }
-  // Also try remote counter (best effort)
-  fetch('https://api.counterapi.dev/v1/marios241tesina/v1/up')
-    .then(r=>r.json()).then(d=>{
-      const n=d.count||d.value;
-      if(n&&el) el.textContent=`👁️ ${Number(n).toLocaleString('it')} visite`;
-    }).catch(()=>{});
-})();
-
 // ─── FITNESS APP ───
 function enterFitnessApp() {
   const app = document.getElementById('fitness-app');
   app.style.display = 'block';
   document.body.style.overflow = 'hidden';
-  const vc = document.getElementById('visit-counter');
-  if(vc) vc.style.display='none';
   setTimeout(()=>{
     document.getElementById('loader-bar-l').style.height='100%';
     document.getElementById('loader-bar-r').style.height='100%';
@@ -2450,8 +2609,6 @@ function exitFitnessApp() {
   document.getElementById('loader-prog').style.width='0%';
   document.getElementById('loader-txt').textContent='INIZIALIZZAZIONE...';
   document.body.style.overflow='';
-  const vc=document.getElementById('visit-counter');
-  if(vc) vc.style.display='block';
   stopFitnessTrack();
 }
 
@@ -2917,9 +3074,14 @@ function applyTheme(name) {
     b.style.color = active ? 'var(--accent)' : 'var(--muted)';
     b.style.background = active ? 'rgba(255,255,255,0.05)' : 'var(--bg3)';
   });
-  // Update label in panel if open
   const lbl = document.getElementById('settings-active-theme');
   if(lbl) lbl.textContent = t.label;
+  // Birthday theme: show confetti button, auto-launch
+  const confBtn = document.getElementById('confetti-btn');
+  if(confBtn){
+    confBtn.style.display = name==='birthday' ? 'block' : 'none';
+    if(name==='birthday') setTimeout(launchConfetti, 400);
+  }
 }
 
 // ─── VISIT COUNTER (shared via simple hash-based countapi) ───
@@ -3228,18 +3390,19 @@ function init3DCanvas() {
   inst3dCanvas = document.getElementById('inst-3d-canvas');
   if(!inst3dCanvas) return;
   inst3dCtx = inst3dCanvas.getContext('2d');
-  // Set canvas size
+  const getH = ()=> window.innerHeight > 1500 ? 320 : window.innerHeight > 900 ? 240 : 200;
   inst3dCanvas.width = inst3dCanvas.offsetWidth || 600;
-  inst3dCanvas.height = 200;
+  inst3dCanvas.height = getH();
   inst3dCanvas.addEventListener('click', on3DClick);
   inst3dCanvas.addEventListener('touchstart', e=>{
     e.preventDefault();
-    const r=inst3dCanvas.getBoundingClientRect();
     const t=e.touches[0];
-    on3DClick({clientX:t.clientX, clientY:t.clientY, rect:r});
+    on3DClick({clientX:t.clientX, clientY:t.clientY});
   },{passive:false});
   window.addEventListener('resize',()=>{
+    if(!inst3dCanvas) return;
     inst3dCanvas.width=inst3dCanvas.offsetWidth||600;
+    inst3dCanvas.height=getH();
     draw3DInstrument();
   });
   requestAnimationFrame(animate3D);
@@ -3312,50 +3475,139 @@ function draw3DInstrument() {
   const W=inst3dCanvas.width, H=inst3dCanvas.height;
   const ctx2=inst3dCtx;
   const name=(instruments[instIndex]?.name||'').toLowerCase();
+
+  // Piano keyboard visibility: show ONLY for pianoforte
+  const isPiano = name.includes('pianoforte') || name.includes('piano');
+  const isDrum  = name.includes('tamburo');
+  const pianoWrap = document.getElementById('piano-keys');
+  const pianoHint = pianoWrap?.nextElementSibling;
+  const pianoLabelRow = document.getElementById('piano-keys-row');
+  if(pianoWrap) pianoWrap.style.display = (isPiano||!isPiano&&!isDrum)?'':'none';
+  // Hide piano keyboard for all non-piano instruments
+  if(pianoWrap) pianoWrap.style.display = isPiano ? '' : 'none';
+  if(pianoHint && pianoHint.tagName==='P') pianoHint.style.display = isPiano ? '' : 'none';
+  // Hide the 3D canvas for piano (the real keyboard is below)
+  const wrap3d = document.getElementById('inst-3d-wrap');
+  if(isPiano && wrap3d) { wrap3d.style.display='none'; return; }
+  if(wrap3d) wrap3d.style.display='';
+
   ctx2.clearRect(0,0,W,H);
+  ctx2.fillStyle='#0a111e'; ctx2.fillRect(0,0,W,H);
 
-  if(name.includes('chitarra')) drawGuitar(ctx2,W,H);
-  else if(name.includes('organo')) drawOrgan(ctx2,W,H);
-  else drawGenericWave(ctx2,W,H,name);
+  if(name.includes('chitarra'))      drawGuitar(ctx2,W,H);
+  else if(name.includes('organo'))   drawOrgan(ctx2,W,H);
+  else if(name.includes('tamburo'))  drawDrum(ctx2,W,H);
+  else if(name.includes('sassofono'))drawSax(ctx2,W,H);
+  else if(name.includes('violino'))  drawViolin(ctx2,W,H);
+  else if(name.includes('fisarm'))   drawAccordion(ctx2,W,H);
+  else if(name.includes('campana'))  drawBell(ctx2,W,H);
+  else if(name.includes('tromba'))   drawTrumpet(ctx2,W,H);
+  else { ctx2.fillStyle='rgba(255,255,255,0.08)'; ctx2.font=`bold ${H*0.18}px Syne,sans-serif`; ctx2.textAlign='center'; ctx2.fillText(instruments[instIndex]?.name||'',W/2,H/2+8); ctx2.textAlign='start'; }
 
+  const hints={chitarra:'🎸 Clicca le corde per suonare',organo:'🎹 Clicca le canne per suonare',tamburo:'🥁 Clicca il tamburo per colpirlo',sassofono:'🎷 Clicca per suonare un La',violino:'🎻 Clicca per suonare',fisarm:'🪗 Clicca i tasti per suonare',campana:'🔔 Clicca la campana per suonarla',tromba:'🎺 Clicca per suonare'};
   const hint=document.getElementById('inst-3d-hint');
-  if(hint) hint.textContent = name.includes('chitarra')?'🎸 Clicca le corde per suonare':name.includes('organo')?'🎹 Clicca le canne per suonare':'🎵 '+instruments[instIndex]?.name;
+  if(hint){ const k=Object.keys(hints).find(k=>name.includes(k)); hint.textContent=k?hints[k]:''; }
 }
 
 function drawGuitar(ctx2,W,H) {
+  // Background
+  ctx2.fillStyle='#0a111e'; ctx2.fillRect(0,0,W,H);
+
+  const bodyX=W*0.32, bodyW=W*0.56, bodyCX=W*0.60;
+  const neckX=W*0.01, neckW=W*0.32, neckH=H*0.13, neckY=H*0.5-neckH/2;
+  const strTop=H*0.27, strSpacing=(H*0.52)/5;
+
+  // === NECK (left) ===
+  const ng=ctx2.createLinearGradient(neckX,neckY,neckX,neckY+neckH);
+  ng.addColorStop(0,'#6b3a0a'); ng.addColorStop(0.5,'#4a2200'); ng.addColorStop(1,'#6b3a0a');
+  ctx2.fillStyle=ng; ctx2.fillRect(neckX,neckY,neckW,neckH);
+  // Fretboard (darker)
+  const fbg=ctx2.createLinearGradient(neckX,0,neckX+neckW,0);
+  fbg.addColorStop(0,'#1e0a00'); fbg.addColorStop(1,'#2e1200');
+  ctx2.fillStyle=fbg; ctx2.fillRect(neckX,neckY+neckH*0.08,neckW,neckH*0.84);
+  // Frets
+  ctx2.strokeStyle='rgba(220,190,80,0.75)'; ctx2.lineWidth=1.5;
+  const fretCount=6;
+  for(let f=1;f<=fretCount;f++){
+    const fx=neckX+(f/(fretCount+1))*neckW;
+    ctx2.beginPath(); ctx2.moveTo(fx,neckY+neckH*0.05); ctx2.lineTo(fx,neckY+neckH*0.95); ctx2.stroke();
+  }
+  // Nut (at body join)
+  ctx2.strokeStyle='#e8d080'; ctx2.lineWidth=3;
+  ctx2.beginPath(); ctx2.moveTo(neckX+neckW-2,neckY+2); ctx2.lineTo(neckX+neckW-2,neckY+neckH-2); ctx2.stroke();
+  // Headstock
+  ctx2.fillStyle='#2a1000'; ctx2.fillRect(neckX,neckY-neckH*0.15,neckW*0.12,neckH*1.3);
+  // Tuning pegs
+  for(let i=0;i<6;i++){
+    const py=strTop+i*strSpacing;
+    ctx2.fillStyle='#c8a060'; ctx2.beginPath();
+    ctx2.arc(neckX+neckW*0.06, py, 5, 0, Math.PI*2); ctx2.fill();
+  }
+
+  // === BODY (right, connected to neck) ===
   ctx2.save();
-  const neckGrad=ctx2.createLinearGradient(W*0.03,0,W*0.28,0);
-  neckGrad.addColorStop(0,'#2a1200');neckGrad.addColorStop(0.5,'#5c2e08');neckGrad.addColorStop(1,'#3a1a00');
-  ctx2.fillStyle=neckGrad; ctx2.fillRect(W*0.03,H*0.42,W*0.25,H*0.16);
-  ctx2.strokeStyle='rgba(220,180,80,0.8)';ctx2.lineWidth=1.5;
-  for(let f=1;f<=6;f++){ctx2.beginPath();ctx2.moveTo(W*0.03+f*(W*0.25/7),H*0.42);ctx2.lineTo(W*0.03+f*(W*0.25/7),H*0.58);ctx2.stroke();}
-  ctx2.fillStyle='#1e0e00';ctx2.fillRect(W*0.0,H*0.40,W*0.04,H*0.20);ctx2.restore();
-  ctx2.save();
-  const bodyGrad=ctx2.createRadialGradient(W*0.6,H*0.5,0,W*0.6,H*0.5,W*0.3);
-  bodyGrad.addColorStop(0,'#7a3010');bodyGrad.addColorStop(0.6,'#5a2008');bodyGrad.addColorStop(1,'#2e0e00');
+  const bodyGrad=ctx2.createRadialGradient(bodyCX,H*0.5,0,bodyCX,H*0.5,bodyW*0.55);
+  bodyGrad.addColorStop(0,'#8b4010'); bodyGrad.addColorStop(0.5,'#6a2e08'); bodyGrad.addColorStop(1,'#2a0e00');
   ctx2.fillStyle=bodyGrad;
-  const bx=W*0.28,bw=W*0.56,by=H*0.08,bh=H*0.84;
-  ctx2.beginPath();ctx2.moveTo(bx+bw*0.1,by);ctx2.lineTo(bx+bw*0.9,by);
-  ctx2.quadraticCurveTo(bx+bw,by,bx+bw,by+bh*0.25);ctx2.lineTo(bx+bw,by+bh*0.38);
-  ctx2.quadraticCurveTo(bx+bw*0.85,by+bh*0.5,bx+bw,by+bh*0.62);ctx2.lineTo(bx+bw,by+bh*0.75);
-  ctx2.quadraticCurveTo(bx+bw,by+bh,bx+bw*0.9,by+bh);ctx2.lineTo(bx+bw*0.1,by+bh);
-  ctx2.quadraticCurveTo(bx,by+bh,bx,by+bh*0.75);ctx2.lineTo(bx,by+bh*0.62);
-  ctx2.quadraticCurveTo(bx+bw*0.15,by+bh*0.5,bx,by+bh*0.38);ctx2.lineTo(bx,by+bh*0.25);
-  ctx2.quadraticCurveTo(bx,by,bx+bw*0.1,by);ctx2.closePath();ctx2.fill();
-  ctx2.beginPath();ctx2.arc(bx+bw/2,by+bh*0.48,bw*0.1,0,Math.PI*2);
-  ctx2.fillStyle='#0a0500';ctx2.fill();ctx2.strokeStyle='#c8a060';ctx2.lineWidth=2;ctx2.stroke();
+  ctx2.beginPath();
+  // Angular modern body shape
+  const bx=bodyX, bw=bodyW, by=H*0.06, bh=H*0.88;
+  ctx2.moveTo(bx+bw*0.05,by);
+  ctx2.lineTo(bx+bw*0.95,by);
+  ctx2.quadraticCurveTo(bx+bw,by,bx+bw,by+bh*0.22);
+  ctx2.lineTo(bx+bw,by+bh*0.36);
+  ctx2.quadraticCurveTo(bx+bw*0.88,by+bh*0.5,bx+bw,by+bh*0.64);
+  ctx2.lineTo(bx+bw,by+bh*0.78);
+  ctx2.quadraticCurveTo(bx+bw,by+bh,bx+bw*0.95,by+bh);
+  ctx2.lineTo(bx+bw*0.05,by+bh);
+  ctx2.quadraticCurveTo(bx,by+bh,bx,by+bh*0.78);
+  ctx2.lineTo(bx,by+bh*0.64);
+  ctx2.quadraticCurveTo(bx+bw*0.12,by+bh*0.5,bx,by+bh*0.36);
+  ctx2.lineTo(bx,by+bh*0.22);
+  ctx2.quadraticCurveTo(bx,by,bx+bw*0.05,by);
+  ctx2.closePath(); ctx2.fill();
+  // Body shading
+  ctx2.strokeStyle='rgba(255,160,80,0.15)'; ctx2.lineWidth=1.5;
+  ctx2.stroke();
+  // Soundhole
+  const shX=bodyCX, shY=H*0.5, shR=bw*0.1;
+  ctx2.beginPath(); ctx2.arc(shX,shY,shR,0,Math.PI*2);
+  ctx2.fillStyle='#080400'; ctx2.fill();
+  ctx2.strokeStyle='#c8a060'; ctx2.lineWidth=2.5; ctx2.stroke();
+  // Inner soundhole ring
+  ctx2.beginPath(); ctx2.arc(shX,shY,shR*0.75,0,Math.PI*2);
+  ctx2.strokeStyle='rgba(200,160,60,0.4)'; ctx2.lineWidth=1; ctx2.stroke();
+  // Bridge
+  const brX=bodyCX+bw*0.14, brY=H*0.44, brW=bw*0.06, brH=H*0.12;
+  ctx2.fillStyle='#1e0a00'; ctx2.fillRect(brX-brW/2,brY,brW,brH);
+  ctx2.fillStyle='rgba(200,160,50,0.6)'; ctx2.fillRect(brX-brW/2,brY,brW,3);
   ctx2.restore();
-  const strTop=H*0.25,strSpacing=(H*0.55)/5;
+
+  // === STRINGS (full length from tuners to bridge) ===
   GUITAR_STRINGS.forEach((s,i)=>{
-    const sy=strTop+i*strSpacing,vib=strumAnim[i];
-    ctx2.save();ctx2.beginPath();
-    if(vib){const amp=Math.sin(vib.t*1.3)*Math.max(0,1-vib.t/(Math.PI*9))*7;
-      for(let seg=0;seg<=24;seg++){const px=W*0.03+seg*(W*0.84/24);const py=sy+Math.sin((seg/24)*Math.PI*6+vib.t)*amp;seg===0?ctx2.moveTo(px,py):ctx2.lineTo(px,py);}
-    } else{ctx2.moveTo(W*0.03,sy);ctx2.lineTo(W*0.88,sy);}
-    ctx2.strokeStyle=vib?'#ffe060':s.color;ctx2.lineWidth=vib?2.5:Math.max(0.8,2.2-i*0.25);
-    ctx2.shadowColor=vib?'#ffe060':'transparent';ctx2.shadowBlur=vib?10:0;ctx2.stroke();
-    ctx2.fillStyle=vib?'#ffe060':'#888';ctx2.font=`${Math.floor(H*0.07)}px monospace`;
-    ctx2.fillText(s.note,W*0.895,sy+4);ctx2.restore();
+    const sy=strTop+i*strSpacing;
+    const vib=strumAnim[i];
+    const strStart=neckX+neckW*0.06;
+    const strEnd=bodyCX+bodyW*0.14+bodyW*0.03;
+    ctx2.save(); ctx2.beginPath();
+    if(vib){
+      const amp=Math.sin(vib.t*1.3)*Math.max(0,1-vib.t/(Math.PI*9))*8;
+      const segs=32;
+      for(let seg=0;seg<=segs;seg++){
+        const px=strStart+seg*((strEnd-strStart)/segs);
+        const py=sy+Math.sin((seg/segs)*Math.PI*5+vib.t)*amp;
+        seg===0?ctx2.moveTo(px,py):ctx2.lineTo(px,py);
+      }
+    } else { ctx2.moveTo(strStart,sy); ctx2.lineTo(strEnd,sy); }
+    ctx2.strokeStyle=vib?'#ffe060':s.color;
+    ctx2.lineWidth=vib?2.5:Math.max(0.7,2-i*0.22);
+    ctx2.shadowColor=vib?'#ffe060':'transparent'; ctx2.shadowBlur=vib?12:0;
+    ctx2.stroke();
+    // Note label at right
+    ctx2.fillStyle=vib?'#ffe060':'#aaa';
+    ctx2.font=`${Math.floor(H*0.055)}px monospace`;
+    ctx2.fillText(s.note, strEnd+10, sy+4);
+    ctx2.restore();
   });
 }
 function drawOrgan(ctx2,W,H) {
@@ -3463,6 +3715,7 @@ drawWheel();
 renderExercises();
 renderCivica();
 initPyPresets();
+initSvevo();
 </script>
 </body>
 </html>
