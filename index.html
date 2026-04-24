@@ -1430,7 +1430,7 @@ function addMsg(role, html, raw=false) {
 document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 
 // ─── SVEVO vs AI ───
-const SVEVO_TEXT = `Oggi ho deciso di smettere di fumare. Era la millesima volta che prendevo questa decisione, e come le precedenti, nasceva da un momento di debolezza mascherata da forza. Mia moglie mi aveva guardato con quegli occhi che sanno tutto — quegli occhi che non accusano, ma pesano più di qualsiasi accusa. Avevo posato la sigaretta sul bordo del tavolo, con quella solennità ridicola con cui si depongono le armi, e avevo detto: "L'ultima." Lei non aveva risposto. Sapeva, come sapevo io, che non era l'ultima. Era solo la penultima dell'ultima.`;
+const SVEVO_TEXT = `Oggi ho deciso di smettere di fumare. Era la millesima volta che prendevo questa decisione, e come le precedenti, nasceva da un momento di debolezza mascherata da forza. Mia moglie mi aveva guardato con quegli occhi che sanno tutto — quegli occhi che non accusano, ma pesano più di qualsiasi accusa. Avevo posato la sigaretta sul bordo del tavolo, con quella solennità ridicola con cui si depongono le armi, e avevo detto: L'ultima. Lei non aveva risposto. Sapeva, come sapevo io, che non era l'ultima. Era solo la penultima dell'ultima.`;
 
 function typewriterEffect(elId, text, speed, onDone) {
   const el = document.getElementById(elId);
@@ -1615,10 +1615,6 @@ async function correctGrammar() {
     out.innerHTML = `<span style="color:#f66">⚠️ Errore: ${e.message}. Controlla la connessione.</span>`;
   }
   btn.innerHTML = '✦ Correggi'; btn.disabled = false;
-}
-    out.textContent = '❌ Errore di rete. Verifica la connessione.';
-  }
-  btn.innerHTML = '✦ Correggi con LanguageTool'; btn.disabled = false;
 }
 
 function escHtml(s) {
