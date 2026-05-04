@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Informatica in Modo Digitale</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -21,8 +21,8 @@
     --mono: 'Space Mono', monospace;
     --title: 'Syne', sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  * { box-sizing: border-box; margin: 0; padding: 0; min-width: 0; }
+  html { scroll-behavior: smooth; width: 100%; overflow-x: hidden; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -31,6 +31,8 @@
     line-height: 1.7;
     overflow-x: hidden;
   }
+  canvas, iframe, textarea, input, select, button { max-width: 100%; }
+  textarea, input, select, button { -webkit-tap-highlight-color: transparent; }
 
   /* ─── CANVAS BACKGROUND ─── */
   #bg-canvas {
@@ -164,6 +166,7 @@
   .card {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem;
+    overflow-wrap: anywhere;
   }
   .card h3 { font-family: var(--title); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.5rem; }
   .card p { color: var(--muted); font-size: 13px; }
@@ -440,14 +443,109 @@
   /* ─── LOADING SPINNER ─── */
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slideUp { from{opacity:0;transform:translate(-50%,-60%)} to{opacity:1;transform:translate(-50%,-50%)} }
-  @keyframes scanMove { from{top:0} to{top:100%} }
-  @keyframes confettiFall { to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp { from{opacity:0;transform:translate(-50%,-60%)} to{opacity:1;transform:translate(-50%,-50%)} }
+@keyframes scanMove { from{top:0} to{top:100%} }
+@keyframes confettiFall { to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes civicaIgnite {
+  0% { box-shadow: 0 0 0 rgba(0,255,136,0); }
+  18% { box-shadow: 0 0 24px var(--accent), inset 0 0 18px rgba(0,255,136,0.12); }
+  42% { box-shadow: 0 0 6px var(--accent), inset 0 0 8px rgba(0,255,136,0.08); }
+  56% { box-shadow: 0 0 18px var(--accent), inset 0 0 14px rgba(0,255,136,0.12); }
+  72% { box-shadow: 0 0 3px rgba(0,255,136,0.25); }
+  100% { box-shadow: 0 0 16px rgba(0,255,136,0.45); }
+}
+@keyframes fitnessProgressGlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(260%); }
+}
   #svevo-container { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
   @media(max-width:700px){ #svevo-container { grid-template-columns:1fr; } }
 
   textarea { font-family: var(--mono); }
+
+  /* CSS flags: avoids Windows rendering country flags as plain letters */
+  .flag {
+    display: inline-block;
+    width: 1.25em;
+    height: 0.85em;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.24);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
+    vertical-align: -0.12em;
+    flex-shrink: 0;
+  }
+  .flag-it {
+    background: linear-gradient(90deg,#009246 0 33.33%,#fff 33.33% 66.66%,#ce2b37 66.66% 100%);
+  }
+  .flag-fr {
+    background: linear-gradient(90deg,#0055a4 0 33.33%,#fff 33.33% 66.66%,#ef4135 66.66% 100%);
+  }
+  .flag-gb {
+    background:
+      linear-gradient(63deg,transparent 45%,#fff 45% 55%,transparent 55%),
+      linear-gradient(117deg,transparent 45%,#fff 45% 55%,transparent 55%),
+      linear-gradient(63deg,transparent 48%,#c8102e 48% 52%,transparent 52%),
+      linear-gradient(117deg,transparent 48%,#c8102e 48% 52%,transparent 52%),
+      linear-gradient(90deg,transparent 42%,#fff 42% 58%,transparent 58%),
+      linear-gradient(0deg,transparent 36%,#fff 36% 64%,transparent 64%),
+      linear-gradient(90deg,transparent 46%,#c8102e 46% 54%,transparent 54%),
+      linear-gradient(0deg,transparent 42%,#c8102e 42% 58%,transparent 58%),
+      #012169;
+  }
+  .theme-mode-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 12px;
+  }
+  .theme-mode-btn {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 9px 6px;
+    cursor: pointer;
+    transition: all 0.16s;
+  }
+  .theme-mode-btn.active {
+    background: color-mix(in srgb, var(--accent) 18%, var(--bg3));
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  /* Futuristic theme layer */
+  html[data-theme-group="futuristic"] body {
+    background:
+      radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 28rem),
+      radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 26rem),
+      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg3) 45%, var(--bg)) 100%);
+  }
+  html[data-theme-group="futuristic"] #bg-canvas { opacity: 0.3; }
+  html[data-theme-group="futuristic"] #hero h1,
+  html[data-theme-group="futuristic"] .section-title {
+    text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+  html[data-theme-group="futuristic"] .card,
+  html[data-theme-group="futuristic"] #chat-container,
+  html[data-theme-group="futuristic"] #py-editor,
+  html[data-theme-group="futuristic"] #map,
+  html[data-theme-group="futuristic"] #geom-canvas,
+  html[data-theme-group="futuristic"] #scienze-canvas {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent), 0 18px 40px rgba(0,0,0,0.28);
+  }
+  html[data-theme-group="futuristic"] .hero-eyebrow,
+  html[data-theme-group="futuristic"] .theme-btn {
+    box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
 
   /* ─── PIANO SCROLL ─── */
   .piano-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
@@ -461,9 +559,9 @@
   @media (max-width: 600px) {
     section { padding: 3.5rem 1rem 2.5rem; }
     .section-title { font-size: clamp(1.5rem, 7vw, 2.2rem); }
-    #hero { padding: 1.5rem 1rem; }
-    #hero h1 { font-size: clamp(1.8rem, 9vw, 3rem); letter-spacing: 1px; }
-    .hero-sub { font-size: 13px; }
+    #hero { padding: 1.5rem 1rem; width: 100vw; max-width: 100vw; overflow: hidden; }
+    #hero h1 { font-size: clamp(1.55rem, 7.2vw, 2.25rem); letter-spacing: 0; max-width: 100%; }
+    .hero-sub { font-size: 13px; width: calc(100vw - 2rem); max-width: 330px !important; overflow-wrap: break-word; }
     #grammar-container { grid-template-columns: 1fr !important; }
     #trans-en-container, #trans-fr-container { grid-template-columns: 1fr !important; }
     .card { padding: 1rem; }
@@ -475,10 +573,63 @@
     .shape-btn { padding: 7px 12px; font-size: 11px; }
   }
 
+  /* ─── PHONE / ANDROID SMALL SCREENS ─── */
+  @media (max-width: 480px) {
+    body { font-size: 13px; line-height: 1.62; }
+    #hero h1 { font-size: clamp(1.5rem, 7.2vw, 2.2rem); letter-spacing: 0; max-width: 100%; }
+    #menu-btn { top: max(0.75rem, env(safe-area-inset-top)); left: 0.75rem; width: 38px; height: 38px; }
+    button[onclick="toggleSettings()"] { top: max(0.75rem, env(safe-area-inset-top)) !important; left: 3.4rem !important; width: 38px !important; height: 38px !important; }
+    #side-menu { width: min(86vw, 320px); left: calc(-1 * min(86vw, 320px)); padding: 4.2rem 0.9rem 1.5rem; }
+    #side-menu.open { left: 0; }
+    #settings-panel { width: min(92vw, 340px) !important; padding: 4rem 0.9rem 1.25rem !important; }
+    section { width: 100%; max-width: 100vw; padding: 3.25rem 0.75rem 2.4rem; }
+    .section-label { letter-spacing: 3px; font-size: 9px; }
+    .section-title { font-size: clamp(1.35rem, 8vw, 2rem); line-height: 1.12; overflow-wrap: anywhere; }
+    .hero-sub { font-size: 12px; width: calc(100vw - 1.5rem); max-width: 330px !important; overflow-wrap: break-word; padding: 0 0.25rem; }
+    .section-bridge { font-size: 11px; padding-left: 9px; margin-bottom: 1.2rem; }
+    .card { padding: 0.95rem; border-radius: 10px; margin-bottom: 1rem; }
+    .card h3 { font-size: 1rem; line-height: 1.2; }
+    .card p { font-size: 12px; line-height: 1.65; }
+    #chat-messages { height: min(420px, 55vh); padding: 10px; }
+    .msg { max-width: 94%; font-size: 12px; padding: 9px 11px; }
+    #chat-input-row, #trans-en-container, #trans-fr-container { gap: 8px; }
+    #chat-input-row { flex-direction: column; }
+    #chat-send { width: 100%; }
+    #svevo-container { grid-template-columns: 1fr !important; }
+    #svevo-ai-btn, #grammar-btn { min-width: 0 !important; width: 100%; }
+    #ai-type-speed { min-width: 80px; }
+    #grammar-input, #grammar-output { min-height: 140px; font-size: 12px; line-height: 1.65; }
+    #map { height: min(58vh, 340px); min-height: 260px; }
+    #geo-info { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+    .geo-stat .val { font-size: clamp(0.95rem, 5vw, 1.25rem); overflow-wrap: anywhere; }
+    #py-code { min-height: 220px; font-size: 12px !important; }
+    #py-editor { overflow: hidden; }
+    #geom-canvas, #scienze-canvas { height: 260px !important; min-height: 240px; }
+    #inst-3d-wrap { width: 100%; overflow: hidden; }
+    #inst-3d-canvas { width: 100% !important; max-height: none !important; }
+    #drum-kit-embed { height: min(62vh, 360px) !important; transform-origin: top left; }
+    #piano-inner { height: 118px !important; }
+    #fitness-app { overflow-x: hidden; }
+    #fitness-content { max-width: 100vw !important; padding: 1rem 0.75rem 3rem !important; }
+    #fa-timer-display { font-size: clamp(2.3rem, 16vw, 3.3rem) !important; }
+    #fa-stopwatch-display { font-size: clamp(2rem, 13vw, 3rem) !important; }
+    #civica-modal { width: min(94vw, 680px) !important; max-height: 82vh !important; padding: 18px !important; }
+  }
+
+  @media (max-width: 360px) {
+    section { padding-left: 0.55rem; padding-right: 0.55rem; }
+    .card { padding: 0.8rem; }
+    #geo-info { grid-template-columns: 1fr; }
+    button { font-size: 11px !important; }
+  }
+
   /* ─── TABLET (601–1023px) ─── */
   @media (min-width: 601px) and (max-width: 1023px) {
     section { max-width: 95vw; padding: 4rem 1.5rem 3rem; }
     #grammar-container { grid-template-columns: 1fr 1fr; }
+    #fitness-content { max-width: min(820px, 94vw) !important; }
+    #map { height: 360px; }
+    #drum-kit-embed { height: 420px !important; }
   }
 
   /* ─── LIM / 4K (≥2560px) ─── */
@@ -535,8 +686,8 @@
   <h3>Materie</h3>
   <a class="menu-item" href="#tecnologia" onclick="closeMenu()"><span class="icon">🤖</span> Tecnologia</a>
   <a class="menu-item" href="#italiano" onclick="closeMenu()"><span class="icon">✍️</span> Italiano</a>
-  <a class="menu-item" href="#inglese" onclick="closeMenu()"><span class="icon">🇬🇧</span> Inglese</a>
-  <a class="menu-item" href="#francese" onclick="closeMenu()"><span class="icon">🇫🇷</span> Francese</a>
+  <a class="menu-item" href="#inglese" onclick="closeMenu()"><span class="icon"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span></span> Inglese</a>
+  <a class="menu-item" href="#francese" onclick="closeMenu()"><span class="icon"><span class="flag flag-fr" role="img" aria-label="Francia"></span></span> Francese</a>
   <a class="menu-item" href="#geografia" onclick="closeMenu()"><span class="icon">🌍</span> Geografia</a>
   <a class="menu-item" href="#matematica" onclick="closeMenu()"><span class="icon">📐</span> Matematica</a>
   <a class="menu-item" href="#geometria" onclick="closeMenu()"><span class="icon">🔷</span> Geometria</a>
@@ -588,7 +739,7 @@
   <!-- SVEVO vs AI -->
   <div class="card" style="margin-bottom:1.5rem">
     <h3 style="margin-bottom:1rem">✍️ Italo Svevo vs 🤖 Intelligenza Artificiale</h3>
-    <p style="margin-bottom:1rem;font-size:12px;color:var(--muted)">A sinistra: un brano originale da <em>La coscienza di Zeno</em> di Italo Svevo (1923). A destra: lo stesso tema rielaborato dall'IA nello stile di Svevo. Clicca "Genera IA" per una nuova variante.</p>
+        <p style="margin-bottom:1rem;font-size:12px;color:var(--muted)">A sinistra: un brano originale da <em>La coscienza di Zeno</em> di Italo Svevo (1923). A destra: Claude crea un brano nuovo sugli stessi argomenti, senza spiegare l'elaborazione.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" id="svevo-container">
       <!-- Svevo original - typewriter effect -->
       <div>
@@ -609,15 +760,20 @@
           <span class="dot" style="flex-shrink:0"></span>
           CLAUDE AI · <span id="ai-year" style="color:var(--accent)">2026</span>
         </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
+          <button onclick="generateAISvevo()" id="svevo-ai-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s">⚡ Genera AI</button>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;min-width:190px;flex:1">
+            <label for="ai-type-speed" style="font-size:10px;letter-spacing:2px;color:var(--muted);white-space:nowrap">VELOCITÀ</label>
+            <input type="range" id="ai-type-speed" min="1" max="100" value="55" oninput="setAISpeed(this.value)" style="flex:1;accent-color:var(--accent);cursor:pointer">
+            <span id="ai-speed-label" style="font-size:10px;color:var(--accent);min-width:42px;text-align:right">Normale</span>
+          </div>
+        </div>
         <div id="svevo-ai" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.9;color:var(--text);font-family:var(--mono);min-height:160px;position:relative;overflow:hidden">
           <div id="ai-scanline" style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--accent),transparent);opacity:0.4;animation:scanMove 2s linear infinite;pointer-events:none"></div>
           <span id="ai-text" style="position:relative;z-index:1"></span>
         </div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
-          <button onclick="generateAISvevo()" id="svevo-ai-btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s">⚡ Genera AI</button>
-          <div style="font-size:11px;color:var(--muted);flex:1;padding:8px;background:var(--bg3);border-radius:8px;border-left:2px solid var(--border)">
-            🤖 <strong style="color:var(--accent)">Stile AI:</strong> Stesso tema, struttura sintattica simile, ma linguaggio preciso e privo di ambiguità emotiva.
-          </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;padding:8px;background:var(--bg3);border-radius:8px;border-left:2px solid var(--border)">
+          🤖 <strong style="color:var(--accent)">Stile AI:</strong> brano autonomo sugli stessi temi, con tono introspettivo, ironia amara e linguaggio più preciso.
         </div>
       </div>
     </div>
@@ -627,7 +783,7 @@
   <div class="card">
     <h3>Correttore Grammaticale</h3>
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Incolla o scrivi un testo — il correttore evidenzierà gli errori grammaticali e suggerirà le correzioni. Powered by <strong style="color:var(--accent)">LanguageTool</strong> — gratuito, no API key.</p>
-    <textarea id="grammar-input" placeholder="Scrivi qui il testo da correggere...&#10;&#10;Es: ciao so lillo, come stai? io sono andato al marcato." style="width:100%;min-height:100px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:var(--mono);font-size:13px;outline:none;resize:vertical;line-height:1.6"></textarea>
+    <textarea id="grammar-input" placeholder="Scrivi qui il testo da correggere..." style="width:100%;min-height:100px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:var(--mono);font-size:13px;outline:none;resize:vertical;line-height:1.6"></textarea>
     <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
       <button onclick="correctGrammar()" id="grammar-btn" style="flex:1;background:transparent;border:1px solid var(--accent);color:var(--accent);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:13px;min-width:200px;transition:all 0.2s">✦ Correggi con LanguageTool</button>
       <button onclick="document.getElementById('grammar-input').value='';document.getElementById('grammar-output').innerHTML='<span style=\'color:var(--muted)\'>Il testo corretto apparirà qui...</span>'" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px">✕ Pulisci</button>
@@ -651,9 +807,9 @@
   </div>
   <div>
     <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-      <div class="lang-tag" id="en-label-left" style="flex:1;text-align:center">🇬🇧 INGLESE</div>
+      <div class="lang-tag" id="en-label-left" style="flex:1;text-align:center"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span> INGLESE</div>
       <button onclick="swapEN()" style="background:var(--bg2);border:1px solid var(--border);color:var(--accent);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:18px;flex-shrink:0;transition:background 0.15s" title="Inverti lingue">⇄</button>
-      <div class="lang-tag" id="en-label-right" style="flex:1;text-align:center">🇮🇹 ITALIANO</div>
+      <div class="lang-tag" id="en-label-right" style="flex:1;text-align:center"><span class="flag flag-it" role="img" aria-label="Italia"></span> ITALIANO</div>
     </div>
     <div id="trans-en-container">
       <div>
@@ -695,9 +851,9 @@
   </div>
   <div>
     <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-      <div class="lang-tag" id="fr-label-left" style="flex:1;text-align:center">🇫🇷 FRANÇAIS</div>
+      <div class="lang-tag" id="fr-label-left" style="flex:1;text-align:center"><span class="flag flag-fr" role="img" aria-label="Francia"></span> FRANÇAIS</div>
       <button onclick="swapFR()" style="background:var(--bg2);border:1px solid var(--border);color:#ff6b9d;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:18px;flex-shrink:0;transition:background 0.15s" title="Inverti lingue">⇄</button>
-      <div class="lang-tag" id="fr-label-right" style="flex:1;text-align:center">🇮🇹 ITALIANO</div>
+      <div class="lang-tag" id="fr-label-right" style="flex:1;text-align:center"><span class="flag flag-it" role="img" aria-label="Italia"></span> ITALIANO</div>
     </div>
     <div id="trans-fr-container">
       <div>
@@ -721,6 +877,15 @@
   <div class="card">
     <h3>Longitudine, Latitudine & Altitudine</h3>
     <p><strong style="color:var(--text)">Latitudine</strong> — distanza angolare dall'equatore (Nord/Sud). <strong style="color:var(--text)">Longitudine</strong> — distanza angolare dal meridiano di Greenwich (Est/Ovest). <strong style="color:var(--text)">Altitudine</strong> — altezza sul livello del mare.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <button onclick="goToGeoPoint('greenwich')" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:8px 12px;border-radius:8px;font-family:var(--mono);font-size:11px;cursor:pointer">Meridiano di Greenwich</button>
+      <button onclick="goToGeoPoint('antimeridian')" style="background:transparent;border:1px solid var(--accent2);color:var(--accent2);padding:8px 12px;border-radius:8px;font-family:var(--mono);font-size:11px;cursor:pointer">Antimeridiano 180°</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:1rem">
+    <div class="card"><h3>🛰️ GPS</h3><p>Il telefono confronta segnali di più satelliti: con almeno quattro distanze stima posizione, quota e precisione.</p></div>
+    <div class="card"><h3>🗺️ Tile Maps</h3><p>Google Maps e servizi simili dividono il mondo in piccole immagini caricate a zoom diversi, così la mappa resta veloce.</p></div>
+    <div class="card"><h3>📍 Geocoding</h3><p>Le coordinate diventano nomi di città e indirizzi tramite database geografici, lo stesso principio usato nelle app di navigazione.</p></div>
   </div>
   <div id="map"></div>
   <div id="geo-info">
@@ -742,6 +907,17 @@
   <div class="card">
     <h3>Cos'è un algoritmo?</h3>
     <p>Un algoritmo è una sequenza finita di istruzioni per risolvere un problema. In Python, gli algoritmi si esprimono in codice leggibile — quasi come matematica scritta in italiano.</p>
+  </div>
+  <div class="card">
+    <h3>Aritmetica quotidiana</h3>
+    <p>Per renderla più completa puoi collegare l'aritmetica a percentuali, sconti, media dei voti e proporzioni: sono calcoli semplici, ma sono quelli che un algoritmo usa davvero nelle app.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px">
+      <div><label style="font-size:10px;color:var(--muted);letter-spacing:2px">VALORE</label><input type="number" id="arith-value" value="120" oninput="calcArithmeticDemo()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:12px;outline:none"></div>
+      <div><label style="font-size:10px;color:var(--muted);letter-spacing:2px">PERCENTUALE</label><input type="number" id="arith-percent" value="20" oninput="calcArithmeticDemo()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:12px;outline:none"></div>
+      <div><label style="font-size:10px;color:var(--muted);letter-spacing:2px">VOTI</label><input type="text" id="arith-grades" value="7,8,6,9" oninput="calcArithmeticDemo()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:12px;outline:none"></div>
+    </div>
+    <div id="arith-output" style="margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;color:var(--muted)">—</div>
+    <div id="arith-explain" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7">—</div>
   </div>
 
   <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
@@ -971,7 +1147,10 @@
   <div style="margin-top:1.2rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
     <div style="background:var(--bg3);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
       <span style="font-size:11px;color:var(--accent);letter-spacing:2px">STRUMENTO INTERATTIVO · WebAudio API</span>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <span style="font-size:11px;color:var(--muted)">Zoom:</span>
+        <input type="range" id="inst-zoom" min="70" max="130" value="100" oninput="setInstrumentZoom(this.value)" style="width:90px;accent-color:var(--accent);cursor:pointer">
+        <span id="inst-zoom-val" style="font-size:10px;color:var(--accent);min-width:36px">100%</span>
         <span style="font-size:11px;color:var(--muted)">Tasti:</span>
         <select id="piano-keys-count" onchange="buildPiano()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:11px;outline:none">
           <option value="1">1 ottava</option>
@@ -1000,16 +1179,17 @@
       <!-- 3D Instrument Viewer -->
       <div id="inst-3d-wrap" style="margin-bottom:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;background:var(--bg3);display:flex;flex-direction:column;align-items:center">
         <canvas id="inst-3d-canvas" style="width:100%;max-height:220px;display:block;touch-action:none"></canvas>
+        <iframe id="drum-kit-embed" title="Neon Drum Kit" src="https://shiny-squid-m926ab.preview.bloom.diy/" style="display:none;width:100%;height:min(420px,70vh);border:0;background:#05070d"></iframe>
         <p id="inst-3d-hint" style="font-size:10px;color:var(--muted);padding:4px 0 8px;text-align:center">— Clicca/tocca le corde per suonare —</p>
       </div>
       <!-- Piano keys -->
       <div id="piano-keys" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:0 0 10px 0">
         <div id="piano-inner" style="display:inline-block;position:relative;height:125px;min-width:100%"></div>
       </div>
-      <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px">← scorri per più tasti →</p>
+      <p id="piano-scroll-hint" style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px">← scorri per più tasti →</p>
       <div id="piano-display" style="text-align:center;font-family:var(--title);font-size:1.2rem;color:var(--accent);min-height:1.8rem;margin-top:10px">—</div>
       <!-- Chords -->
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+      <div id="piano-chords" style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
         <button onclick="playChord('Do M',[261.63,329.63,392])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Do M</button>
         <button onclick="playChord('Re m',[293.66,349.23,440])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Re m</button>
         <button onclick="playChord('Mi m',[329.63,392,493.88])" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Mi m</button>
@@ -1037,8 +1217,8 @@
   <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:1.5rem">
     <!-- Lang buttons vertical -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s">🇮🇹 IT</button>
-      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s">🇫🇷 FR</button>
+      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-it" role="img" aria-label="Italia"></span> IT</button>
+      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-fr" role="img" aria-label="Francia"></span> FR</button>
     </div>
 
     <!-- Main text -->
@@ -1086,7 +1266,7 @@
 
 <footer>
   <p>Tesina Interdisciplinare · <span>Informatica in modo digitale</span></p>
-  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Made in 🇮🇹 with ❤️ by MarioS.</p>
+  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Made in <span class="flag flag-it" role="img" aria-label="Italia"></span> with ❤️ by MarioS.</p>
   <p style="margin-top:6px">Anno scolastico 2026</p>
 </footer>
 
@@ -1097,7 +1277,7 @@
 <!-- Visit counter now shown only in settings panel -->
 
 <!-- ═══ FITNESS APP OVERLAY ═══ -->
-<div id="fitness-app" style="display:none;position:fixed;inset:0;background:#060a10;z-index:2000;overflow-y:auto;font-family:'Space Mono',monospace">
+  <div id="fitness-app" style="display:none;position:fixed;inset:0;background:radial-gradient(circle at 20% 0%,rgba(0,255,136,0.13),transparent 30%),linear-gradient(180deg,#050912,#08121d 55%,#050912);z-index:2000;overflow-y:auto;font-family:'Space Mono',monospace">
   <!-- Loading screen -->
   <div id="fitness-loader" style="position:fixed;inset:0;background:#060a10;z-index:2001;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="width:4px;height:80vh;background:rgba(0,255,136,0.1);position:absolute;left:24px;border-radius:2px">
@@ -1107,8 +1287,10 @@
       <div id="loader-bar-r" style="width:100%;height:0%;background:var(--accent);border-radius:2px;transition:height 1.2s ease-out"></div>
     </div>
     <div style="font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,5vw,3rem);font-weight:900;color:#fff;text-align:center;margin-bottom:1rem">FITNESS<br><span style="color:var(--accent)">MODE</span></div>
-    <div style="width:200px;height:4px;background:rgba(0,255,136,0.15);border-radius:2px;overflow:hidden;margin-bottom:1rem">
-      <div id="loader-prog" style="height:100%;width:0%;background:var(--accent);transition:width 1.2s ease-out;border-radius:2px"></div>
+    <div style="width:min(280px,70vw);height:8px;background:rgba(0,255,136,0.12);border:1px solid rgba(0,255,136,0.25);border-radius:999px;overflow:hidden;margin-bottom:1rem;position:relative;box-shadow:0 0 24px rgba(0,255,136,0.08)">
+      <div id="loader-prog" style="height:100%;width:0%;background:linear-gradient(90deg,#00ff88,#00aaff);transition:width 1.2s cubic-bezier(.2,.8,.2,1);border-radius:999px;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent);animation:fitnessProgressGlow 1.2s linear infinite"></div>
+      </div>
     </div>
     <div id="loader-txt" style="font-size:11px;color:var(--muted);letter-spacing:2px">INIZIALIZZAZIONE...</div>
   </div>
@@ -1247,19 +1429,39 @@
         <span style="font-size:11px;color:var(--accent);letter-spacing:2px">🎵 MUSICA BENESSERE</span>
       </div>
       <div style="padding:16px">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Musica generativa per workout e recupero — funziona offline, direttamente nel browser. Oppure incolla un link Spotify per aprirlo.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Musica generativa per workout e recupero — funziona offline, direttamente nel browser. Spotify può aprire o incorporare anteprime ufficiali, ma per brani completi serve l'app/account Spotify.</p>
         <div style="display:flex;gap:8px;margin-bottom:12px">
           <input type="text" id="fa-spotify-url" placeholder="Incolla link Spotify... es. https://open.spotify.com/track/..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:11px;outline:none">
           <button onclick="openSpotify()" style="background:#1db954;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;white-space:nowrap">▶ Spotify</button>
         </div>
         <div id="fa-spotify-embed" style="margin-bottom:12px"></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-          <button onclick="playFitnessTrack('energetic')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⚡ Energico</button>
+          <button onclick="playFitnessTrack('energetic')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⚡ Energetic</button>
           <button onclick="playFitnessTrack('calm')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🧘 Calm</button>
           <button onclick="playFitnessTrack('focus')" class="music-track-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">🎯 Focus</button>
           <button onclick="stopFitnessTrack()" style="background:transparent;border:1px solid #f66;color:#f66;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">⏹ Stop</button>
         </div>
         <div id="fa-music-display" style="font-size:12px;color:var(--muted);text-align:center;padding:8px;background:var(--bg3);border-radius:8px">Seleziona un brano per iniziare</div>
+        <div style="margin-top:14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px">
+            <span style="font-size:10px;color:var(--accent);letter-spacing:2px">LIBRERIA URL · PIN</span>
+            <span id="music-pin-status" style="font-size:10px;color:var(--muted)">🔒 Bloccata</span>
+          </div>
+          <div id="music-pin-gate" style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="password" id="music-pin-input" maxlength="4" placeholder="PIN 4 cifre" style="flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:14px;outline:none;letter-spacing:4px">
+            <button onclick="unlockMusicLinks()" style="background:var(--accent);color:#060a10;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700">Sblocca</button>
+          </div>
+          <div id="music-pin-error" style="display:none;font-size:11px;color:#f66;margin-top:6px">PIN errato</div>
+          <div id="music-links-content" style="display:none">
+            <div id="music-links-list" style="margin-bottom:10px"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input type="text" id="music-link-title" placeholder="Nome brano/playlist" style="flex:1;min-width:130px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:11px;outline:none">
+              <input type="url" id="music-link-url" placeholder="URL musica" style="flex:2;min-width:180px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:var(--mono);font-size:11px;outline:none">
+              <button onclick="saveMusicLink()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Salva</button>
+              <button onclick="lockMusicLinks()" style="background:transparent;border:1px solid var(--muted);color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px">Blocca</button>
+            </div>
+          </div>
+        </div>
         <div style="margin-top:10px;font-size:11px;color:var(--muted)">
           Per playlist complete: 
           <a href="https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP" target="_blank" style="color:var(--accent)">Workout Spotify →</a>
@@ -1331,13 +1533,15 @@ function swapEN() {
   out.textContent = tmp || 'La traduzione apparirà qui...';
   out.style.color = inp.value ? 'var(--muted)' : 'var(--muted)';
   if (enSwapped) {
-    ll.textContent = '🇮🇹 ITALIANO';
-    lr.textContent = '🇬🇧 INGLESE';
+    ll.innerHTML = `${FLAG.it} ITALIANO`;
+    lr.innerHTML = `${FLAG.gb} INGLESE`;
     btn.textContent = '🌐 Traduci in Inglese';
     inp.placeholder = 'Scrivi in italiano...';
+  } else if(name.includes('tamburo')) {
+    playDrumHit(x, y);
   } else {
-    ll.textContent = '🇬🇧 INGLESE';
-    lr.textContent = '🇮🇹 ITALIANO';
+    ll.innerHTML = `${FLAG.gb} INGLESE`;
+    lr.innerHTML = `${FLAG.it} ITALIANO`;
     btn.textContent = '🌐 Traduci in Italiano';
     inp.placeholder = 'Enter English text here...';
   }
@@ -1355,13 +1559,13 @@ function swapFR() {
   inp.value = out.textContent === 'La traduzione apparirà qui...' ? '' : out.textContent;
   out.textContent = tmp || 'La traduzione apparirà qui...';
   if (frSwapped) {
-    ll.textContent = '🇮🇹 ITALIANO';
-    lr.textContent = '🇫🇷 FRANÇAIS';
+    ll.innerHTML = `${FLAG.it} ITALIANO`;
+    lr.innerHTML = `${FLAG.fr} FRANÇAIS`;
     btn.textContent = '🌐 Traduci in Francese';
     inp.placeholder = 'Scrivi in italiano...';
   } else {
-    ll.textContent = '🇫🇷 FRANÇAIS';
-    lr.textContent = '🇮🇹 ITALIANO';
+    ll.innerHTML = `${FLAG.fr} FRANÇAIS`;
+    lr.innerHTML = `${FLAG.it} ITALIANO`;
     btn.textContent = '🌐 Traduis en Italien';
     inp.placeholder = 'Écrivez votre texte en français...';
   }
@@ -1431,6 +1635,8 @@ document.getElementById('chat-input').addEventListener('keydown', e => { if (e.k
 
 // ─── SVEVO vs AI ───
 const SVEVO_TEXT = `Oggi ho deciso di smettere di fumare. Era la millesima volta che prendevo questa decisione, e come le precedenti, nasceva da un momento di debolezza mascherata da forza. Mia moglie mi aveva guardato con quegli occhi che sanno tutto — quegli occhi che non accusano, ma pesano più di qualsiasi accusa. Avevo posato la sigaretta sul bordo del tavolo, con quella solennità ridicola con cui si depongono le armi, e avevo detto: L'ultima. Lei non aveva risposto. Sapeva, come sapevo io, che non era l'ultima. Era solo la penultima dell'ultima.`;
+let aiTypingSpeed = parseInt(localStorage.getItem('svevo-ai-speed') || '85', 10);
+let aiTypingRun = 0;
 
 function typewriterEffect(elId, text, speed, onDone) {
   const el = document.getElementById(elId);
@@ -1443,34 +1649,68 @@ function typewriterEffect(elId, text, speed, onDone) {
   }, speed);
 }
 
+function getAISpeedLabel(value) {
+  if(value >= 76) return 'Veloce';
+  if(value <= 30) return 'Lenta';
+  return 'Normale';
+}
+
+function getAITypingTimings() {
+  const value = Math.max(1, Math.min(100, aiTypingSpeed || 55));
+  return {
+    scrambleDelay: Math.max(6, Math.round(28 - value * 0.18)),
+    charDelay: Math.max(8, Math.round(54 - value * 0.42)),
+    scrambles: value >= 76 ? 1 : value <= 30 ? 4 : 2
+  };
+}
+
+function setAISpeed(value) {
+  aiTypingSpeed = parseInt(value, 10) || 55;
+  localStorage.setItem('svevo-ai-speed', aiTypingSpeed);
+  const label = document.getElementById('ai-speed-label');
+  if(label) label.textContent = getAISpeedLabel(aiTypingSpeed);
+}
+
+function initAISpeedControl() {
+  const slider = document.getElementById('ai-type-speed');
+  if(!localStorage.getItem('svevo-ai-speed')) aiTypingSpeed = 85;
+  if(slider) slider.value = aiTypingSpeed;
+  setAISpeed(aiTypingSpeed);
+}
+
 function digitalTypeEffect(elId, text, onDone) {
   const el = document.getElementById(elId);
   if(!el){ if(onDone) onDone(); return; }
+  const runId = ++aiTypingRun;
   el.textContent = '';
   const chars = '█▓▒░01ABCDEF';
   let i = 0;
   function step(){
+    if(runId !== aiTypingRun) return;
     if(i >= text.length){ if(onDone) onDone(); return; }
     let scrambles = 0;
+    const timing = getAITypingTimings();
     const interval = setInterval(()=>{
+      if(runId !== aiTypingRun) { clearInterval(interval); return; }
       el.textContent = text.slice(0,i) + chars[Math.floor(Math.random()*chars.length)] + '▒'.repeat(Math.min(3,text.length-i-1));
       scrambles++;
-      if(scrambles > 3){
+      if(scrambles > timing.scrambles){
         clearInterval(interval);
         el.textContent = text.slice(0,i+1);
         i++;
-        setTimeout(step, 18);
+        setTimeout(step, timing.charDelay);
       }
-    }, 25);
+    }, timing.scrambleDelay);
   }
   step();
 }
 
 function initSvevo() {
   const cursor = document.getElementById('svevo-cursor');
+  initAISpeedControl();
   typewriterEffect('svevo-text', SVEVO_TEXT, 22, ()=>{ if(cursor) cursor.style.display='none'; });
   // Pre-load AI text
-  const preloadAI = `Elaborazione del flusso coscienziale: registro l'istante della rinuncia con la precisione di chi sa che la rinuncia stessa è un atto performativo. La sigaretta — oggetto-simbolo di una volontà frammentata — viene deposta. La moglie osserva. I suoi occhi operano come sensori calibrati sul pattern comportamentale ripetuto: promessa → fallimento → nuova promessa. Il sistema non ha mai raggiunto convergenza. "L'ultima", ho dichiarato. Il modello predittivo interno stima: probabilità 3.7%. L'ultima è sempre la penultima.`;
+  const preloadAI = `Ho spento la sigaretta con la cura di chi finge di chiudere una questione importante. Mia moglie non disse nulla; e proprio quel silenzio mi parve un tribunale. Promisi che da quel momento sarei stato un uomo nuovo, ma mentre lo dicevo cercavo già con gli occhi il pacchetto rimasto sul mobile. La mia volontà, poveretta, era sincera soltanto per pochi secondi: poi tornava a contrattare con il vizio.`;
   digitalTypeEffect('ai-text', preloadAI);
 }
 
@@ -1479,8 +1719,8 @@ async function generateAISvevo() {
   btn.textContent = '⏳ Generazione...'; btn.disabled = true;
   const el = document.getElementById('ai-text');
   if(el) el.textContent = '';
-  const prompt = `Scrivi un breve brano (massimo 80 parole) nello stile di Italo Svevo, con la stessa struttura narrativa de "La coscienza di Zeno": flusso di coscienza, ironia amara, dipendenza, autoanalisi. Tema: il vizio del fumo e la volontà di smettere. Scrivi in prima persona. Non spiegare lo stile, scrivi solo il brano.`;
-  const reply = await callClaude('Sei un modello linguistico che scrive letteratura italiana nello stile di Italo Svevo.', prompt, 200);
+  const prompt = `Scrivi un breve testo narrativo originale, massimo 90 parole, sugli stessi temi del brano di Svevo: fumo, promessa di smettere, autoinganno, moglie che osserva, ironia interiore. Deve essere una scena nuova in prima persona. Vietato fare analisi, commento, spiegazione dello stile, elenco tecnico o meta-discorso. Non usare parole come "elaborazione", "flusso coscienziale", "registro", "pattern", "modello", "probabilità". Restituisci solo il testo narrativo.`;
+  const reply = await callClaude('Scrivi solo prosa narrativa italiana, naturale e letteraria. Non analizzare mai il testo e non spiegare cosa stai facendo.', prompt, 220);
   digitalTypeEffect('ai-text', reply, ()=>{ btn.textContent='⚡ Genera AI'; btn.disabled=false; });
 }
 
@@ -1514,6 +1754,129 @@ function launchConfetti() {
 }
 
 // ─── GRAMMAR CORRECTOR (LanguageTool — gratuito, no API key) ───
+function makeLocalGrammarMatches(txt) {
+  const matches = [];
+  const lowerLetters = 'abcdefghijklmnopqrstuvwxyzàèéìòóù';
+  const sentenceEnders = '.!?';
+  const isLowerLetter = ch => lowerLetters.includes((ch || '').toLocaleLowerCase('it-IT')) && ch === ch.toLocaleLowerCase('it-IT') && ch !== ch.toLocaleUpperCase('it-IT');
+  const upperIt = ch => ch.toLocaleUpperCase('it-IT');
+  const overlaps = (offset, length) => matches.some(m => {
+    if (length === 0 || m.length === 0) return m.offset === offset;
+    return offset < m.offset + m.length && m.offset < offset + length;
+  });
+  const add = (offset, length, replacement, message, ruleId) => {
+    if (offset < 0 || offset > txt.length || overlaps(offset, length)) return;
+    matches.push({
+      offset,
+      length,
+      message,
+      replacements: [{ value: replacement }],
+      rule: { id: ruleId || 'LOCAL_ITALIAN_CHECK' },
+      local: true
+    });
+  };
+
+  // Detached question mark after a statement/question, for example "stai. ?si".
+  const detachedQuestionMark = /[.!]\s+\?([a-zàèéìòóù])/gi;
+  let m;
+  while ((m = detachedQuestionMark.exec(txt)) !== null) {
+    add(
+      m.index,
+      m[0].length,
+      '? ' + upperIt(m[1]),
+      'Il punto interrogativo va attaccato alla domanda, senza punto prima.',
+      'LOCAL_DETACHED_QUESTION_MARK'
+    );
+  }
+
+  // Spaces before punctuation, including cases such as "ciao ?si".
+  const spaceBeforePunctuation = /\s+([,.!?;:])([a-zàèéìòóù])?/gi;
+  while ((m = spaceBeforePunctuation.exec(txt)) !== null) {
+    const punct = m[1];
+    const next = m[2] || '';
+    const shouldUpper = next && sentenceEnders.includes(punct);
+    const replacement = punct + (next ? ' ' + (shouldUpper ? upperIt(next) : next) : '');
+    add(
+      m.index,
+      m[0].length,
+      replacement,
+      next ? 'La punteggiatura non vuole spazi prima e richiede uno spazio dopo.' : 'Rimuovi lo spazio prima della punteggiatura.',
+      'LOCAL_PUNCTUATION_SPACING'
+    );
+  }
+
+  // Missing spaces after punctuation, for example "?si" -> "? Si".
+  const missingSpaceAfterPunctuation = /([,.!?;:])([a-zàèéìòóù])/gi;
+  while ((m = missingSpaceAfterPunctuation.exec(txt)) !== null) {
+    const punct = m[1];
+    const next = m[2];
+    const shouldUpper = sentenceEnders.includes(punct);
+    add(
+      m.index,
+      m[0].length,
+      punct + ' ' + (shouldUpper ? upperIt(next) : next),
+      'Dopo la punteggiatura serve uno spazio.',
+      'LOCAL_PUNCTUATION_SPACING'
+    );
+  }
+
+  // Lowercase sentence starts.
+  const sentenceStart = /(^|[.!?]\s+|[\r\n]+)(["'“”‘’(\[]?\s*)([a-zàèéìòóù])/gi;
+  while ((m = sentenceStart.exec(txt)) !== null) {
+    const letter = m[3];
+    if (!isLowerLetter(letter)) continue;
+    const offset = m.index + (m[1] || '').length + (m[2] || '').length;
+    add(offset, 1, upperIt(letter), 'Le frasi iniziano con la lettera maiuscola.', 'LOCAL_SENTENCE_CAPITAL');
+  }
+
+  // Sentences that look like questions but do not end with a question mark.
+  const sentenceLike = /[^.!?\r\n]+[.!?]?/g;
+  const questionStarters = /^(chi|che|cosa|come|quando|dove|perch[eé]|quanto|quanta|quanti|quante|quale|quali)\b/i;
+  const commonQuestions = /\b(come stai|come va|che fai|cosa fai|dove sei|chi sei|hai capito|va bene)\b/i;
+  while ((m = sentenceLike.exec(txt)) !== null) {
+    const raw = m[0];
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed.endsWith('?')) continue;
+    const content = trimmed.replace(/[.!]$/, '').trim();
+    if (!questionStarters.test(content) && !commonQuestions.test(content)) continue;
+
+    let end = m.index + raw.length - 1;
+    while (end >= m.index && /\s/.test(txt[end])) end--;
+    if (txt[end] === '.' || txt[end] === '!') {
+      add(end, 1, '?', 'Questa sembra una domanda: usa il punto interrogativo.', 'LOCAL_QUESTION_MARK');
+    } else {
+      add(end + 1, 0, '?', 'Questa sembra una domanda: aggiungi il punto interrogativo.', 'LOCAL_QUESTION_MARK');
+    }
+  }
+
+  // Final punctuation for plain statements.
+  const trimmedEnd = txt.search(/\s*$/);
+  const lastTextIndex = trimmedEnd > 0 ? trimmedEnd - 1 : txt.length - 1;
+  const lastChar = txt[lastTextIndex] || '';
+  if (lastTextIndex >= 0 && !'.!?…'.includes(lastChar)) {
+    add(lastTextIndex + 1, 0, '.', 'Aggiungi la punteggiatura finale.', 'LOCAL_FINAL_PUNCTUATION');
+  }
+
+  return matches;
+}
+
+function mergeGrammarMatches(apiMatches, localMatches) {
+  const merged = [];
+  const normalizedLength = m => Math.max(1, m.length || 0);
+  const hasConflict = match => merged.some(existing =>
+    match.offset < existing.offset + normalizedLength(existing) &&
+    existing.offset < match.offset + normalizedLength(match)
+  );
+
+  [...localMatches, ...apiMatches].forEach(match => {
+    if (!match.replacements?.length) return;
+    if (hasConflict(match)) return;
+    merged.push(match);
+  });
+
+  return merged.sort((a, b) => a.offset - b.offset);
+}
+
 async function correctGrammar() {
   const txt = document.getElementById('grammar-input').value.trim();
   if (!txt) return;
@@ -1523,11 +1886,9 @@ async function correctGrammar() {
   out.innerHTML = '<span style="color:var(--muted)">🔍 Analisi grammaticale...</span>';
 
   try {
-    // Disabled rules: capitalization at start, proper nouns, spelling of names
+    // Keep LanguageTool active, then add local Italian punctuation checks below.
     const disabledRules = [
-      'UPPERCASE_SENTENCE_START',   // Don't force capital at start
-      'PROFANITY',                  // Not relevant
-      'COMMA_PARENTHESIS_WHITESPACE',
+      'PROFANITY',
     ].join(',');
 
     const body = new URLSearchParams({
@@ -1542,6 +1903,12 @@ async function correctGrammar() {
     if (!r.ok) throw new Error('Errore API: ' + r.status);
     const d = await r.json();
 
+    const localMatches = makeLocalGrammarMatches(txt);
+    const protectedNames = new Set(['lillo','mario','marios','marioS'.toLowerCase()]);
+    const hasProtectedName = value => (value || '')
+      .split(/[^A-Za-zÀ-ÿ]+/)
+      .some(word => protectedNames.has(word.toLowerCase()));
+
     // Filter out matches that are only capitalisation fixes on possible proper nouns
     const isProperNoun = (orig, repl) => {
       // If the only difference is first letter capitalisation and original starts with lowercase but could be a name
@@ -1551,15 +1918,17 @@ async function correctGrammar() {
       return onlyCapChange;
     };
 
-    const validMatches = (d.matches || []).filter(m => {
+    const apiMatches = (d.matches || []).filter(m => {
       const rep = m.replacements?.[0]?.value || '';
       const orig = txt.slice(m.offset, m.offset + m.length);
+      if (hasProtectedName(orig) || hasProtectedName(rep)) return false;
       // Skip pure capitalisation fixes for potential proper nouns (names)
       if (isProperNoun(orig, rep)) return false;
-      // Skip if rule is about sentence start and word might be a name
-      if (m.rule?.id === 'UPPERCASE_SENTENCE_START') return false;
+      // If LanguageTool tries to turn a lowercase word into a proper-name-looking word, leave it unchanged.
+      if (/^[a-zàèéìòóù]/.test(orig) && /^[A-ZÀÈÉÌÒÓÙ]/.test(rep)) return false;
       return true;
     });
+    const validMatches = mergeGrammarMatches(apiMatches, localMatches);
 
     if (validMatches.length === 0) {
       out.innerHTML = '<span style="color:var(--accent)">✓ Nessun errore grammaticale trovato. Il testo è corretto.</span>';
@@ -1828,6 +2197,32 @@ function runPython() {
   }
 }
 
+function calcArithmeticDemo() {
+  const value = parseFloat(document.getElementById('arith-value')?.value || 0);
+  const percent = parseFloat(document.getElementById('arith-percent')?.value || 0);
+  const grades = (document.getElementById('arith-grades')?.value || '')
+    .split(',')
+    .map(v => parseFloat(v.trim()))
+    .filter(v => !Number.isNaN(v));
+  const discount = value * percent / 100;
+  const finalPrice = value - discount;
+  const increase = value + discount;
+  const average = grades.length ? grades.reduce((s, v) => s + v, 0) / grades.length : 0;
+  const out = document.getElementById('arith-output');
+  if (!out) return;
+  out.innerHTML = `
+    <div><span style="color:var(--accent)">${percent}%</span> di ${value || 0} = <strong style="color:var(--text)">${discount.toFixed(2)}</strong></div>
+    <div>Sconto: <strong style="color:var(--text)">${finalPrice.toFixed(2)}</strong> · Aumento: <strong style="color:var(--text)">${increase.toFixed(2)}</strong></div>
+    <div>Media voti: <strong style="color:var(--accent2)">${grades.length ? average.toFixed(2) : '—'}</strong></div>`;
+  const explain = document.getElementById('arith-explain');
+  if (explain) explain.innerHTML = `
+    <div><strong style="color:var(--text)">Come calcola:</strong></div>
+    <div>Percentuale = valore × percentuale ÷ 100 → ${value || 0} × ${percent || 0} ÷ 100 = ${discount.toFixed(2)}</div>
+    <div>Sconto = valore − percentuale → ${(value || 0).toFixed(2)} − ${discount.toFixed(2)} = ${finalPrice.toFixed(2)}</div>
+    <div>Aumento = valore + percentuale → ${(value || 0).toFixed(2)} + ${discount.toFixed(2)} = ${increase.toFixed(2)}</div>
+    <div>Media = somma voti ÷ numero voti → ${grades.length ? grades.join(' + ') + ' ÷ ' + grades.length + ' = ' + average.toFixed(2) : 'inserisci i voti separati da virgola'}</div>`;
+}
+
 function pythonToJS(code) {
   const lines = code.split('\n');
   const result = [];
@@ -1983,6 +2378,12 @@ function transpileExpr(s) {
 const map = L.map('map').setView([41.9, 12.5], 6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
 let marker = null;
+function setGeoMarker(lat, lng, label) {
+  if (marker) marker.remove();
+  marker = L.marker([lat, lng]).addTo(map);
+  if (label) marker.bindPopup(label).openPopup();
+  updateGeoInfo(lat, lng);
+}
 function updateGeoInfo(lat, lng) {
   document.getElementById('geo-lat').textContent = lat.toFixed(5) + '°';
   document.getElementById('geo-lng').textContent = lng.toFixed(5) + '°';
@@ -1996,17 +2397,24 @@ function updateGeoInfo(lat, lng) {
 }
 map.on('click', e => {
   const {lat, lng} = e.latlng;
-  if (marker) marker.remove();
-  marker = L.marker([lat,lng]).addTo(map);
-  updateGeoInfo(lat, lng);
+  setGeoMarker(lat, lng);
 });
 map.on('zoomend', () => { document.getElementById('geo-zoom').textContent = map.getZoom(); });
+function goToGeoPoint(point) {
+  const points = {
+    greenwich: { lat: 51.4779, lng: -0.0015, zoom: 13, label: 'Meridiano di Greenwich' },
+    antimeridian: { lat: 0, lng: 180, zoom: 4, label: 'Antimeridiano 180°' }
+  };
+  const p = points[point];
+  if (!p) return;
+  map.setView([p.lat, p.lng], p.zoom);
+  setGeoMarker(p.lat, p.lng, p.label);
+}
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(pos => {
     const {latitude:lat, longitude:lng} = pos.coords;
     map.setView([lat,lng],12);
-    marker = L.marker([lat,lng]).addTo(map).bindPopup('La tua posizione').openPopup();
-    updateGeoInfo(lat,lng);
+    setGeoMarker(lat, lng, 'La tua posizione');
   });
 }
 
@@ -2320,6 +2728,7 @@ let exercises = [...defaultExercises];
 
 function renderExercises() {
   const el = document.getElementById('exercise-list');
+  if (!el) return;
   el.innerHTML = exercises.map((ex,i)=>`
     <div class="exercise-row">
       <div class="ex-check${ex.done?' done':''}" onclick="toggleEx(${i})">${ex.done?'✓':''}</div>
@@ -2867,25 +3276,43 @@ function stopFitnessTrack(){
 function playFitnessTrack(type){
   stopFitnessTrack();
   const ctx=getFitnessCtx(); fitnessPlaying=true;
-  const names={'energetic':'⚡ Energico — BPM 140','calm':'🧘 Calm — BPM 60','focus':'🎯 Focus — BPM 90'};
+  const master=ctx.createGain();
+  master.gain.value=0.48;
+  master.connect(ctx.destination);
+  fitnessNodes.push(master);
+  const names={'energetic':'⚡ Energetic — BPM 132','calm':'🧘 Calm — BPM 66','focus':'🎯 Focus — BPM 92'};
   document.getElementById('fa-music-display').textContent='▶ '+names[type];
-  const bpm=type==='energetic'?140:type==='calm'?60:90;
+  const bpm=type==='energetic'?132:type==='calm'?66:92;
   const beat=60/bpm;
-  // kick drum pattern
-  function playKick(t){const buf=ctx.createBuffer(1,ctx.sampleRate*0.3,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){d[i]=Math.sin(2*Math.PI*50*Math.exp(-i/(ctx.sampleRate*0.05))*i/ctx.sampleRate)*Math.exp(-i/(ctx.sampleRate*0.15));}const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(ctx.destination);g.gain.value=0.8;s.start(t);fitnessNodes.push(s);}
-  // hi-hat
-  function playHat(t){const buf=ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.02));const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(ctx.destination);g.gain.value=0.3;s.start(t);fitnessNodes.push(s);}
-  // bass note
-  function playBass(t,freq){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=freq;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+beat*0.8);o.start(t);o.stop(t+beat*0.8);fitnessNodes.push(o);}
-  const patterns={energetic:[60,60,0,80,60,0,80,60],calm:[40,0,0,40,0,0,40,0],focus:[50,0,50,0,70,0,50,0]};
+  const scale={energetic:[55,65.41,73.42,82.41],calm:[196,220,246.94,293.66],focus:[110,146.83,164.81,196]};
+  function envGain(t, peak, dur, out=master){
+    const g=ctx.createGain(); g.connect(out);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(peak,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    return g;
+  }
+  function playKick(t){const o=ctx.createOscillator(),g=envGain(t,0.65,0.38);o.type='sine';o.frequency.setValueAtTime(92,t);o.frequency.exponentialRampToValueAtTime(42,t+0.22);o.connect(g);o.start(t);o.stop(t+0.4);fitnessNodes.push(o);}
+  function playHat(t,soft=false){const buf=ctx.createBuffer(1,ctx.sampleRate*0.08,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*(soft?0.045:0.022)));const s=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),g=envGain(t,soft?0.08:0.16,soft?0.18:0.08);filter.type='highpass';filter.frequency.value=6500;s.buffer=buf;s.connect(filter);filter.connect(g);s.start(t);fitnessNodes.push(s);}
+  function playTone(t,freq,dur=beat*1.8,wave='sine',vol=0.18){const o=ctx.createOscillator(),g=envGain(t,vol,dur);o.type=wave;o.frequency.value=freq;o.detune.setValueAtTime((Math.random()*10)-5,t);o.connect(g);o.start(t);o.stop(t+dur);fitnessNodes.push(o);}
+  function playPad(t,freq,dur=beat*4){playTone(t,freq,dur,'sine',0.09);playTone(t,freq*1.5,dur,'triangle',0.045);}
+  const patterns={energetic:[0,0,1,0,2,0,3,0],calm:[0,null,null,2,null,null,1,null],focus:[0,null,2,null,1,null,3,null]};
   const bassNotes=patterns[type];
   const now=ctx.currentTime+0.1;
   for(let bar=0;bar<8;bar++){
     for(let step=0;step<8;step++){
       const t=now+bar*beat*8+step*beat;
-      if(step%2===0) playKick(t);
-      playHat(t);
-      if(bassNotes[step]>0) playBass(t,bassNotes[step]);
+      if(type==='energetic' && (step===0 || step===4)) playKick(t);
+      if(type==='focus' && step%4===0) playKick(t);
+      if(type==='energetic' && step%2===1) playHat(t);
+      if(type==='focus' && step%2===0) playHat(t,true);
+      if(type==='calm' && step===2) playHat(t,true);
+      const idx=bassNotes[step];
+      if(idx!==null && idx!==undefined) {
+        const freq=scale[type][idx%scale[type].length];
+        if(type==='calm') playPad(t,freq,beat*5);
+        else playTone(t,freq,beat*1.5,type==='energetic'?'sawtooth':'triangle',type==='energetic'?0.18:0.14);
+      }
     }
   }
   setTimeout(()=>{if(fitnessPlaying)playFitnessTrack(type);},beat*8*8*1000+100);
@@ -3072,47 +3499,71 @@ const THEMES = {
   default: {
     '--accent':'#00ff88','--accent2':'#0af','--bg':'#060a10','--bg2':'#0d1421',
     '--bg3':'#111c2e','--text':'#e8f4fd','--muted':'#6a8aaa','--border':'rgba(0,255,136,0.18)',
-    '--card':'rgba(13,20,33,0.92)', label:'🌿 Default'
+    '--card':'rgba(13,20,33,0.92)', label:'🌿 Default', group:'classic'
   },
   galaxy: {
     '--accent':'#bf88ff','--accent2':'#ff66cc','--bg':'#05030f','--bg2':'#100a20',
     '--bg3':'#1a1035','--text':'#e8d8ff','--muted':'#8a6aaa','--border':'rgba(191,136,255,0.2)',
-    '--card':'rgba(16,10,32,0.95)', label:'🌌 Galaxy'
+    '--card':'rgba(16,10,32,0.95)', label:'🌌 Galaxy', group:'classic'
   },
   ocean: {
     '--accent':'#00d4ff','--accent2':'#0066ff','--bg':'#020d18','--bg2':'#061a2e',
     '--bg3':'#0a2540','--text':'#d0eeff','--muted':'#5588aa','--border':'rgba(0,212,255,0.2)',
-    '--card':'rgba(6,26,46,0.95)', label:'🌊 Ocean'
+    '--card':'rgba(6,26,46,0.95)', label:'🌊 Ocean', group:'classic'
   },
   sunset: {
     '--accent':'#ff7a2a','--accent2':'#ff2266','--bg':'#100508','--bg2':'#1f0c10',
     '--bg3':'#2d1218','--text':'#ffddd0','--muted':'#aa6655','--border':'rgba(255,122,42,0.2)',
-    '--card':'rgba(31,12,16,0.95)', label:'🌅 Sunset'
+    '--card':'rgba(31,12,16,0.95)', label:'🌅 Sunset', group:'classic'
   },
   forest: {
     '--accent':'#44dd77','--accent2':'#aaff44','--bg':'#030a05','--bg2':'#071510',
     '--bg3':'#0e2016','--text':'#d0ffd8','--muted':'#558866','--border':'rgba(68,221,119,0.2)',
-    '--card':'rgba(7,21,16,0.95)', label:'🌲 Forest'
+    '--card':'rgba(7,21,16,0.95)', label:'🌲 Forest', group:'classic'
   },
   birthday: {
     '--accent':'#ff6eb4','--accent2':'#ffb6e0','--bg':'#1a0010','--bg2':'#2d0020',
     '--bg3':'#3d0030','--text':'#fff0f8','--muted':'#cc88aa','--border':'rgba(255,110,180,0.25)',
-    '--card':'rgba(45,0,32,0.95)', label:'🧁 Compleanno'
+    '--card':'rgba(45,0,32,0.95)', label:'🧁 Compleanno', group:'classic'
+  },
+  neonGrid: {
+    '--accent':'#00f5ff','--accent2':'#ff2bd6','--bg':'#02030a','--bg2':'#071022',
+    '--bg3':'#0b1a36','--text':'#ecfbff','--muted':'#78a4c7','--border':'rgba(0,245,255,0.28)',
+    '--card':'rgba(5,14,30,0.9)', label:'🧬 Neon Grid', group:'futuristic'
+  },
+  cyberpunk: {
+    '--accent':'#ffe600','--accent2':'#ff007c','--bg':'#07020d','--bg2':'#12051d',
+    '--bg3':'#231033','--text':'#fff8d6','--muted':'#b48cab','--border':'rgba(255,230,0,0.28)',
+    '--card':'rgba(18,5,29,0.92)', label:'⚡ Cyberpunk', group:'futuristic'
+  },
+  hologram: {
+    '--accent':'#8ffcff','--accent2':'#9a7cff','--bg':'#03070f','--bg2':'#071421',
+    '--bg3':'#10243a','--text':'#eefcff','--muted':'#8db8c2','--border':'rgba(143,252,255,0.28)',
+    '--card':'rgba(7,20,33,0.82)', label:'🔮 Hologram', group:'futuristic'
   }
 };
 let currentTheme = localStorage.getItem('tesina-theme') || 'default';
+let currentThemeMode = localStorage.getItem('tesina-theme-mode') || (THEMES[currentTheme]?.group || 'classic');
+if(!['classic','futuristic'].includes(currentThemeMode)) currentThemeMode = 'classic';
 
 function applyTheme(name) {
   const t = THEMES[name] || THEMES.default;
   const root = document.documentElement;
   Object.entries(t).forEach(([k,v])=>{ if(k.startsWith('--')) root.style.setProperty(k,v); });
+  root.dataset.theme = name;
+  root.dataset.themeGroup = t.group || 'classic';
   currentTheme = name;
+  currentThemeMode = t.group || 'classic';
   localStorage.setItem('tesina-theme', name);
+  localStorage.setItem('tesina-theme-mode', currentThemeMode);
   document.querySelectorAll('.theme-btn').forEach(b=>{
     const active = b.dataset.theme===name;
     b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
     b.style.color = active ? 'var(--accent)' : 'var(--muted)';
     b.style.background = active ? 'rgba(255,255,255,0.05)' : 'var(--bg3)';
+  });
+  document.querySelectorAll('.theme-mode-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.themeMode===currentThemeMode);
   });
   const lbl = document.getElementById('settings-active-theme');
   if(lbl) lbl.textContent = t.label;
@@ -3153,6 +3604,45 @@ function updateVisitDisplay(){
   if(el) el.textContent=`👁️ ${Number(visitCount).toLocaleString('it')} visite`;
 }
 
+function renderFlag(code, label) {
+  return `<span class="flag flag-${code}" role="img" aria-label="${label}"></span>`;
+}
+
+const FLAG = {
+  it: renderFlag('it', 'Italia'),
+  fr: renderFlag('fr', 'Francia'),
+  gb: renderFlag('gb', 'Regno Unito')
+};
+
+function renderThemeModeSwitch() {
+  return `
+    <div class="theme-mode-switch">
+      <button class="theme-mode-btn ${currentThemeMode==='classic'?'active':''}" data-theme-mode="classic" onclick="setThemeMode('classic')">CLASSICA</button>
+      <button class="theme-mode-btn ${currentThemeMode==='futuristic'?'active':''}" data-theme-mode="futuristic" onclick="setThemeMode('futuristic')">FUTURISTICA</button>
+    </div>`;
+}
+
+function renderThemeGroup(groupName) {
+  return Object.entries(THEMES)
+    .filter(([,t]) => (t.group || 'classic') === groupName)
+    .map(([k,t])=>`
+      <button class="theme-btn" data-theme="${k}" onclick="applyTheme('${k}')"
+        style="background:${k===currentTheme?'rgba(255,255,255,0.05)':'var(--bg3)'};border:1px solid ${k===currentTheme?'var(--accent)':'var(--border)'};
+        color:${k===currentTheme?'var(--accent)':'var(--muted)'};padding:8px 12px;border-radius:8px;
+        cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s">
+        ${t.label}
+      </button>`).join('');
+}
+
+function setThemeMode(groupName) {
+  currentThemeMode = groupName;
+  localStorage.setItem('tesina-theme-mode', groupName);
+  const switchEl = document.getElementById('theme-mode-switch-wrap');
+  const listEl = document.getElementById('theme-list');
+  if(switchEl) switchEl.innerHTML = renderThemeModeSwitch();
+  if(listEl) listEl.innerHTML = renderThemeGroup(groupName);
+}
+
 function buildSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if(!panel) return;
@@ -3162,22 +3652,21 @@ function buildSettingsPanel() {
       <button onclick="toggleSettings()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0">✕</button>
     </div>
     <div style="padding:16px 20px">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:12px">🎨 TEMA</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-        ${Object.entries(THEMES).map(([k,t])=>`
-          <button class="theme-btn" data-theme="${k}" onclick="applyTheme('${k}')"
-            style="background:${k===currentTheme?'rgba(255,255,255,0.05)':'var(--bg3)'};border:1px solid ${k===currentTheme?'var(--accent)':'var(--border)'};
-            color:${k===currentTheme?'var(--accent)':'var(--muted)'};padding:8px 14px;border-radius:8px;
-            cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.15s">
-            ${t.label}
-          </button>`).join('')}
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:12px">🎨 TEMI</div>
+      <div id="theme-mode-switch-wrap">
+        ${renderThemeModeSwitch()}
+      </div>
+      <div style="background:linear-gradient(135deg,var(--bg3),color-mix(in srgb,var(--accent2) 10%,var(--bg3)));border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px">
+        <div id="theme-list" style="display:flex;flex-wrap:wrap;gap:8px">
+          ${renderThemeGroup(currentThemeMode)}
+        </div>
       </div>
       <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:10px">📊 STATISTICHE</div>
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--muted);line-height:2">
         <div id="settings-visits">👁️ Caricamento...</div>
         <div>Tema attivo: <span id="settings-active-theme">${THEMES[currentTheme]?.label||'Default'}</span></div>
         <div>Versione: 2026</div>
-        <div style="margin-top:4px;color:var(--text)">Made in 🇮🇹 with ❤️ by MarioS.</div>
+        <div style="margin-top:4px;color:var(--text)">Made in ${FLAG.it} with ❤️ by MarioS.</div>
       </div>
     </div>`;
   updateVisitDisplay();
@@ -3220,6 +3709,87 @@ function openSpotify() {
   } else {
     embedDiv.innerHTML = `<p style="color:#f66;font-size:12px">❌ Link non riconosciuto. Esempio: https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh</p>`;
   }
+}
+
+let musicLinksUnlocked = false;
+function unlockMusicLinks() {
+  const pin = document.getElementById('music-pin-input')?.value || '';
+  const stored = localStorage.getItem('fitness-music-pin');
+  if (!/^\d{4}$/.test(pin)) {
+    document.getElementById('music-pin-error').textContent = 'Inserisci un PIN di 4 cifre';
+    document.getElementById('music-pin-error').style.display = 'block';
+    return;
+  }
+  if (!stored) localStorage.setItem('fitness-music-pin', pin);
+  else if (pin !== stored) {
+    document.getElementById('music-pin-error').textContent = 'PIN errato';
+    document.getElementById('music-pin-error').style.display = 'block';
+    return;
+  }
+  musicLinksUnlocked = true;
+  document.getElementById('music-pin-error').style.display = 'none';
+  document.getElementById('music-pin-gate').style.display = 'none';
+  document.getElementById('music-links-content').style.display = 'block';
+  document.getElementById('music-pin-status').textContent = '🔓 Sbloccata';
+  renderMusicLinks();
+}
+
+function lockMusicLinks() {
+  musicLinksUnlocked = false;
+  document.getElementById('music-pin-gate').style.display = 'flex';
+  document.getElementById('music-links-content').style.display = 'none';
+  document.getElementById('music-pin-status').textContent = '🔒 Bloccata';
+  const input = document.getElementById('music-pin-input');
+  if (input) input.value = '';
+}
+
+function getSavedMusicLinks() {
+  try { return JSON.parse(localStorage.getItem('fitness-music-links') || '[]'); }
+  catch(e) { return []; }
+}
+
+function renderMusicLinks() {
+  if (!musicLinksUnlocked) return;
+  const el = document.getElementById('music-links-list');
+  if (!el) return;
+  const links = getSavedMusicLinks();
+  el.innerHTML = links.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <button onclick="useMusicLink(${i})" style="flex:1;text-align:left;background:none;border:none;color:var(--text);cursor:pointer;font-family:var(--mono);font-size:12px;padding:0">${item.title}</button>
+      <a href="${item.url}" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none">Apri</a>
+      <button onclick="deleteMusicLink(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:11px">Nessun URL salvato.</p>';
+}
+
+function saveMusicLink() {
+  if (!musicLinksUnlocked) return;
+  const titleEl = document.getElementById('music-link-title');
+  const urlEl = document.getElementById('music-link-url');
+  const title = (titleEl?.value || '').trim() || 'Musica salvata';
+  const url = (urlEl?.value || '').trim();
+  if (!/^https?:\/\//i.test(url)) return;
+  const links = getSavedMusicLinks();
+  links.push({ title, url });
+  localStorage.setItem('fitness-music-links', JSON.stringify(links));
+  titleEl.value = '';
+  urlEl.value = '';
+  renderMusicLinks();
+}
+
+function useMusicLink(i) {
+  const item = getSavedMusicLinks()[i];
+  if (!item) return;
+  const input = document.getElementById('fa-spotify-url');
+  if (input) input.value = item.url;
+  if (/spotify\.com/i.test(item.url)) openSpotify();
+  else window.open(item.url, '_blank');
+}
+
+function deleteMusicLink(i) {
+  const links = getSavedMusicLinks();
+  links.splice(i, 1);
+  localStorage.setItem('fitness-music-links', JSON.stringify(links));
+  renderMusicLinks();
 }
 
 // ─── ED. CIVICA ───
@@ -3290,7 +3860,7 @@ function renderCivica() {
   btnsEl.innerHTML = data.sections.map((s,i)=>`
     <button onclick="openCivicaModal(${i})"
       id="civica-sec-btn-${i}"
-      style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s"
+      style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;box-shadow:0 0 0 rgba(0,255,136,0)"
       onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
       ${s.btn}
@@ -3313,6 +3883,9 @@ function openCivicaModal(idx) {
   }).join('');
   overlay.style.display = 'flex';
   modal.style.display = 'block';
+  modal.style.borderColor = 'var(--accent)';
+  modal.style.boxShadow = '0 0 30px rgba(0,255,136,0.35), inset 0 0 22px rgba(0,255,136,0.08)';
+  modal.style.animation = 'civicaIgnite 2.8s ease-out 1, civicaIgnite 4.5s ease-in-out 3s infinite alternate';
   // Animate in
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
@@ -3325,6 +3898,8 @@ function openCivicaModal(idx) {
     b.style.background = i===idx ? 'rgba(0,255,136,0.1)' : 'var(--bg3)';
     b.style.borderColor = i===idx ? 'var(--accent)' : 'var(--border)';
     b.style.color = i===idx ? 'var(--accent)' : 'var(--text)';
+    b.style.boxShadow = i===idx ? '0 0 18px rgba(0,255,136,0.35)' : '0 0 0 rgba(0,255,136,0)';
+    b.style.animation = i===idx ? 'civicaIgnite 2.8s ease-out 1, civicaIgnite 4.5s ease-in-out 3s infinite alternate' : '';
   });
 }
 
@@ -3334,9 +3909,12 @@ function closeCivicaModal() {
   if(!modal) return;
   modal.style.transform = 'translate(-50%,-60%)';
   modal.style.opacity = '0';
+  modal.style.animation = '';
+  modal.style.boxShadow = '';
+  modal.style.borderColor = 'var(--border)';
   setTimeout(()=>{ modal.style.display='none'; if(overlay) overlay.style.display='none'; },300);
   document.querySelectorAll('[id^=civica-sec-btn-]').forEach(b=>{
-    b.style.background='var(--bg3)'; b.style.borderColor='var(--border)'; b.style.color='var(--text)';
+    b.style.background='var(--bg3)'; b.style.borderColor='var(--border)'; b.style.color='var(--text)'; b.style.boxShadow='0 0 0 rgba(0,255,136,0)'; b.style.animation='';
   });
 }
 
@@ -3425,6 +4003,7 @@ const ORGAN_PIPES = [
 let inst3dCanvas=null, inst3dCtx=null;
 let strumAnim = {};
 let drumAnim = 0; // 0=idle, >0=hit animation
+let instrumentZoom = parseInt(localStorage.getItem('instrument-zoom') || '100', 10);
 
 function init3DCanvas() {
   inst3dCanvas = document.getElementById('inst-3d-canvas');
@@ -3442,10 +4021,33 @@ function init3DCanvas() {
   window.addEventListener('resize',()=>{
     if(!inst3dCanvas) return;
     inst3dCanvas.width=inst3dCanvas.offsetWidth||600;
-    inst3dCanvas.height=getH();
+    inst3dCanvas.height=Math.round(getH() * instrumentZoom / 100);
     draw3DInstrument();
   });
   requestAnimationFrame(animate3D);
+  setInstrumentZoom(instrumentZoom);
+}
+
+function setInstrumentZoom(value) {
+  instrumentZoom = Math.max(70, Math.min(130, parseInt(value, 10) || 100));
+  localStorage.setItem('instrument-zoom', instrumentZoom);
+  const slider = document.getElementById('inst-zoom');
+  const label = document.getElementById('inst-zoom-val');
+  const drumEmbed = document.getElementById('drum-kit-embed');
+  if (slider) slider.value = instrumentZoom;
+  if (label) label.textContent = instrumentZoom + '%';
+  const baseH = window.innerHeight > 1500 ? 320 : window.innerHeight > 900 ? 240 : 200;
+  const scaledH = Math.round(baseH * instrumentZoom / 100);
+  if (inst3dCanvas) {
+    inst3dCanvas.height = scaledH;
+    inst3dCanvas.style.height = scaledH + 'px';
+    inst3dCanvas.style.maxHeight = scaledH + 'px';
+  }
+  if (drumEmbed) {
+    drumEmbed.style.height = Math.round(420 * instrumentZoom / 100) + 'px';
+    drumEmbed.style.zoom = instrumentZoom / 100;
+  }
+  draw3DInstrument();
 }
 
 function on3DClick(e) {
@@ -3503,9 +4105,36 @@ function playFakeNote(freq) {
   o.start();o.stop(ctx2.currentTime+0.8);
 }
 
+function playDrumHit(x, y) {
+  drumAnim = 1;
+  const ctx2 = getPianoCtx();
+  const hit = x < inst3dCanvas.width * 0.42 ? 'RIM' : x > inst3dCanvas.width * 0.58 ? 'SNARE' : 'KICK';
+  const duration = hit === 'KICK' ? 0.32 : 0.18;
+  const buf = ctx2.createBuffer(1, ctx2.sampleRate * duration, ctx2.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) {
+    const t = i / ctx2.sampleRate;
+    const noise = Math.random() * 2 - 1;
+    const tone = Math.sin(2 * Math.PI * (hit === 'KICK' ? 70 : 180) * t);
+    d[i] = (hit === 'KICK' ? tone * 0.8 + noise * 0.25 : noise * 0.9 + tone * 0.2) * Math.exp(-t / duration * 6);
+  }
+  const s = ctx2.createBufferSource();
+  const filter = ctx2.createBiquadFilter();
+  const g = ctx2.createGain();
+  filter.type = hit === 'KICK' ? 'lowpass' : 'bandpass';
+  filter.frequency.value = hit === 'KICK' ? 180 : 1800;
+  g.gain.value = hit === 'RIM' ? 0.35 : 0.55;
+  s.buffer = buf;
+  s.connect(filter); filter.connect(g); g.connect(ctx2.destination);
+  s.start();
+  const disp = document.getElementById('piano-display');
+  if (disp && disp.style.display !== 'none') { disp.textContent = `Tamburo — ${hit}`; disp.style.color = 'var(--accent)'; }
+}
+
 function animate3D() {
   // Advance string animations
   Object.keys(strumAnim).forEach(k=>{strumAnim[k].t+=0.18;if(strumAnim[k].t>Math.PI*8)delete strumAnim[k];});
+  if (drumAnim > 0) drumAnim = Math.max(0, drumAnim - 0.08);
   draw3DInstrument();
   requestAnimationFrame(animate3D);
 }
@@ -3522,14 +4151,26 @@ function draw3DInstrument() {
   const pianoWrap = document.getElementById('piano-keys');
   const pianoHint = pianoWrap?.nextElementSibling;
   const pianoLabelRow = document.getElementById('piano-keys-row');
+  const drumEmbed = document.getElementById('drum-kit-embed');
+  const pianoDisplay = document.getElementById('piano-display');
+  const pianoChords = document.getElementById('piano-chords');
   if(pianoWrap) pianoWrap.style.display = (isPiano||!isPiano&&!isDrum)?'':'none';
   // Hide piano keyboard for all non-piano instruments
   if(pianoWrap) pianoWrap.style.display = isPiano ? '' : 'none';
   if(pianoHint && pianoHint.tagName==='P') pianoHint.style.display = isPiano ? '' : 'none';
+  if(pianoDisplay) pianoDisplay.style.display = isPiano ? '' : 'none';
+  if(pianoChords) pianoChords.style.display = isPiano ? 'flex' : 'none';
   // Hide the 3D canvas for piano (the real keyboard is below)
   const wrap3d = document.getElementById('inst-3d-wrap');
   if(isPiano && wrap3d) { wrap3d.style.display='none'; return; }
   if(wrap3d) wrap3d.style.display='';
+  if(drumEmbed) drumEmbed.style.display = isDrum ? 'block' : 'none';
+  if(inst3dCanvas) inst3dCanvas.style.display = isDrum ? 'none' : 'block';
+  if(isDrum) {
+    const hint=document.getElementById('inst-3d-hint');
+    if(hint) hint.textContent='🥁 Drum kit esterno integrato · se non carica, usa il tamburo locale selezionando un altro strumento e tornando qui';
+    return;
+  }
 
   ctx2.clearRect(0,0,W,H);
   ctx2.fillStyle='#0a111e'; ctx2.fillRect(0,0,W,H);
@@ -3755,6 +4396,7 @@ drawWheel();
 renderExercises();
 renderCivica();
 initPyPresets();
+calcArithmeticDemo();
 initSvevo();
 </script>
 </body>
