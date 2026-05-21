@@ -82,9 +82,24 @@
   }
   html[data-bg-scene="birthday"] #theme-bg-scene {
     background:
-      radial-gradient(ellipse at 50% 47%, rgba(255,182,224,.88) 0 8rem, rgba(255,110,180,.32) 8.2rem, transparent 14rem),
-      linear-gradient(90deg, transparent 42%, rgba(255,255,255,.85) 42% 45%, transparent 45% 55%, rgba(255,255,255,.85) 55% 58%, transparent 58%),
+      radial-gradient(ellipse at 50% 58%, rgba(255,182,224,.45) 0 10rem, transparent 18rem),
       linear-gradient(180deg, #201020 0%, #4a1838 48%, #2c140e 49%, #120705 100%);
+  }
+  html[data-bg-scene="birthday"] #theme-bg-scene::before {
+    content:""; position:absolute; left:50%; top:48%; width:min(280px,42vw); height:min(150px,22vw);
+    transform:translate(-50%,-50%);
+    background:
+      radial-gradient(circle at 50% 3%, #fff 0 9px, transparent 10px),
+      linear-gradient(90deg, transparent 45%, #ffe27a 45% 48%, transparent 48% 52%, #ffe27a 52% 55%, transparent 55%),
+      linear-gradient(180deg, #ff8bc7 0 28%, #ffd3ec 28% 36%, #ff6eb4 36% 72%, #b84a86 72% 100%);
+    border-radius: 18px 18px 28px 28px;
+    box-shadow: 0 0 40px rgba(255,110,180,.55), inset 0 0 24px rgba(255,255,255,.28);
+  }
+  html[data-bg-scene="birthday"] #theme-bg-scene::after {
+    content:""; position:absolute; left:50%; top:66%; width:min(520px,72vw); height:70px;
+    transform:translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba(255,220,235,.65), rgba(110,42,28,.55) 62%, transparent 64%);
+    filter: blur(.2px);
   }
   html[data-bg-scene="hologram"] #theme-bg-scene {
     background:
@@ -116,14 +131,19 @@
   #menu-btn:hover { background: var(--bg3); }
 
   #side-menu {
-    position: fixed; top: 0; left: -260px; width: 260px; height: 100vh;
-    background: var(--bg2); border-right: 1px solid var(--border);
-    z-index: 999; transition: left 0.28s cubic-bezier(.4,0,.2,1);
+    position: fixed; top: 12px; left: 12px; width: min(300px, calc(100vw - 24px)); height: calc(100vh - 24px);
+    background: linear-gradient(160deg, color-mix(in srgb,var(--bg2) 92%, #000), color-mix(in srgb,var(--bg3) 78%, #000));
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+    border-radius: 18px;
+    z-index: 999; transition: transform 0.32s cubic-bezier(.2,.9,.2,1), opacity .22s ease, filter .22s ease;
+    transform: translateX(calc(-100% - 24px)) scale(.98);
+    opacity: 0; filter: blur(2px);
     overflow-y: auto; overflow-x: hidden;
     padding: 4.5rem 1.2rem 2rem;
     box-sizing: border-box;
+    box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 0 26px color-mix(in srgb,var(--accent) 7%, transparent);
   }
-  #side-menu.open { left: 0; }
+  #side-menu.open { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
   #menu-close {
     position: absolute; top: 0.9rem; right: 0.9rem;
     background: none; border: none; color: var(--muted);
@@ -140,8 +160,12 @@
     transition: background 0.15s; margin-bottom: 2px;
     font-size: 13px; white-space: nowrap; overflow: hidden;
   }
-  .menu-item:hover, .menu-item:active { background: var(--bg3); color: var(--accent); }
-  .menu-item .icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+  .menu-item:hover, .menu-item:active {
+    background: color-mix(in srgb, var(--accent) 11%, var(--bg3));
+    color: var(--accent);
+    box-shadow: inset 3px 0 0 var(--accent), 0 0 18px color-mix(in srgb,var(--accent) 12%, transparent);
+  }
+  .menu-item .icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
   #overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.55); z-index: 998;
@@ -234,6 +258,26 @@
   }
   .card h3 { font-family: var(--title); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.5rem; }
   .card p { color: var(--muted); font-size: 13px; }
+  #pixel-compare-wrap {
+    position: relative; overflow: hidden; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg2); touch-action: none;
+  }
+  #pixel-original-preview {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    display: none; z-index: 1;
+  }
+  #pixel-canvas { position: relative; z-index: 2; clip-path: inset(0 0 0 var(--pixel-split, 50%)); }
+  #pixel-compare-divider {
+    display: none; position: absolute; top: 0; bottom: 0; left: var(--pixel-split, 50%);
+    width: 2px; background: var(--accent); z-index: 3; box-shadow: 0 0 18px var(--accent);
+    transform: translateX(-1px); pointer-events: none;
+  }
+  #pixel-compare-divider::after {
+    content: "↔"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--bg2); border: 1px solid var(--accent); color: var(--accent); font-size: 14px;
+  }
+  #pixel-compare-range { display: none; width: 100%; margin-top: 10px; accent-color: var(--accent); }
 
   /* ─── DIVIDER ─── */
   .divider {
@@ -564,7 +608,7 @@
   .theme-mode-switch {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
+    gap: 4px;
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -577,12 +621,24 @@
     background: transparent;
     color: var(--muted);
     font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 9px 6px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 9px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
     cursor: pointer;
     transition: all 0.16s;
   }
+  #settings-panel {
+    transform: translateX(105%) scale(.98);
+    opacity: 0;
+    filter: blur(2px);
+    transition: transform .32s cubic-bezier(.2,.9,.2,1), opacity .22s ease, filter .22s ease;
+    box-shadow: -28px 0 80px rgba(0,0,0,.5), inset 0 0 28px color-mix(in srgb,var(--accent) 7%, transparent);
+  }
+  #settings-panel.open { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
+  #settings-overlay { backdrop-filter: blur(5px); }
   .theme-mode-btn.active {
     background: color-mix(in srgb, var(--accent) 18%, var(--bg3));
     border-color: var(--accent);
@@ -811,7 +867,7 @@
 <div id="settings-overlay" onclick="toggleSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1998"></div>
 
 <!-- SETTINGS PANEL -->
-<div id="settings-panel" style="display:none;position:fixed;top:0;right:0;width:280px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:1999;overflow-y:auto;padding-top:4rem"></div>
+<div id="settings-panel" style="display:none;position:fixed;top:0;right:0;width:min(340px,92vw);height:100vh;background:linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--bg3) 70%,#000));border-left:1px solid var(--border);z-index:1999;overflow-y:auto;padding-top:4rem"></div>
 
 <!-- SIDE MENU -->
 <div id="overlay" onclick="closeMenu()"></div>
@@ -823,13 +879,13 @@
   <a class="menu-item" href="#inglese" onclick="closeMenu()"><span class="icon"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span></span> Inglese</a>
   <a class="menu-item" href="#francese" onclick="closeMenu()"><span class="icon"><span class="flag flag-fr" role="img" aria-label="Francia"></span></span> Francese</a>
   <a class="menu-item" href="#geografia" onclick="closeMenu()"><span class="icon">🌍</span> Geografia</a>
-  <a class="menu-item" href="#storia" onclick="closeMenu()"><span class="icon">CRT</span> Storia</a>
+  <a class="menu-item" href="#storia" onclick="closeMenu()"><span class="icon">🗞️</span> Storia</a>
   <a class="menu-item" href="#matematica" onclick="closeMenu()"><span class="icon">📐</span> Matematica</a>
   <a class="menu-item" href="#geometria" onclick="closeMenu()"><span class="icon">🔷</span> Geometria</a>
   <a class="menu-item" href="#arte" onclick="closeMenu()"><span class="icon">🎨</span> Arte</a>
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
-  <a class="menu-item" href="#religione" onclick="closeMenu()"><span class="icon">REL</span> Religione</a>
+  <a class="menu-item" href="#religione" onclick="closeMenu()"><span class="icon">⛪</span> Religione</a>
   <a class="menu-item" href="#edcivica" onclick="closeMenu()"><span class="icon">🏛️</span> Ed. Civica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu()"><span class="icon">🏋️</span> Ed. Fisica</a>
   <a class="menu-item" href="#edfisica" onclick="closeMenu(); setTimeout(enterFitnessApp,400)" style="color:var(--accent);border-top:1px solid var(--border);margin-top:8px;padding-top:12px"><span class="icon">🏃</span> Modalità Fitness</a>
@@ -1188,12 +1244,15 @@
   </div>
 
   <!-- Canvas + pixel info tooltip -->
-  <div style="position:relative">
+  <div id="pixel-compare-wrap" style="--pixel-split:50%">
+    <img id="pixel-original-preview" alt="Immagine originale">
     <canvas id="pixel-canvas" style="width:100%;border-radius:10px;border:1px solid var(--border);display:block;image-rendering:pixelated;cursor:crosshair"></canvas>
+    <div id="pixel-compare-divider"></div>
     <div id="pixel-tooltip" style="display:none;position:fixed;z-index:900;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--mono);pointer-events:none;min-width:160px">
       <div id="pixel-tooltip-content"></div>
     </div>
   </div>
+  <input type="range" id="pixel-compare-range" min="5" max="95" value="50" oninput="setPixelCompareSplit(this.value)">
 
   <!-- Stats -->
   <div id="pixel-stats" style="display:none;margin-top:1rem">
@@ -1433,6 +1492,7 @@
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
       <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-it" role="img" aria-label="Italia"></span> IT</button>
       <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-fr" role="img" aria-label="Francia"></span> FR</button>
+      <button id="civica-btn-en" onclick="setCivicaLang('en')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span> EN</button>
     </div>
 
     <!-- Main text -->
@@ -1695,7 +1755,7 @@
 const bgCanvas = document.getElementById('bg-canvas');
 const bgCtx = bgCanvas.getContext('2d');
 let particles = [];
-const BG_DEFAULTS = { speed: 1, brightness: 65, size: 1, quantity: 60 };
+const BG_DEFAULTS = { speed: 1, brightness: 65, size: 1, quantity: 60, opacity: 18 };
 let bgSettings = (() => {
   try { return Object.assign({}, BG_DEFAULTS, JSON.parse(localStorage.getItem('tesina-bg-settings') || '{}')); }
   catch(e) { return {...BG_DEFAULTS}; }
@@ -1719,23 +1779,28 @@ function setBgSetting(key, value) {
   localStorage.setItem('tesina-bg-settings', JSON.stringify(bgSettings));
   const label = document.getElementById(`bg-${key}-value`);
   if(label) label.textContent = key === 'quantity' ? Math.round(bgSettings[key]) : bgSettings[key].toFixed(1);
+  bgCanvas.style.opacity = Math.max(0, Math.min(80, parseFloat(bgSettings.opacity) || 18)) / 100;
   if(key === 'quantity' || key === 'size' || key === 'speed') initBgParticles();
 }
 initBgParticles();
+bgCanvas.style.opacity = Math.max(0, Math.min(80, parseFloat(bgSettings.opacity) || 18)) / 100;
 function animBg() {
   bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00ff88';
-  const alphaScale = Math.max(0.15, Math.min(1.2, (parseFloat(bgSettings.brightness) || 65) / 100));
+  const alphaScale = Math.max(0.15, Math.min(1.8, (parseFloat(bgSettings.brightness) || 65) / 75));
   particles.forEach(p => {
     p.x += p.vx; p.y += p.vy;
     if (p.x < 0) p.x = bgCanvas.width; if (p.x > bgCanvas.width) p.x = 0;
     if (p.y < 0) p.y = bgCanvas.height; if (p.y > bgCanvas.height) p.y = 0;
     bgCtx.beginPath(); bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    bgCtx.fillStyle = accent;
+    bgCtx.shadowColor = accent;
+    bgCtx.shadowBlur = Math.max(0, ((parseFloat(bgSettings.brightness) || 65) - 45) / 5);
+    bgCtx.fillStyle = (parseFloat(bgSettings.brightness) || 65) > 85 ? '#ffffff' : accent;
     bgCtx.globalAlpha = Math.min(1, p.o * alphaScale);
     bgCtx.fill();
   });
   bgCtx.globalAlpha = 1;
+  bgCtx.shadowBlur = 0;
   requestAnimationFrame(animBg);
 }
 animBg();
@@ -1901,6 +1966,9 @@ function getAITypingTimings() {
     scrambles: value >= 76 ? 1 : value <= 30 ? 4 : 2
   };
 }
+function getSvevoTypingDelay() {
+  return Math.round(getAITypingTimings().charDelay * 1.25);
+}
 
 function setAISpeed(value) {
   aiTypingSpeed = parseInt(value, 10) || 55;
@@ -1921,7 +1989,7 @@ function digitalTypeEffect(elId, text, onDone) {
   if(!el){ if(onDone) onDone(); return; }
   const runId = ++aiTypingRun;
   el.textContent = '';
-  const chars = '█▓▒░01ABCDEF';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?$%#@';
   let i = 0;
   function step(){
     if(runId !== aiTypingRun) return;
@@ -1930,7 +1998,9 @@ function digitalTypeEffect(elId, text, onDone) {
     const timing = getAITypingTimings();
     const interval = setInterval(()=>{
       if(runId !== aiTypingRun) { clearInterval(interval); return; }
-      el.textContent = text.slice(0,i) + chars[Math.floor(Math.random()*chars.length)] + '▒'.repeat(Math.min(3,text.length-i-1));
+      let noise = '';
+      for(let n=0;n<Math.min(4,text.length-i);n++) noise += chars[Math.floor(Math.random()*chars.length)];
+      el.textContent = text.slice(0,i) + noise;
       scrambles++;
       if(scrambles > timing.scrambles){
         clearInterval(interval);
@@ -1946,7 +2016,7 @@ function digitalTypeEffect(elId, text, onDone) {
 function initSvevo() {
   const cursor = document.getElementById('svevo-cursor');
   initAISpeedControl();
-  typewriterEffect('svevo-text', SVEVO_TEXT, 22, ()=>{ if(cursor) cursor.style.display='none'; });
+  typewriterEffect('svevo-text', SVEVO_TEXT, getSvevoTypingDelay(), ()=>{ if(cursor) cursor.style.display='none'; });
   // Pre-load AI text
   const preloadAI = `Ho spento la sigaretta con la cura di chi finge di chiudere una questione importante. Mia moglie non disse nulla; e proprio quel silenzio mi parve un tribunale. Promisi che da quel momento sarei stato un uomo nuovo, ma mentre lo dicevo cercavo già con gli occhi il pacchetto rimasto sul mobile. La mia volontà, poveretta, era sincera soltanto per pochi secondi: poi tornava a contrattare con il vizio.`;
   digitalTypeEffect('ai-text', preloadAI);
@@ -2960,6 +3030,9 @@ drawScienze();
 // STORIA - CRT CANVAS
 const crt = document.getElementById('crt-canvas');
 const crtCtx = crt ? crt.getContext('2d') : null;
+let crtPowered = true;
+let crtSwitchT = 1;
+let crtClickZone = null;
 function resizeCanvasToBox(canvas, h=320) {
   if(!canvas) return;
   canvas.width = canvas.offsetWidth || 700;
@@ -2967,9 +3040,21 @@ function resizeCanvasToBox(canvas, h=320) {
 }
 resizeCanvasToBox(crt, 320);
 window.addEventListener('resize', ()=>resizeCanvasToBox(crt, 320));
+if(crt) {
+  crt.style.cursor = 'pointer';
+  crt.addEventListener('click', e => {
+    if(!crtClickZone) return;
+    const r = crt.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (crt.width / r.width);
+    const y = (e.clientY - r.top) * (crt.height / r.height);
+    const z = crtClickZone;
+    if(x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) crtPowered = !crtPowered;
+  });
+}
 function drawCRT() {
   if(!crtCtx) return;
   const w=crt.width, h=crt.height, t=Date.now()*0.001;
+  crtSwitchT += ((crtPowered ? 1 : 0) - crtSwitchT) * 0.08;
   crtCtx.clearRect(0,0,w,h);
   crtCtx.fillStyle='#050a12'; crtCtx.fillRect(0,0,w,h);
   const tubeX=w*.12, tubeY=h*.32, tubeW=w*.42, tubeH=h*.36;
@@ -2980,24 +3065,47 @@ function drawCRT() {
   crtCtx.lineTo(tubeX+tubeW,tubeY+tubeH);
   crtCtx.quadraticCurveTo(tubeX+tubeW*.35,tubeY+tubeH+20,tubeX,tubeY+tubeH*.5);
   crtCtx.stroke();
+  const outletX=w*.05, outletY=h*.62;
+  crtCtx.fillStyle='rgba(255,255,255,.12)';
+  crtCtx.strokeStyle='rgba(232,244,253,.38)';
+  crtCtx.lineWidth=2;
+  crtCtx.fillRect(outletX,outletY,34,48); crtCtx.strokeRect(outletX,outletY,34,48);
+  crtCtx.fillStyle='rgba(232,244,253,.65)';
+  crtCtx.fillRect(outletX+10,outletY+14,4,12); crtCtx.fillRect(outletX+20,outletY+14,4,12);
+  const plugX = crtPowered ? outletX+24 : outletX+78;
+  const plugY = crtPowered ? outletY+23 : outletY+72;
+  crtClickZone = {x: Math.min(outletX,plugX)-16, y: Math.min(outletY,plugY)-16, w: 130, h: 110};
+  crtCtx.strokeStyle = crtPowered ? 'rgba(143,252,255,.72)' : 'rgba(143,252,255,.18)';
+  crtCtx.lineWidth = 3;
+  crtCtx.beginPath();
+  crtCtx.moveTo(tubeX+8,tubeY+tubeH*.5);
+  crtCtx.bezierCurveTo(w*.08,h*.5,plugX,plugY,plugX,plugY);
+  crtCtx.stroke();
+  crtCtx.fillStyle = crtPowered ? 'rgba(143,252,255,.85)' : 'rgba(120,140,150,.55)';
+  crtCtx.fillRect(plugX-8,plugY-8,24,16);
+  crtCtx.fillStyle='rgba(232,244,253,.85)';
+  crtCtx.fillRect(plugX-14,plugY-5,8,3); crtCtx.fillRect(plugX-14,plugY+4,8,3);
   const screenX=w*.62, screenY=h*.18, screenW=w*.28, screenH=h*.62;
   crtCtx.fillStyle='rgba(0,255,136,.05)'; crtCtx.fillRect(screenX,screenY,screenW,screenH);
-  crtCtx.strokeStyle='rgba(0,255,136,.65)'; crtCtx.strokeRect(screenX,screenY,screenW,screenH);
+  crtCtx.strokeStyle=`rgba(0,255,136,${.18 + crtSwitchT*.47})`; crtCtx.strokeRect(screenX,screenY,screenW,screenH);
   const scanY = screenY + ((t*70)%screenH);
   for(let y=screenY+10;y<screenY+screenH-8;y+=16){
-    const flicker = .35 + Math.sin(t*5+y*.04)*.22;
+    const flicker = (.35 + Math.sin(t*5+y*.04)*.22) * crtSwitchT;
     crtCtx.globalAlpha=flicker; crtCtx.beginPath(); crtCtx.moveTo(screenX+10,y); crtCtx.lineTo(screenX+screenW-10,y+Math.sin(t+y*.03)*3); crtCtx.stroke();
   }
   crtCtx.globalAlpha=1;
   const beamX = screenX + screenW*.55 + Math.sin(t*2)*screenW*.28;
-  crtCtx.strokeStyle='rgba(143,252,255,.9)'; crtCtx.lineWidth=3;
-  crtCtx.beginPath(); crtCtx.moveTo(tubeX+12,tubeY+tubeH*.5); crtCtx.lineTo(beamX,scanY); crtCtx.stroke();
+  if(crtSwitchT > .03) {
+    crtCtx.strokeStyle=`rgba(143,252,255,${.9*crtSwitchT})`; crtCtx.lineWidth=3;
+    crtCtx.beginPath(); crtCtx.moveTo(tubeX+12,tubeY+tubeH*.5); crtCtx.lineTo(beamX,scanY); crtCtx.stroke();
+  }
   const g=crtCtx.createRadialGradient(beamX,scanY,0,beamX,scanY,34);
-  g.addColorStop(0,'rgba(0,255,136,.9)'); g.addColorStop(1,'rgba(0,255,136,0)');
+  g.addColorStop(0,`rgba(0,255,136,${.9*crtSwitchT})`); g.addColorStop(1,'rgba(0,255,136,0)');
   crtCtx.fillStyle=g; crtCtx.beginPath(); crtCtx.arc(beamX,scanY,34,0,Math.PI*2); crtCtx.fill();
   crtCtx.fillStyle='rgba(232,244,253,.78)'; crtCtx.font='12px Space Mono, monospace';
   crtCtx.fillText('cannone elettronico', tubeX, tubeY-12);
   crtCtx.fillText('schermo fluorescente', screenX, screenY-12);
+  crtCtx.fillText(crtPowered ? 'presa inserita: clicca per spegnere' : 'presa a terra: clicca per riaccendere', outletX, h-14);
   requestAnimationFrame(drawCRT);
 }
 drawCRT();
@@ -3655,6 +3763,10 @@ function playBeep() {
 // ─── PIXEL ART GENERATOR ───
 let pixelImg = null, pixelOrigW = 0, pixelOrigH = 0;
 let showGrid = true;
+function setPixelCompareSplit(value) {
+  const wrap = document.getElementById('pixel-compare-wrap');
+  if(wrap) wrap.style.setProperty('--pixel-split', `${value}%`);
+}
 
 function loadPixelArt(input) {
   const file = input.files[0];
@@ -3673,7 +3785,10 @@ function loadPixelArt(input) {
     pixelImg = img;
     pixelOrigW = img.naturalWidth;
     pixelOrigH = img.naturalHeight;
-    URL.revokeObjectURL(url);
+    const original = document.getElementById('pixel-original-preview');
+    if(original){ original.src = url; original.style.display = 'block'; }
+    document.getElementById('pixel-compare-divider').style.display = 'block';
+    document.getElementById('pixel-compare-range').style.display = 'block';
     // Small delay to ensure DOM is ready
     setTimeout(redrawPixelArt, 50);
   };
@@ -3995,7 +4110,8 @@ function renderBgControls() {
     ['speed','Velocita',0.2,3,0.1],
     ['brightness','Luminosita',15,120,5],
     ['size','Grandezza',0.5,3,0.1],
-    ['quantity','Quantita',20,180,5]
+    ['quantity','Quantita',20,180,5],
+    ['opacity','Trasparenza',0,80,1]
   ];
   return rows.map(([key,label,min,max,step]) => `
     <label style="display:grid;grid-template-columns:86px 1fr 34px;gap:8px;align-items:center;margin:8px 0;font-size:11px;color:var(--muted)">
@@ -4048,10 +4164,17 @@ function toggleSettings() {
   const panel = document.getElementById('settings-panel');
   const overlay = document.getElementById('settings-overlay');
   if(!panel) return;
-  const isOpen = panel.style.display === 'block';
-  panel.style.display = isOpen ? 'none' : 'block';
-  overlay.style.display = isOpen ? 'none' : 'block';
-  if(!isOpen) buildSettingsPanel();
+  const isOpen = panel.classList.contains('open');
+  if(isOpen) {
+    panel.classList.remove('open');
+    if(overlay) overlay.style.display = 'none';
+    setTimeout(()=>{ if(!panel.classList.contains('open')) panel.style.display = 'none'; }, 240);
+  } else {
+    panel.style.display = 'block';
+    if(overlay) overlay.style.display = 'block';
+    buildSettingsPanel();
+    requestAnimationFrame(()=>panel.classList.add('open'));
+  }
 }
 
 // ─── SPOTIFY EMBED ───
@@ -4199,6 +4322,15 @@ const CIVICA_FR = {
     }
   ]
 };
+const CIVICA_EN = {
+  intro: `Steve Jobs is a useful English topic for digital citizenship because his life shows how technology can change communication, creativity and everyday choices. Apple products made computers and smartphones easier to use, but his story also teaches responsibility, failure and perseverance.`,
+  sections: [
+    {
+      btn: '🇬🇧 Steve Jobs',
+      text: `Steve Jobs was an American businessman and inventor. He was born in 1955 in the USA. He co-founded Apple Inc. with Steve Wozniak and helped create products like the iPhone and the iPad.\n\nDuring a speech to the students of Stanford University, he told three stories about his life.\n\nThe first story was about his early life, starting from his adoption. The second story was about love and loss. When Steve Jobs founded Apple in the garage of his parents, he was only 21. After a short time it became a 2 billion dollar company. Later he was fired from his own company, but he did not stop: he founded Pixar and later returned to Apple.\n\nThe third story was about death. He was diagnosed with cancer and died in 2011 at the age of 56.\n\nConnection with digital citizenship\nSteve Jobs is connected to civic education because technology is not only invention: it changes how people study, communicate, work and access information. His story reminds us that digital tools should be used with creativity, responsibility and awareness.`
+    }
+  ]
+};
 
 let civicaLang = null; // null = no language chosen yet
 let civicaOpenIdx = null;
@@ -4207,8 +4339,10 @@ function setCivicaLang(lang) {
   civicaLang = lang;
   const btnIt = document.getElementById('civica-btn-it');
   const btnFr = document.getElementById('civica-btn-fr');
+  const btnEn = document.getElementById('civica-btn-en');
   if(btnIt){ btnIt.style.background=lang==='it'?'var(--accent)':'var(--bg3)'; btnIt.style.color=lang==='it'?'#060a10':'var(--muted)'; btnIt.style.border=lang==='it'?'none':'1px solid var(--border)'; }
   if(btnFr){ btnFr.style.background=lang==='fr'?'#0055A4':'var(--bg3)'; btnFr.style.color=lang==='fr'?'#fff':'var(--muted)'; btnFr.style.border=lang==='fr'?'none':'1px solid var(--border)'; }
+  if(btnEn){ btnEn.style.background=lang==='en'?'#012169':'var(--bg3)'; btnEn.style.color=lang==='en'?'#fff':'var(--muted)'; btnEn.style.border=lang==='en'?'none':'1px solid var(--border)'; }
   const el = document.getElementById('civica-text');
   if(el){ el.style.opacity='0'; el.style.transform='translateX(12px)'; }
   setTimeout(()=>{
@@ -4226,7 +4360,7 @@ function renderCivica() {
     if(btnsEl) btnsEl.innerHTML = '';
     return;
   }
-  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
+  const data = civicaLang==='it' ? CIVICA_IT : civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   if(el) el.textContent = data.intro;
   if(!btnsEl) return;
   btnsEl.innerHTML = data.sections.map((s,i)=>`
@@ -4240,7 +4374,7 @@ function renderCivica() {
 }
 
 function openCivicaModal(idx) {
-  const data = civicaLang==='it' ? CIVICA_IT : CIVICA_FR;
+  const data = civicaLang==='it' ? CIVICA_IT : civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   const s = data.sections[idx];
   const overlay = document.getElementById('civica-modal-overlay');
   const modal = document.getElementById('civica-modal');
