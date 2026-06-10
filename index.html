@@ -260,7 +260,7 @@
   .card p { color: var(--muted); font-size: 13px; }
   #pixel-compare-wrap {
     position: relative; overflow: hidden; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--bg2); touch-action: none;
+    background: var(--bg2); touch-action: none; cursor: ew-resize;
   }
   #pixel-original-preview {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
@@ -270,14 +270,14 @@
   #pixel-compare-divider {
     display: none; position: absolute; top: 0; bottom: 0; left: var(--pixel-split, 50%);
     width: 2px; background: var(--accent); z-index: 3; box-shadow: 0 0 18px var(--accent);
-    transform: translateX(-1px); pointer-events: none;
+    transform: translateX(-1px); pointer-events: auto; cursor: ew-resize;
   }
   #pixel-compare-divider::after {
     content: "↔"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
     background: var(--bg2); border: 1px solid var(--accent); color: var(--accent); font-size: 14px;
   }
-  #pixel-compare-range { display: none; width: 100%; margin-top: 10px; accent-color: var(--accent); }
+  #pixel-compare-range { display: none !important; width: 100%; margin-top: 10px; accent-color: var(--accent); }
 
   /* ─── DIVIDER ─── */
   .divider {
@@ -631,6 +631,12 @@
     transition: all 0.16s;
   }
   #settings-panel {
+    top: 12px !important;
+    right: 12px !important;
+    height: calc(100vh - 24px) !important;
+    border-radius: 18px !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border)) !important;
+    background: linear-gradient(160deg, color-mix(in srgb,var(--bg2) 92%, #000), color-mix(in srgb,var(--bg3) 78%, #000)) !important;
     transform: translateX(105%) scale(.98);
     opacity: 0;
     filter: blur(2px);
@@ -1252,7 +1258,7 @@
       <div id="pixel-tooltip-content"></div>
     </div>
   </div>
-  <input type="range" id="pixel-compare-range" min="5" max="95" value="50" oninput="setPixelCompareSplit(this.value)">
+  <input type="range" id="pixel-compare-range" min="0" max="100" value="50" oninput="setPixelCompareSplit(this.value)">
 
   <!-- Stats -->
   <div id="pixel-stats" style="display:none;margin-top:1rem">
@@ -1490,9 +1496,8 @@
   <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:1.5rem">
     <!-- Lang buttons vertical -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button id="civica-btn-it" onclick="setCivicaLang('it')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-it" role="img" aria-label="Italia"></span> IT</button>
-      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-fr" role="img" aria-label="Francia"></span> FR</button>
-      <button id="civica-btn-en" onclick="setCivicaLang('en')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span> EN</button>
+      <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-fr" role="img" aria-label="Francia"></span> Francese</button>
+      <button id="civica-btn-en" onclick="setCivicaLang('en')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span> Inglese</button>
     </div>
 
     <!-- Main text -->
@@ -2500,6 +2505,9 @@ function runPython() {
       a => (Array.isArray(a)?a:[...String(a)]).map((v,i)=>[i,v])
     );
     out.textContent = output.join('\n') || '// Esecuzione completata (nessun output)';
+    if (out.textContent.includes('NaN')) {
+      out.textContent += '\n\n// Nota: NaN significa "Not a Number", cioe il calcolo ha ricevuto un valore non numerico.';
+    }
   } catch(e) {
     out.textContent = '// Errore: ' + e.message;
   }
@@ -2657,6 +2665,8 @@ function transpileExpr(s) {
   s = s.replace(/\bmath\.floor\(([^)]+)\)/g, 'Math.floor($1)');
   s = s.replace(/\bmath\.ceil\(([^)]+)\)/g, 'Math.ceil($1)');
   s = s.replace(/\bmath\.pow\(([^,]+),([^)]+)\)/g, 'Math.pow($1,$2)');
+  // Python floor division: a // b -> Math.floor(a / b)
+  s = s.replace(/([\w\]\)]+)\s*\/\/\s*([\w\(\)\+\-\*\/\.]+)/g, 'Math.floor($1 / $2)');
   // Handle print(x, end="...") FIRST before any other replacement
   s = s.replace(/^print\((.+),\s*end\s*=\s*["']([^"']*)["']\)$/, (m, arg, _end) => {
     return `print(${arg})`;
@@ -2772,6 +2782,7 @@ function perspective(fov,asp,n,f){ const t=Math.tan(fov/2),r=new Float32Array(16
 function rotY(a){ const c=Math.cos(a),s=Math.sin(a),r=new Float32Array(16); r[0]=c;r[2]=s;r[5]=1;r[8]=-s;r[10]=c;r[15]=1; return r; }
 function rotX(a){ const c=Math.cos(a),s=Math.sin(a),r=new Float32Array(16); r[0]=1;r[5]=c;r[6]=-s;r[9]=s;r[10]=c;r[15]=1; return r; }
 function trans(x,y,z){ const r=new Float32Array(16); r[0]=r[5]=r[10]=r[15]=1; r[12]=x;r[13]=y;r[14]=z; return r; }
+function scale3(x,y,z){ const r=new Float32Array(16); r[0]=x;r[5]=y;r[10]=z;r[15]=1; return r; }
 
 function makeCube() {
   const v=[], n=[], idx=[];
@@ -2925,7 +2936,24 @@ function makeIcosahedron() {
 
 const shapes = { cube:makeCube(), sphere:makeSphere(), pyramid:makePyramid(), torus:makeTorus(), cylinder:makeCylinder(), octahedron:makeOctahedron(), cone:makeCone(), tetrahedron:makeTetrahedron() };
 let curShape = 'cube';
-const vBuf = gl.createBuffer(), nBuf = gl.createBuffer(), iBuf = gl.createBuffer();
+const vBuf = gl.createBuffer(), nBuf = gl.createBuffer(), iBuf = gl.createBuffer(), edgeBuf = gl.createBuffer();
+function buildEdgeIndices(idx) {
+  const seen = new Set(), edges = [];
+  for (let i = 0; i < idx.length; i += 3) {
+    const tri = [idx[i], idx[i + 1], idx[i + 2]];
+    for (let e = 0; e < 3; e++) {
+      const a = tri[e], b = tri[(e + 1) % 3];
+      const key = a < b ? `${a}-${b}` : `${b}-${a}`;
+      if (!seen.has(key)) { seen.add(key); edges.push(a, b); }
+    }
+  }
+  return new Uint16Array(edges);
+}
+function cssVarRgb(name, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(value)) return hexToRgb(value);
+  return fallback;
+}
 function setShape(name) {
   curShape = name;
   document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('active'));
@@ -2968,6 +2996,7 @@ gc.addEventListener('touchend',e=>{drag=false;if(e.touches.length<2)lastPinchDis
 function render3D() {
   resizeGC();
   const s=shapes[curShape];
+  const edgeIdx = buildEdgeIndices(s.idx);
   gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);gl.bufferData(gl.ARRAY_BUFFER,s.v,gl.DYNAMIC_DRAW);
   gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);gl.bufferData(gl.ARRAY_BUFFER,s.n,gl.DYNAMIC_DRAW);
@@ -2975,15 +3004,34 @@ function render3D() {
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,s.idx,gl.DYNAMIC_DRAW);
   gl.viewport(0,0,gc.width,gc.height);
   const futureShape = document.documentElement.dataset.themeGroup === 'futuristic';
+  const neonShape = document.documentElement.dataset.themeGroup === 'neon';
+  const themedShape = futureShape || neonShape;
+  const accentRgb = cssVarRgb('--accent', [0.56,0.98,1.0]);
+  const accent2Rgb = cssVarRgb('--accent2', [0.55,0.45,1.0]);
   gl.clearColor(0.04,0.07,0.13,futureShape ? 0.42 : 1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.uniform3fv(uColor,futureShape ? new Float32Array([0.56,0.98,1.0]) : shapeColor);
-  gl.uniform1f(uAlpha,futureShape ? 0.42 : 1.0);
-  const mv=mat4mul(trans(0,0,-camDist),mat4mul(rotX(0.3+extraRotX),rotY(rotAngle+extraRot)));
+  gl.uniform3fv(uColor, themedShape ? new Float32Array(accentRgb) : shapeColor);
+  gl.uniform1f(uAlpha, futureShape ? 0.32 : 1.0);
+  const rotM=mat4mul(rotX(0.3+extraRotX),rotY(rotAngle+extraRot));
+  const mv=mat4mul(trans(0,0,-camDist),rotM);
   const mvp=mat4mul(perspective(1,gc.width/gc.height,0.1,100),mv);
   gl.uniformMatrix4fv(uMVP,false,mvp);gl.uniformMatrix4fv(uMV,false,mv);
   gl.drawElements(gl.TRIANGLES,s.idx.length,gl.UNSIGNED_SHORT,0);
+  if (themedShape) {
+    gl.disable(gl.DEPTH_TEST);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, edgeBuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, edgeIdx, gl.DYNAMIC_DRAW);
+    gl.uniform1f(uAlpha, 1.0);
+    const mvOuter=mat4mul(trans(0,0,-camDist),mat4mul(rotM,scale3(1.035,1.035,1.035)));
+    const mvpOuter=mat4mul(perspective(1,gc.width/gc.height,0.1,100),mvOuter);
+    gl.uniformMatrix4fv(uMVP,false,mvpOuter);gl.uniformMatrix4fv(uMV,false,mvOuter);
+    gl.uniform3fv(uColor, new Float32Array(accent2Rgb));
+    gl.drawElements(gl.LINES, edgeIdx.length, gl.UNSIGNED_SHORT, 0);
+    gl.uniformMatrix4fv(uMVP,false,mvp);gl.uniformMatrix4fv(uMV,false,mv);
+    gl.uniform3fv(uColor, new Float32Array([1,1,1]));
+    gl.drawElements(gl.LINES, edgeIdx.length, gl.UNSIGNED_SHORT, 0);
+  }
   rotAngle+=rotSpeed*rotDir;
   requestAnimationFrame(render3D);
 }
@@ -3767,6 +3815,18 @@ function setPixelCompareSplit(value) {
   const wrap = document.getElementById('pixel-compare-wrap');
   if(wrap) wrap.style.setProperty('--pixel-split', `${value}%`);
 }
+function setPixelCompareFromEvent(e) {
+  const wrap = document.getElementById('pixel-compare-wrap');
+  if(!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+  setPixelCompareSplit(pct);
+}
+let pixelCompareDragging = false;
+document.addEventListener('pointermove', e => { if(pixelCompareDragging) setPixelCompareFromEvent(e); });
+document.addEventListener('pointerup', () => { pixelCompareDragging = false; });
+document.addEventListener('touchmove', e => { if(pixelCompareDragging) { setPixelCompareFromEvent(e); e.preventDefault(); } }, {passive:false});
 
 function loadPixelArt(input) {
   const file = input.files[0];
@@ -3788,7 +3848,11 @@ function loadPixelArt(input) {
     const original = document.getElementById('pixel-original-preview');
     if(original){ original.src = url; original.style.display = 'block'; }
     document.getElementById('pixel-compare-divider').style.display = 'block';
-    document.getElementById('pixel-compare-range').style.display = 'block';
+    const wrap = document.getElementById('pixel-compare-wrap');
+    if(wrap) {
+      wrap.onpointerdown = e => { pixelCompareDragging = true; setPixelCompareFromEvent(e); };
+      wrap.ontouchstart = e => { pixelCompareDragging = true; setPixelCompareFromEvent(e); };
+    }
     // Small delay to ensure DOM is ready
     setTimeout(redrawPixelArt, 50);
   };
@@ -4121,6 +4185,27 @@ function renderBgControls() {
     </label>`).join('');
 }
 
+function renderSiteLanguageSelect() {
+  const langs = [
+    ['it','Italiano'],['en','English'],['fr','Francais'],['es','Espanol'],['de','Deutsch'],['pt','Portugues'],
+    ['nl','Nederlands'],['pl','Polski'],['ro','Romana'],['el','Greek'],['sv','Svenska'],['da','Dansk'],
+    ['fi','Suomi'],['no','Norsk'],['cs','Cestina'],['sk','Slovencina'],['hu','Magyar'],['uk','Ukrainian'],
+    ['ru','Russian'],['tr','Turkce'],['ar','Arabic'],['zh-CN','Chinese'],['ja','Japanese'],['ko','Korean'],
+    ['hi','Hindi'],['id','Indonesian']
+  ];
+  return `<select onchange="translateWholeSite(this.value)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 10px;font-family:var(--mono);font-size:12px;outline:none">
+    ${langs.map(([code,label])=>`<option value="${code}">${label}</option>`).join('')}
+  </select>`;
+}
+
+function translateWholeSite(lang) {
+  if(!lang || lang === 'it') return;
+  const url = location.href.startsWith('file:')
+    ? 'https://marios241.github.io/Tesina/'
+    : location.href.split('#')[0];
+  window.open(`https://translate.google.com/translate?sl=it&tl=${encodeURIComponent(lang)}&u=${encodeURIComponent(url)}`, '_blank');
+}
+
 function buildSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if(!panel) return;
@@ -4156,6 +4241,17 @@ function buildSettingsPanel() {
         ${renderBgControls()}
       </div>`;
     themeList.parentElement.insertAdjacentElement('afterend', bgBox);
+  }
+  const statsTitle = [...panel.querySelectorAll('div')].find(el => el.textContent.includes('STATISTICHE'));
+  if(statsTitle) {
+    const langBox = document.createElement('div');
+    langBox.innerHTML = `
+      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin:0 0 10px">LINGUA SITO</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px">
+        ${renderSiteLanguageSelect()}
+        <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">Apre la tesina tradotta in una nuova scheda tramite Google Translate.</div>
+      </div>`;
+    statsTitle.insertAdjacentElement('beforebegin', langBox);
   }
   updateVisitDisplay();
 }
@@ -4331,6 +4427,14 @@ const CIVICA_EN = {
     }
   ]
 };
+CIVICA_FR.sections.push({
+  btn: '🇮🇹 Italiano / traduzione',
+  text: `${CIVICA_IT.intro}\n\n${CIVICA_IT.sections.map(s => s.btn + '\n' + s.text).join('\n\n')}`
+});
+CIVICA_EN.sections.push({
+  btn: '🇮🇹 Italian translation',
+  text: `Steve Jobs era un imprenditore e inventore americano. Nato nel 1955 negli Stati Uniti, fondo Apple Inc. con Steve Wozniak e contribui alla creazione di prodotti come iPhone e iPad.\n\nNel discorso agli studenti della Stanford University racconto tre storie della sua vita: la prima sulla sua infanzia e sull'adozione, la seconda sull'amore e sulla perdita, la terza sulla morte. Fondo Apple nel garage dei genitori a soli 21 anni; in poco tempo l'azienda divento enorme, ma in seguito venne licenziato dalla sua stessa societa. Creo poi Pixar e torno infine in Apple. Gli fu diagnosticato un cancro e mori nel 2011 a 56 anni.\n\nCollegamento con l'educazione civica digitale: la tecnologia cambia il modo in cui comunichiamo, studiamo e lavoriamo. La storia di Jobs mostra che gli strumenti digitali vanno usati con creativita, consapevolezza e responsabilita.`
+});
 
 let civicaLang = null; // null = no language chosen yet
 let civicaOpenIdx = null;
@@ -4356,12 +4460,13 @@ function renderCivica() {
   const el = document.getElementById('civica-text');
   const btnsEl = document.getElementById('civica-btns');
   if(!civicaLang) {
-    if(el) el.innerHTML = `<span style="color:var(--muted);font-style:italic">🌐 Scegli la lingua da mostrare per iniziare.</span>`;
+    if(el) el.innerHTML = `<span style="color:var(--muted);font-style:italic">🌐 Scegli la materia da mostrare per iniziare.</span>`;
     if(btnsEl) btnsEl.innerHTML = '';
     return;
   }
-  const data = civicaLang==='it' ? CIVICA_IT : civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
-  if(el) el.textContent = data.intro;
+  const data = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
+  window.civicaCurrentIntro = data.intro;
+  if(el) el.innerHTML = `<div>${data.intro}</div><button onclick="speakText(window.civicaCurrentIntro, civicaLang === 'en' ? 'en-US' : 'fr-FR')" title="Ascolta il testo" style="float:right;margin-top:10px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button><div style="clear:both"></div>`;
   if(!btnsEl) return;
   btnsEl.innerHTML = data.sections.map((s,i)=>`
     <button onclick="openCivicaModal(${i})"
@@ -4374,7 +4479,7 @@ function renderCivica() {
 }
 
 function openCivicaModal(idx) {
-  const data = civicaLang==='it' ? CIVICA_IT : civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
+  const data = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   const s = data.sections[idx];
   const overlay = document.getElementById('civica-modal-overlay');
   const modal = document.getElementById('civica-modal');
@@ -4386,7 +4491,7 @@ function openCivicaModal(idx) {
     if(line.startsWith('•') || line.startsWith('*')) return `<div style="padding:4px 0 4px 16px;border-left:2px solid var(--accent);margin:4px 0;color:var(--text)">${line.replace(/^[•*]\s*/,'')}</div>`;
     if(line.startsWith('📋') || line.match(/^[A-Z]/)) return `<div style="color:var(--accent);font-weight:700;margin-top:12px">${line}</div>`;
     return `<div>${line}</div>`;
-  }).join('');
+  }).join('') + `<button onclick="speakCivicaText()" title="Ascolta il testo" style="position:sticky;float:right;bottom:10px;margin-top:12px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:44px;height:44px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button>`;
   overlay.style.display = 'flex';
   modal.style.display = 'block';
   modal.style.borderColor = 'var(--accent)';
@@ -4407,6 +4512,20 @@ function openCivicaModal(idx) {
     b.style.boxShadow = i===idx ? '0 0 18px rgba(0,255,136,0.35)' : '0 0 0 rgba(0,255,136,0)';
     b.style.animation = i===idx ? 'civicaIgnite 2.8s ease-out 1, civicaIgnite 4.5s ease-in-out 3s infinite alternate' : '';
   });
+}
+
+function speakText(text, lang) {
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang || (civicaLang === 'en' ? 'en-US' : 'fr-FR');
+  u.rate = 0.95;
+  window.speechSynthesis.speak(u);
+}
+function speakCivicaText() {
+  const title = document.getElementById('civica-modal-title')?.textContent || '';
+  const body = document.getElementById('civica-modal-body')?.innerText || '';
+  speakText(`${title}. ${body.replace('🔊','')}`, civicaLang === 'en' ? 'en-US' : 'fr-FR');
 }
 
 function closeCivicaModal() {
@@ -4441,14 +4560,14 @@ const PY_PRESETS_EASY = [
 ];
 const PY_PRESETS_HARD = [
   { label:'1. Addizione avanzata', code:`# Somma cumulativa di una lista\nnumeri = [3, 7, 2, 9, 4, 6, 1, 8, 5]\nsomma_cumulativa = []\ntotale = 0\nfor n in numeri:\n    totale = totale + n\n    somma_cumulativa.append(totale)\nprint(f"Lista: {numeri}")\nprint(f"Somme cumulative: {somma_cumulativa}")\nprint(f"Totale finale: {totale}")` },
-  { label:'2. Sottrazione avanzata', code:`# Cambio: calcola le monete da restituire\nprezzo = 7.30\npagato = 20.00\nresto = pagato - prezzo\nmonete = [2.0, 1.0, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01]\nscambio = []\nfor m in monete:\n    while resto >= m - 0.001:\n        scambio.append(m)\n        resto = round(resto - m, 2)\nprint(f"Monete restituite: {scambio}")\nprint(f"Numero monete: {len(scambio)}")` },
-  { label:'3. Moltiplicazione avanzata', code:`# Tavola pitagorica\nprint("Tavola pitagorica 5x5:")\nfor i in range(1, 6):\n    riga = ""\n    for j in range(1, 6):\n        riga = riga + str(i * j).rjust(4)\n    print(riga)` },
-  { label:'4. Divisione avanzata', code:`# Divisione con gestione errori\ndef dividi_sicuro(a, b):\n    if b == 0:\n        return "Errore: divisione per zero!"\n    return a / b\n\ncoppie = [(10,2),(7,0),(15,4),(100,7)]\nfor a, b in coppie:\n    print(f"{a} / {b} = {dividi_sicuro(a, b)}")` },
-  { label:'5. Divisione intera avanzata', code:`# Converti secondi in ore, minuti, secondi\ndef converti_tempo(secondi_totali):\n    ore = secondi_totali // 3600\n    rimanenti = secondi_totali % 3600\n    minuti = rimanenti // 60\n    secondi = rimanenti % 60\n    return ore, minuti, secondi\n\nfor s in [3661, 7322, 90, 3600]:\n    h, m, sec = converti_tempo(s)\n    print(f"{s}s → {h}h {m}m {sec}s")` },
-  { label:'6. Modulo avanzato', code:`# Numeri primi con il modulo\ndef is_primo(n):\n    if n < 2:\n        return False\n    for i in range(2, n):\n        if n % i == 0:\n            return False\n    return True\n\nprimi = [n for n in range(2, 50) if is_primo(n)]\nprint(f"Numeri primi sotto 50: {primi}")\nprint(f"Trovati: {len(primi)}")` },
-  { label:'7. Potenza avanzata', code:`# Complessità algoritmica: O(log n) vs O(n)\ndef potenza_lenta(base, esp):\n    ris = 1\n    for _ in range(esp):\n        ris = ris * base\n    return ris\n\ndef potenza_veloce(base, esp):\n    if esp == 0: return 1\n    if esp % 2 == 0:\n        meta = potenza_veloce(base, esp // 2)\n        return meta * meta\n    return base * potenza_veloce(base, esp - 1)\n\nprint(potenza_lenta(2, 10))\nprint(potenza_veloce(2, 10))` },
-  { label:'8. Valore Assoluto avanzato', code:`# Distanza di Manhattan tra punti\ndef distanza_manhattan(p1, p2):\n    return abs(p1[0]-p2[0]) + abs(p1[1]-p2[1])\n\npunti = [(0,0),(3,4),(1,1),(5,2)]\norigine = (0,0)\nfor p in punti:\n    d = distanza_manhattan(origine, p)\n    print(f"Distanza da {origine} a {p}: {d}")` },
-  { label:'9. Radice avanzata', code:`import math\n# Formula quadratica: ax²+bx+c=0\ndef quadratica(a, b, c):\n    discriminante = b**2 - 4*a*c\n    if discriminante < 0:\n        return "Nessuna soluzione reale"\n    elif discriminante == 0:\n        x = -b / (2*a)\n        return f"Una soluzione: x = {x}"\n    else:\n        x1 = (-b + math.sqrt(discriminante)) / (2*a)\n        x2 = (-b - math.sqrt(discriminante)) / (2*a)\n        return f"x1={round(x1,2)}, x2={round(x2,2)}"\n\nprint(quadratica(1,-5,6))\nprint(quadratica(1,2,5))\nprint(quadratica(1,-2,1))` },
+  { label:'2. Sottrazione avanzata', code:`# Cambio: calcola le monete da restituire\nprezzo = 730\npagato = 2000\nresto = pagato - prezzo\nmonete = [200, 100, 50, 20, 10, 5, 2, 1]\nscambio = []\nfor m in monete:\n    while resto >= m:\n        scambio.append(m)\n        resto = resto - m\nprint(f"Monete in centesimi: {scambio}")\nprint(f"Numero monete: {len(scambio)}")` },
+  { label:'3. Moltiplicazione avanzata', code:`# Tavola pitagorica compatibile\nprint("Tavola pitagorica 5x5:")\nfor i in range(1, 6):\n    riga = ""\n    for j in range(1, 6):\n        riga = riga + str(i * j) + " "\n    print(riga)` },
+  { label:'4. Divisione avanzata', code:`# Divisione con controllo del divisore\nnumeratori = [10, 7, 15, 100]\ndivisori = [2, 0, 4, 7]\nindice = 0\nfor a in numeratori:\n    b = divisori[indice]\n    if b == 0:\n        print(f"{a} / {b} = Errore: divisione per zero")\n    if b != 0:\n        print(f"{a} / {b} = {a / b}")\n    indice = indice + 1` },
+  { label:'5. Divisione intera avanzata', code:`# Converti secondi in ore, minuti, secondi\nsecondi_lista = [3661, 7322, 90, 3600]\nfor s in secondi_lista:\n    ore = s // 3600\n    rimanenti = s % 3600\n    minuti = rimanenti // 60\n    secondi = rimanenti % 60\n    print(f"{s}s = {ore}h {minuti}m {secondi}s")` },
+  { label:'6. Modulo avanzato', code:`# Numeri primi con il modulo\nprimi = []\nfor n in range(2, 50):\n    divisori = 0\n    for i in range(2, n):\n        if n % i == 0:\n            divisori = divisori + 1\n    if divisori == 0:\n        primi.append(n)\nprint(f"Numeri primi sotto 50: {primi}")\nprint(f"Trovati: {len(primi)}")` },
+  { label:'7. Potenza avanzata', code:`# Potenza calcolata con moltiplicazioni ripetute\nbase = 2\nesponente = 10\nrisultato = 1\nfor i in range(esponente):\n    risultato = risultato * base\nprint(f"{base}^{esponente} = {risultato}")\nprint("L'algoritmo ripete la moltiplicazione tante volte quanto vale l'esponente.")` },
+  { label:'8. Valore Assoluto avanzato', code:`# Distanza di Manhattan senza tuple\nx0 = 0\ny0 = 0\nxs = [0, 3, 1, 5]\nys = [0, 4, 1, 2]\nindice = 0\nfor x in xs:\n    y = ys[indice]\n    d = abs(x0 - x) + abs(y0 - y)\n    print(f"Distanza da origine a ({x},{y}): {d}")\n    indice = indice + 1` },
+  { label:'9. Radice avanzata', code:`import math\n# Formula quadratica: ax^2 + bx + c = 0\na = 1\nb = -5\nc = 6\ndiscriminante = b**2 - 4*a*c\nprint(f"Discriminante: {discriminante}")\nif discriminante < 0:\n    print("Nessuna soluzione reale")\nif discriminante == 0:\n    x = -b / (2*a)\n    print(f"Una soluzione: x = {x}")\nif discriminante > 0:\n    x1 = (-b + math.sqrt(discriminante)) / (2*a)\n    x2 = (-b - math.sqrt(discriminante)) / (2*a)\n    print(f"x1 = {round(x1,2)}")\n    print(f"x2 = {round(x2,2)}")` },
 ];
 
 let pyDiff = 'easy';
@@ -5340,3 +5459,4 @@ initSvevo();
 </script>
 </body>
 </html>
+
