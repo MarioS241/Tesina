@@ -2738,7 +2738,23 @@ if (navigator.geolocation) {
 
 // ─── 3D GEOMETRY ───
 const gc = document.getElementById('geom-canvas');
-const gl = gc.getContext('webgl') || gc.getContext('experimental-webgl');
+function createNoopWebGL() {
+  const noop = function(){};
+  const fake = {
+    ARRAY_BUFFER:0,ELEMENT_ARRAY_BUFFER:1,DYNAMIC_DRAW:2,FLOAT:3,UNSIGNED_SHORT:4,
+    TRIANGLES:5,LINES:6,COLOR_BUFFER_BIT:8,DEPTH_BUFFER_BIT:16,DEPTH_TEST:17,BLEND:18,
+    SRC_ALPHA:19,ONE_MINUS_SRC_ALPHA:20,VERTEX_SHADER:21,FRAGMENT_SHADER:22,
+    createShader:()=>({}),shaderSource:noop,compileShader:noop,createProgram:()=>({}),
+    attachShader:noop,linkProgram:noop,useProgram:noop,getAttribLocation:()=>0,getUniformLocation:()=>({}),
+    createBuffer:()=>({}),bindBuffer:noop,bufferData:noop,enableVertexAttribArray:noop,vertexAttribPointer:noop,
+    viewport:noop,clearColor:noop,clear:noop,enable:noop,disable:noop,blendFunc:noop,lineWidth:noop,
+    uniform3fv:noop,uniform1f:noop,uniformMatrix4fv:noop,drawElements:noop
+  };
+  gc.style.background = 'linear-gradient(135deg, rgba(0,255,136,.08), rgba(80,180,255,.08))';
+  gc.title = 'WebGL non disponibile: il resto del sito resta attivo.';
+  return fake;
+}
+const gl = gc.getContext('webgl') || gc.getContext('experimental-webgl') || createNoopWebGL();
 function resizeGC(){ gc.width = gc.offsetWidth || 600; gc.height = Math.min(gc.offsetWidth * 0.6, window.innerHeight > 1500 ? 700 : 400) || 360; if(gl) gl.viewport(0,0,gc.width,gc.height); }
 resizeGC();
 window.addEventListener('resize', resizeGC);
@@ -2949,6 +2965,45 @@ function buildEdgeIndices(idx) {
   }
   return new Uint16Array(edges);
 }
+function buildCircleEdges(start, count, step=1) {
+  const edges = [];
+  for (let i = 0; i < count; i++) edges.push(start + i * step, start + ((i + 1) % count) * step);
+  return edges;
+}
+function buildVisualEdgeIndices(name, shape) {
+  if (name === 'sphere') {
+    const seg = 24, ring = Math.floor(seg / 2), start = ring * (seg + 1);
+    return new Uint16Array(buildCircleEdges(start, seg));
+  }
+  if (name === 'torus') {
+    const seg = 28, tube = 18;
+    return new Uint16Array([
+      ...buildCircleEdges(0, seg, tube + 1),
+      ...buildCircleEdges(Math.floor(tube / 2), seg, tube + 1)
+    ]);
+  }
+  if (name === 'cylinder') {
+    const seg = 24, edges = [];
+    for (let i = 0; i < seg; i++) {
+      edges.push(i * 2, ((i + 1) % seg) * 2);
+      edges.push(i * 2 + 1, ((i + 1) % seg) * 2 + 1);
+    }
+    return new Uint16Array(edges);
+  }
+  if (name === 'cone') {
+    const seg = 24, baseStart = seg * 3 + 1;
+    return new Uint16Array(buildCircleEdges(baseStart, seg));
+  }
+  const raw = buildEdgeIndices(shape.idx);
+  const edges = [];
+  const maxLen = name === 'cube' ? 2.08 : name === 'pyramid' ? 2.55 : Infinity;
+  for (let i = 0; i < raw.length; i += 2) {
+    const a = raw[i] * 3, b = raw[i + 1] * 3;
+    const dx = shape.v[a] - shape.v[b], dy = shape.v[a + 1] - shape.v[b + 1], dz = shape.v[a + 2] - shape.v[b + 2];
+    if (Math.hypot(dx, dy, dz) <= maxLen) edges.push(raw[i], raw[i + 1]);
+  }
+  return new Uint16Array(edges);
+}
 function cssVarRgb(name, fallback) {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   if (/^#[0-9a-fA-F]{6}$/.test(value)) return hexToRgb(value);
@@ -2996,7 +3051,7 @@ gc.addEventListener('touchend',e=>{drag=false;if(e.touches.length<2)lastPinchDis
 function render3D() {
   resizeGC();
   const s=shapes[curShape];
-  const edgeIdx = buildEdgeIndices(s.idx);
+  const edgeIdx = buildVisualEdgeIndices(curShape, s);
   gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);gl.bufferData(gl.ARRAY_BUFFER,s.v,gl.DYNAMIC_DRAW);
   gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);gl.bufferData(gl.ARRAY_BUFFER,s.n,gl.DYNAMIC_DRAW);
@@ -3023,13 +3078,9 @@ function render3D() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, edgeBuf);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, edgeIdx, gl.DYNAMIC_DRAW);
     gl.uniform1f(uAlpha, 1.0);
-    const mvOuter=mat4mul(trans(0,0,-camDist),mat4mul(rotM,scale3(1.035,1.035,1.035)));
-    const mvpOuter=mat4mul(perspective(1,gc.width/gc.height,0.1,100),mvOuter);
-    gl.uniformMatrix4fv(uMVP,false,mvpOuter);gl.uniformMatrix4fv(uMV,false,mvOuter);
+    gl.lineWidth(2);
     gl.uniform3fv(uColor, new Float32Array(accent2Rgb));
-    gl.drawElements(gl.LINES, edgeIdx.length, gl.UNSIGNED_SHORT, 0);
     gl.uniformMatrix4fv(uMVP,false,mvp);gl.uniformMatrix4fv(uMV,false,mv);
-    gl.uniform3fv(uColor, new Float32Array([1,1,1]));
     gl.drawElements(gl.LINES, edgeIdx.length, gl.UNSIGNED_SHORT, 0);
   }
   rotAngle+=rotSpeed*rotDir;
@@ -4187,23 +4238,120 @@ function renderBgControls() {
 
 function renderSiteLanguageSelect() {
   const langs = [
-    ['it','Italiano'],['en','English'],['fr','Francais'],['es','Espanol'],['de','Deutsch'],['pt','Portugues'],
-    ['nl','Nederlands'],['pl','Polski'],['ro','Romana'],['el','Greek'],['sv','Svenska'],['da','Dansk'],
-    ['fi','Suomi'],['no','Norsk'],['cs','Cestina'],['sk','Slovencina'],['hu','Magyar'],['uk','Ukrainian'],
-    ['ru','Russian'],['tr','Turkce'],['ar','Arabic'],['zh-CN','Chinese'],['ja','Japanese'],['ko','Korean'],
-    ['hi','Hindi'],['id','Indonesian']
+    ['it','Italiano'],['en','English'],['fr','Francais'],['es','Espanol'],['de','Deutsch']
   ];
-  return `<select onchange="translateWholeSite(this.value)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 10px;font-family:var(--mono);font-size:12px;outline:none">
-    ${langs.map(([code,label])=>`<option value="${code}">${label}</option>`).join('')}
-  </select>`;
+  const savedRaw = localStorage.getItem('tesina-site-lang') || 'it';
+  const savedLang = langs.some(([code])=>code===savedRaw) ? savedRaw : 'it';
+  return `<select id="site-language-select" onchange="translateWholeSite(this.value)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 10px;font-family:var(--mono);font-size:12px;outline:none">
+    ${langs.map(([code,label])=>`<option value="${code}" ${code===savedLang?'selected':''}>${label}</option>`).join('')}
+  </select>
+  <div id="site-lang-status" style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">Traduce il testo dentro al sito, senza aprire nuove schede esterne.</div>`;
 }
 
-function translateWholeSite(lang) {
-  if(!lang || lang === 'it') return;
-  const url = location.href.startsWith('file:')
-    ? 'https://marios241.github.io/Tesina/'
-    : location.href.split('#')[0];
-  window.open(`https://translate.google.com/translate?sl=it&tl=${encodeURIComponent(lang)}&u=${encodeURIComponent(url)}`, '_blank');
+const siteTranslationOriginals = new Map();
+let siteTranslationToken = 0;
+const STATIC_SITE_TRANSLATIONS = {
+  en: {
+    'MATERIE':'SUBJECTS','Tecnologia':'Technology','Italiano':'Italian','Inglese':'English','Francese':'French','Geografia':'Geography','Storia':'History','Matematica':'Mathematics','Geometria':'Geometry','Arte':'Art','Scienze':'Science','Musica':'Music','Religione':'Religion','Ed. Civica':'Civic Education','Ed. Fisica':'Physical Education',
+    'Intelligenza Artificiale':'Artificial Intelligence','Un viaggio attraverso tutte le materie scolastiche unite dal filo comune della tecnologia e dell’intelligenza artificiale.':'A journey through all school subjects connected by technology and artificial intelligence.',
+    'La tecnologia è il fondamento digitale da cui si diramano tutte le materie — ogni disciplina oggi dipende da algoritmi, reti neurali e interfacce intelligenti.':'Technology is the digital foundation from which all subjects branch out: every discipline today depends on algorithms, neural networks and intelligent interfaces.',
+    'Correttore Grammaticale':'Grammar Checker','Correggi':'Correct','Pulisci':'Clear','Testo corretto':'Corrected text','Nessun errore grammaticale trovato. Il testo è corretto.':'No grammar errors found. The text is correct.',
+    'Traduzione con MyMemory · Stile DeepL':'Translation with MyMemory · DeepL style','Traduzione bidirezionale inglese ↔ italiano tramite':'Bidirectional English ↔ Italian translation through','Nessuna API key necessaria.':'No API key required.',
+    'Longitudine, Latitudine & Altitudine':'Longitude, Latitude & Altitude','Latitudine':'Latitude','Longitudine':'Longitude','Altitudine':'Altitude',
+    'Solidi di Platone & Figure Geometriche':'Platonic Solids & Geometric Shapes','Velocità':'Speed','Colore':'Color','Orario':'Clockwise','Cubo':'Cube','Sfera':'Sphere','Piramide':'Pyramid','Cilindro':'Cylinder','Cono':'Cone','Toro':'Torus',
+    'Impostazioni':'Settings','TEMI':'THEMES','LINGUA SITO':'SITE LANGUAGE','STATISTICHE':'STATS','Tema attivo:':'Active theme:','Versione:':'Version:','BACKGROUND DEFAULT':'DEFAULT BACKGROUND','Velocita':'Speed','Luminosita':'Brightness','Grandezza':'Size','Quantita':'Quantity','Trasparenza':'Transparency',
+    'Scegli la materia da mostrare per iniziare.':'Choose the subject to show first.','Traduci in italiano':'Translate to Italian','Italiano / traduzione':'Italian / translation',
+    'Scarica':'Download','Cambia':'Change','Griglia: ON':'Grid: ON','Risoluzione pixel':'Pixel resolution','Dimensione originale':'Original size','Pixel totali':'Total pixels','Colore dominante':'Dominant color'
+  },
+  fr: {
+    'MATERIE':'MATIERES','Tecnologia':'Technologie','Italiano':'Italien','Inglese':'Anglais','Francese':'Francais','Geografia':'Geographie','Storia':'Histoire','Matematica':'Mathematiques','Geometria':'Geometrie','Arte':'Art','Scienze':'Sciences','Musica':'Musique','Religione':'Religion','Ed. Civica':'Education civique','Ed. Fisica':'Education physique',
+    'Intelligenza Artificiale':'Intelligence artificielle','Correttore Grammaticale':'Correcteur grammatical','Correggi':'Corriger','Pulisci':'Effacer','Testo corretto':'Texte corrige',
+    'Longitudine, Latitudine & Altitudine':'Longitude, Latitude et Altitude','Solidi di Platone & Figure Geometriche':'Solides de Platon et formes geometriques','Velocità':'Vitesse','Colore':'Couleur','Orario':'Horaire','Cubo':'Cube','Sfera':'Sphere','Piramide':'Pyramide','Cilindro':'Cylindre','Cono':'Cone','Toro':'Tore',
+    'Impostazioni':'Parametres','TEMI':'THEMES','LINGUA SITO':'LANGUE DU SITE','STATISTICHE':'STATISTIQUES','Tema attivo:':'Theme actif:','Versione:':'Version:','BACKGROUND DEFAULT':'FOND PAR DEFAUT','Velocita':'Vitesse','Luminosita':'Luminosite','Grandezza':'Taille','Quantita':'Quantite','Trasparenza':'Transparence',
+    'Scegli la materia da mostrare per iniziare.':'Choisis la matiere a afficher pour commencer.','Traduci in italiano':'Traduire en italien','Scarica':'Telecharger','Cambia':'Changer','Griglia: ON':'Grille: ON'
+  },
+  es: {
+    'MATERIE':'ASIGNATURAS','Tecnologia':'Tecnologia','Italiano':'Italiano','Inglese':'Ingles','Francese':'Frances','Geografia':'Geografia','Storia':'Historia','Matematica':'Matematicas','Geometria':'Geometria','Arte':'Arte','Scienze':'Ciencias','Musica':'Musica','Religione':'Religion','Ed. Civica':'Educacion civica','Ed. Fisica':'Educacion fisica',
+    'Intelligenza Artificiale':'Inteligencia artificial','Correttore Grammaticale':'Corrector gramatical','Correggi':'Corregir','Pulisci':'Limpiar','Testo corretto':'Texto corregido',
+    'Impostazioni':'Configuracion','TEMI':'TEMAS','LINGUA SITO':'IDIOMA DEL SITIO','STATISTICHE':'ESTADISTICAS','Tema attivo:':'Tema activo:','Versione:':'Version:','BACKGROUND DEFAULT':'FONDO PREDETERMINADO','Velocita':'Velocidad','Luminosita':'Brillo','Grandezza':'Tamano','Quantita':'Cantidad','Trasparenza':'Transparencia',
+    'Scegli la materia da mostrare per iniziare.':'Elige la asignatura para empezar.','Scarica':'Descargar','Cambia':'Cambiar'
+  },
+  de: {
+    'MATERIE':'FACHER','Tecnologia':'Technologie','Italiano':'Italienisch','Inglese':'Englisch','Francese':'Franzosisch','Geografia':'Geografie','Storia':'Geschichte','Matematica':'Mathematik','Geometria':'Geometrie','Arte':'Kunst','Scienze':'Naturwissenschaft','Musica':'Musik','Religione':'Religion','Ed. Civica':'Politische Bildung','Ed. Fisica':'Sport',
+    'Intelligenza Artificiale':'Kunstliche Intelligenz','Correttore Grammaticale':'Grammatikprufer','Correggi':'Korrigieren','Pulisci':'Loschen','Testo corretto':'Korrigierter Text',
+    'Impostazioni':'Einstellungen','TEMI':'THEMEN','LINGUA SITO':'SEITENSPRACHE','STATISTICHE':'STATISTIK','Tema attivo:':'Aktives Thema:','Versione:':'Version:','BACKGROUND DEFAULT':'STANDARD-HINTERGRUND','Velocita':'Geschwindigkeit','Luminosita':'Helligkeit','Grandezza':'Grosse','Quantita':'Menge','Trasparenza':'Transparenz',
+    'Scegli la materia da mostrare per iniziare.':'Wahle zuerst ein Fach aus.','Scarica':'Herunterladen','Cambia':'Andern'
+  }
+};
+const STATIC_ATTR_TRANSLATIONS = {
+  en: {'Scrivi un messaggio...':'Write a message...','Scrivi qui il testo da correggere...':'Write the text to correct here...'},
+  fr: {'Scrivi un messaggio...':'Ecris un message...','Scrivi qui il testo da correggere...':'Ecris ici le texte a corriger...'},
+  es: {'Scrivi un messaggio...':'Escribe un mensaje...','Scrivi qui il testo da correggere...':'Escribe aqui el texto para corregir...'},
+  de: {'Scrivi un messaggio...':'Nachricht schreiben...','Scrivi qui il testo da correggere...':'Schreibe hier den zu korrigierenden Text...'}
+};
+function shouldTranslateNode(node) {
+  const parent = node.parentElement;
+  if(!parent) return false;
+  if(parent.closest('script,style,textarea,input,select,option,code,pre,canvas,iframe')) return false;
+  if(parent.closest('#settings-panel') && !parent.closest('#settings-active-theme')) return false;
+  const text = node.nodeValue.replace(/\s+/g,' ').trim();
+  return text.length > 1 && !/^[\d\s.,:;+\-*/%()#]+$/.test(text);
+}
+function collectSiteTextNodes() {
+  const nodes = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) { return shouldTranslateNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }
+  });
+  while(walker.nextNode()) {
+    const node = walker.currentNode;
+    if(!siteTranslationOriginals.has(node)) siteTranslationOriginals.set(node, node.nodeValue);
+    nodes.push(node);
+  }
+  return nodes;
+}
+async function translateWholeSite(lang) {
+  const status = document.getElementById('site-lang-status');
+  const token = ++siteTranslationToken;
+  localStorage.setItem('tesina-site-lang', lang || 'it');
+  if(!lang || lang === 'it') {
+    siteTranslationOriginals.forEach((text,node)=>{ if(node && node.parentNode) node.nodeValue = text; });
+    document.querySelectorAll('[data-original-placeholder]').forEach(el=>el.setAttribute('placeholder', el.dataset.originalPlaceholder || ''));
+    if(status) status.textContent = 'Italiano ripristinato.';
+    return;
+  }
+  const pack = STATIC_SITE_TRANSLATIONS[lang];
+  if(!pack) {
+    if(status) status.textContent = 'Pacchetto non ancora pronto per questa lingua: il sito resta in italiano.';
+    return;
+  }
+  const nodes = collectSiteTextNodes();
+  let changed = 0;
+  for(let i=0;i<nodes.length;i++) {
+    if(token !== siteTranslationToken) return;
+    const node = nodes[i];
+    if(!node.parentNode) continue;
+    const original = siteTranslationOriginals.get(node) || node.nodeValue;
+    const compact = original.replace(/\s+/g,' ').trim();
+    const translated = pack[compact];
+    if(translated) {
+      node.nodeValue = original.replace(compact, translated);
+      changed++;
+    }
+  }
+  document.querySelectorAll('[placeholder]').forEach(el=>{
+    if(!el.dataset.originalPlaceholder) el.dataset.originalPlaceholder = el.getAttribute('placeholder') || '';
+    const original = el.dataset.originalPlaceholder;
+    el.setAttribute('placeholder', (STATIC_ATTR_TRANSLATIONS[lang] && STATIC_ATTR_TRANSLATIONS[lang][original]) || original);
+  });
+  if(status) status.textContent = `Pacchetto interno caricato: ${changed} testi aggiornati. Nessuna richiesta online.`;
+}
+
+function getLanguageSettingsBox() {
+  return `
+    <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin:0 0 10px">LINGUA SITO</div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px">
+      ${renderSiteLanguageSelect()}
+    </div>`;
 }
 
 function buildSettingsPanel() {
@@ -4239,19 +4387,9 @@ function buildSettingsPanel() {
       <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin:0 0 10px">BACKGROUND DEFAULT</div>
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px">
         ${renderBgControls()}
-      </div>`;
+      </div>
+      ${getLanguageSettingsBox()}`;
     themeList.parentElement.insertAdjacentElement('afterend', bgBox);
-  }
-  const statsTitle = [...panel.querySelectorAll('div')].find(el => el.textContent.includes('STATISTICHE'));
-  if(statsTitle) {
-    const langBox = document.createElement('div');
-    langBox.innerHTML = `
-      <div style="font-size:10px;letter-spacing:3px;color:var(--accent);margin:0 0 10px">LINGUA SITO</div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px">
-        ${renderSiteLanguageSelect()}
-        <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">Apre la tesina tradotta in una nuova scheda tramite Google Translate.</div>
-      </div>`;
-    statsTitle.insertAdjacentElement('beforebegin', langBox);
   }
   updateVisitDisplay();
 }
@@ -4427,14 +4565,18 @@ const CIVICA_EN = {
     }
   ]
 };
-CIVICA_FR.sections.push({
-  btn: '🇮🇹 Italiano / traduzione',
-  text: `${CIVICA_IT.intro}\n\n${CIVICA_IT.sections.map(s => s.btn + '\n' + s.text).join('\n\n')}`
-});
-CIVICA_EN.sections.push({
-  btn: '🇮🇹 Italian translation',
-  text: `Steve Jobs era un imprenditore e inventore americano. Nato nel 1955 negli Stati Uniti, fondo Apple Inc. con Steve Wozniak e contribui alla creazione di prodotti come iPhone e iPad.\n\nNel discorso agli studenti della Stanford University racconto tre storie della sua vita: la prima sulla sua infanzia e sull'adozione, la seconda sull'amore e sulla perdita, la terza sulla morte. Fondo Apple nel garage dei genitori a soli 21 anni; in poco tempo l'azienda divento enorme, ma in seguito venne licenziato dalla sua stessa societa. Creo poi Pixar e torno infine in Apple. Gli fu diagnosticato un cancro e mori nel 2011 a 56 anni.\n\nCollegamento con l'educazione civica digitale: la tecnologia cambia il modo in cui comunichiamo, studiamo e lavoriamo. La storia di Jobs mostra che gli strumenti digitali vanno usati con creativita, consapevolezza e responsabilita.`
-});
+const CIVICA_TRANSLATIONS = {
+  fr: {
+    btn: '🇮🇹 Traduci in italiano',
+    title: 'Italiano / traduzione',
+    text: `${CIVICA_IT.intro}\n\n${CIVICA_IT.sections.map(s => s.btn + '\n' + s.text).join('\n\n')}`
+  },
+  en: {
+    btn: '🇮🇹 Italian translation',
+    title: 'Italian translation',
+    text: `Steve Jobs era un imprenditore e inventore americano. Nato nel 1955 negli Stati Uniti, fondo Apple Inc. con Steve Wozniak e contribui alla creazione di prodotti come iPhone e iPad.\n\nNel discorso agli studenti della Stanford University racconto tre storie della sua vita: la prima sulla sua infanzia e sull'adozione, la seconda sull'amore e sulla perdita, la terza sulla morte. Fondo Apple nel garage dei genitori a soli 21 anni; in poco tempo l'azienda divento enorme, ma in seguito venne licenziato dalla sua stessa societa. Creo poi Pixar e torno infine in Apple. Gli fu diagnosticato un cancro e mori nel 2011 a 56 anni.\n\nCollegamento con l'educazione civica digitale: la tecnologia cambia il modo in cui comunichiamo, studiamo e lavoriamo. La storia di Jobs mostra che gli strumenti digitali vanno usati con creativita, consapevolezza e responsabilita.`
+  }
+};
 
 let civicaLang = null; // null = no language chosen yet
 let civicaOpenIdx = null;
@@ -4468,7 +4610,15 @@ function renderCivica() {
   window.civicaCurrentIntro = data.intro;
   if(el) el.innerHTML = `<div>${data.intro}</div><button onclick="speakText(window.civicaCurrentIntro, civicaLang === 'en' ? 'en-US' : 'fr-FR')" title="Ascolta il testo" style="float:right;margin-top:10px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button><div style="clear:both"></div>`;
   if(!btnsEl) return;
-  btnsEl.innerHTML = data.sections.map((s,i)=>`
+  const tr = CIVICA_TRANSLATIONS[civicaLang];
+  const translationButton = tr ? `
+    <div style="width:100%;display:flex;margin:0 0 4px">
+      <button onclick="openCivicaTranslation()"
+        style="background:linear-gradient(135deg,var(--bg3),color-mix(in srgb,var(--accent) 12%,var(--bg3)));border:1px solid var(--accent);color:var(--accent);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;box-shadow:0 0 14px color-mix(in srgb,var(--accent) 18%,transparent)">
+        ${tr.btn}
+      </button>
+    </div>` : '';
+  btnsEl.innerHTML = translationButton + data.sections.map((s,i)=>`
     <button onclick="openCivicaModal(${i})"
       id="civica-sec-btn-${i}"
       style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;box-shadow:0 0 0 rgba(0,255,136,0)"
@@ -4478,16 +4628,26 @@ function renderCivica() {
     </button>`).join('');
 }
 
+function openCivicaTranslation() {
+  const tr = CIVICA_TRANSLATIONS[civicaLang];
+  if(!tr) return;
+  openCivicaTextModal(tr.title, tr.text);
+}
+
 function openCivicaModal(idx) {
   const data = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   const s = data.sections[idx];
+  openCivicaTextModal(s.btn, s.text);
+}
+
+function openCivicaTextModal(modalTitle, modalText) {
   const overlay = document.getElementById('civica-modal-overlay');
   const modal = document.getElementById('civica-modal');
   const title = document.getElementById('civica-modal-title');
   const body = document.getElementById('civica-modal-body');
   if(!modal) return;
-  title.textContent = s.btn;
-  body.innerHTML = s.text.split('\n').map(line=>{
+  title.textContent = modalTitle;
+  body.innerHTML = modalText.split('\n').map(line=>{
     if(line.startsWith('•') || line.startsWith('*')) return `<div style="padding:4px 0 4px 16px;border-left:2px solid var(--accent);margin:4px 0;color:var(--text)">${line.replace(/^[•*]\s*/,'')}</div>`;
     if(line.startsWith('📋') || line.match(/^[A-Z]/)) return `<div style="color:var(--accent);font-weight:700;margin-top:12px">${line}</div>`;
     return `<div>${line}</div>`;
