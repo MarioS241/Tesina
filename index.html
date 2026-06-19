@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Informatica in Modo Digitale</title>
-<link rel="icon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -773,7 +772,7 @@
     button[onclick="toggleSettings()"] { top: max(0.75rem, env(safe-area-inset-top)) !important; left: 3.4rem !important; width: 38px !important; height: 38px !important; }
     #side-menu { width: min(86vw, 320px); left: calc(-1 * min(86vw, 320px)); padding: 4.2rem 0.9rem 1.5rem; }
     #side-menu.open { left: 0; }
-    #settings-panel { width: min(92vw, 340px) !important; padding: 0 !important; }
+    #settings-panel { width: min(92vw, 340px) !important; padding: 4rem 0.9rem 1.25rem !important; }
     section { width: 100%; max-width: 100vw; padding: 3.25rem 0.75rem 2.4rem; }
     .section-label { letter-spacing: 3px; font-size: 9px; }
     .section-title { font-size: clamp(1.35rem, 8vw, 2rem); line-height: 1.12; overflow-wrap: anywhere; }
@@ -874,7 +873,7 @@
 <div id="settings-overlay" onclick="toggleSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1998"></div>
 
 <!-- SETTINGS PANEL -->
-<div id="settings-panel" style="display:none;position:fixed;top:0;right:0;width:min(340px,92vw);height:100vh;background:linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--bg3) 70%,#000));border-left:1px solid var(--border);z-index:1999;overflow-y:auto;padding-top:0"></div>
+<div id="settings-panel" style="display:none;position:fixed;top:0;right:0;width:min(340px,92vw);height:100vh;background:linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--bg3) 70%,#000));border-left:1px solid var(--border);z-index:1999;overflow-y:auto;padding-top:4rem"></div>
 
 <!-- SIDE MENU -->
 <div id="overlay" onclick="closeMenu()"></div>
@@ -885,10 +884,10 @@
   <a class="menu-item" href="#italiano" onclick="closeMenu()"><span class="icon">✍️</span> Italiano</a>
   <a class="menu-item" href="#inglese" onclick="closeMenu()"><span class="icon"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span></span> Inglese</a>
   <a class="menu-item" href="#francese" onclick="closeMenu()"><span class="icon"><span class="flag flag-fr" role="img" aria-label="Francia"></span></span> Francese</a>
-  <a class="menu-item" href="#matematica" onclick="closeMenu()"><span class="icon">📐</span> Matematica</a>
-  <a class="menu-item" href="#geometria" onclick="closeMenu()"><span class="icon">🔷</span> Geometria</a>
   <a class="menu-item" href="#geografia" onclick="closeMenu()"><span class="icon">🌍</span> Geografia</a>
   <a class="menu-item" href="#storia" onclick="closeMenu()"><span class="icon">🗞️</span> Storia</a>
+  <a class="menu-item" href="#matematica" onclick="closeMenu()"><span class="icon">📐</span> Matematica</a>
+  <a class="menu-item" href="#geometria" onclick="closeMenu()"><span class="icon">🔷</span> Geometria</a>
   <a class="menu-item" href="#arte" onclick="closeMenu()"><span class="icon">🎨</span> Arte</a>
   <a class="menu-item" href="#scienze" onclick="closeMenu()"><span class="icon">⚡</span> Scienze</a>
   <a class="menu-item" href="#musica" onclick="closeMenu()"><span class="icon">🎵</span> Musica</a>
@@ -1000,9 +999,6 @@
   <div class="section-label">03 — Inglese</div>
   <div class="section-title">Traduttore AI Inglese ↔ Italiano</div>
   <div class="section-bridge">🔗 L'inglese è la lingua della programmazione, di Internet e dell'IA globale — ogni linguaggio di codice (Python, JavaScript, C++) è scritto in inglese. Comprendere l'inglese è comprendere il digitale.</div>
-  <div style="margin-bottom:1rem">
-    <a href="#edcivica" style="display:inline-flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--accent);color:var(--accent);padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:11px;text-decoration:none">🏛️ Collegamento: Ed. Civica / Steve Jobs</a>
-  </div>
   <div class="card">
     <h3>Traduzione con MyMemory · Stile DeepL</h3>
     <p>Traduzione bidirezionale inglese ↔ italiano tramite <strong style="color:var(--text)">MyMemory API</strong> — il più grande database di traduzioni umane al mondo, completamente gratuito. Nessuna API key necessaria.</p>
@@ -1047,9 +1043,6 @@
   <div class="section-label">04 — Francese</div>
   <div class="section-title">Traduction Française en Temps Réel</div>
   <div class="section-bridge">🔗 Il francese e l'italiano condividono radici latine — così come molti termini informatici derivano entrambi dall'inglese, creando un dizionario tecnologico universale.</div>
-  <div style="margin-bottom:1rem">
-    <a href="#edcivica" style="display:inline-flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--accent);color:var(--accent);padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:11px;text-decoration:none">🏛️ Collegamento: Ed. Civica / cittadinanza digitale</a>
-  </div>
   <div class="card">
     <h3>Traduction MyMemory · Français ↔ Italiano</h3>
     <p>Traduzione in tempo reale tramite <strong style="color:var(--text)">MyMemory API</strong> — stesso motore usato da milioni di siti, gratuito e senza registrazione. Supporta oltre 50 coppie di lingue.</p>
@@ -1076,7 +1069,7 @@
 
 <!-- ═══ GEOGRAFIA ═══ -->
 <section id="geografia">
-  <div class="section-label">07 — Geografia</div>
+  <div class="section-label">05 — Geografia</div>
   <div class="section-title">Geolocalizzazione & Coordinate</div>
   <div class="section-bridge">🔗 La geografia ha rivoluzionato il web: gli algoritmi di GPS che determinano la nostra posizione usano triangolazione geometrica — unendo matematica, fisica e informatica in un'unica tecnologia.</div>
   <div class="card">
@@ -1107,7 +1100,7 @@
 
 <!-- STORIA -->
 <section id="storia">
-  <div class="section-label">08 - Storia</div>
+  <div class="section-label">06 - Storia</div>
   <div class="section-title">Karl Ferdinand Braun e il CRT</div>
   <div class="section-bridge">La storia degli schermi parte dalla fisica: nel 1897 Karl Ferdinand Braun realizzo il tubo a raggi catodici, un sistema capace di guidare un fascio di elettroni verso uno schermo fluorescente.</div>
   <div class="card">
@@ -1126,7 +1119,7 @@
 
 <!-- ═══ MATEMATICA ═══ -->
 <section id="matematica">
-  <div class="section-label">05 - Matematica & Aritmetica</div>
+  <div class="section-label">07 - Matematica & Aritmetica</div>
   <div class="section-title">Algoritmi in Python</div>
   <div class="section-bridge">🔗 Ogni algoritmo informatico è matematica applicata: l'ordinamento usa confronti logici, la crittografia usa teoria dei numeri, l'IA usa algebra lineare e calcolo differenziale.</div>
   <div class="card">
@@ -1178,7 +1171,7 @@
 
 <!-- ═══ GEOMETRIA ═══ -->
 <section id="geometria">
-  <div class="section-label">06 - Geometria</div>
+  <div class="section-label">08 - Geometria</div>
   <div class="section-title">Figure 3D Interattive</div>
   <div class="section-bridge">🔗 La geometria 3D è il linguaggio dei videogiochi, del cinema digitale e della stampa 3D. Ogni oggetto digitale che vediamo è fatto di poligoni — triangoli e quadrati che formano solidi complessi.</div>
   <div class="card">
@@ -1484,7 +1477,12 @@
     <h3>Una scelta piu consapevole</h3>
     <p>Prima di internet, conoscere una religione diversa da quella del proprio ambiente dipendeva spesso da libri, viaggi o incontri rari. Oggi motori di ricerca, video, biblioteche digitali e comunita online permettono di confrontare fonti, capire regole, valori e pratiche, e dialogare con persone che vivono quella fede ogni giorno.</p>
   </div>
-  <canvas id="religion-canvas" title="Clicca un punto luminoso per leggere il significato"></canvas>
+  <canvas id="religion-canvas"></canvas>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:1rem">
+    <div class="card"><h3>Conoscenza</h3><p>Si possono leggere testi, spiegazioni e testimonianze, distinguendo pero fonti serie da contenuti superficiali.</p></div>
+    <div class="card"><h3>Dialogo</h3><p>La comunicazione digitale avvicina culture lontane: forum, videochiamate e traduzioni riducono la distanza geografica.</p></div>
+    <div class="card"><h3>Rispetto</h3><p>La liberta di scelta richiede responsabilita: informarsi bene, non banalizzare le credenze altrui e rispettare chi sceglie diversamente.</p></div>
+  </div>
 </section>
 
 <div class="divider">▼</div>
@@ -1500,9 +1498,7 @@
     <!-- Lang buttons vertical -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
       <button id="civica-btn-fr" onclick="setCivicaLang('fr')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-fr" role="img" aria-label="Francia"></span> Francese</button>
-      <div id="civica-translate-slot-fr" style="display:none;padding-left:10px"></div>
       <button id="civica-btn-en" onclick="setCivicaLang('en')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:10px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.25s"><span class="flag flag-gb" role="img" aria-label="Regno Unito"></span> Inglese</button>
-      <div id="civica-translate-slot-en" style="display:none;padding-left:10px"></div>
     </div>
 
     <!-- Main text -->
@@ -1831,24 +1827,6 @@ function closeMenu() {
   document.body.classList.remove('menu-open');
 }
 
-function reorderSubjectSections() {
-  const order = ['matematica','geometria','geografia','storia'];
-  const anchor = document.getElementById('arte');
-  const parent = anchor?.parentNode;
-  if(!parent || document.body.dataset.subjectsReordered === '1') return;
-  const chunks = order.map(id => {
-    const section = document.getElementById(id);
-    const divider = section?.nextElementSibling?.classList?.contains('divider') ? section.nextElementSibling : null;
-    return {section, divider};
-  }).filter(chunk => chunk.section);
-  chunks.forEach(chunk => {
-    parent.insertBefore(chunk.section, anchor);
-    if(chunk.divider) parent.insertBefore(chunk.divider, anchor);
-  });
-  document.body.dataset.subjectsReordered = '1';
-}
-reorderSubjectSections();
-
 // ─── TRANSLATOR SWAP ───
 let enSwapped = false;
 function swapEN() {
@@ -1905,7 +1883,7 @@ function swapFR() {
 // ─── AI CHAT ───
 // ⚠️  INSERISCI QUI LA TUA API KEY DI ANTHROPIC ⚠️
 // Ottienila su: https://console.anthropic.com → API Keys
-const ANTHROPIC_API_KEY = 'INSERISCI-QUI-LA-TUA-API-KEY'; // es. sk-ant-api03-...
+const ANTHROPIC_API_KEY = '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';
 
 const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
 async function callClaude(system, userMsg, maxTok = 800) {
@@ -2751,18 +2729,12 @@ function goToGeoPoint(point) {
   map.setView([p.lat, p.lng], p.zoom);
   setGeoMarker(p.lat, p.lng, p.label);
 }
-function locateOnMap() {
-  if (!navigator.geolocation) {
-    document.getElementById('geo-city').textContent = 'Geolocalizzazione non supportata';
-    return;
-  }
+if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(pos => {
     const {latitude:lat, longitude:lng} = pos.coords;
     map.setView([lat,lng],12);
     setGeoMarker(lat, lng, 'La tua posizione');
-  }, () => {
-    document.getElementById('geo-city').textContent = 'Permesso posizione non concesso';
-  }, { enableHighAccuracy:false, timeout:7000, maximumAge:60000 });
+  });
 }
 
 // ─── 3D GEOMETRY ───
@@ -3244,15 +3216,6 @@ const relCtx = relCanvas ? relCanvas.getContext('2d') : null;
 resizeCanvasToBox(relCanvas, 320);
 window.addEventListener('resize', ()=>resizeCanvasToBox(relCanvas, 320));
 const relNodes = ['Ricerca','Dialogo','Testi','Regole','Scelta','Rispetto'];
-const relMeanings = {
-  Ricerca: 'La ricerca rappresenta la possibilita di informarsi su religioni, testi e tradizioni diverse usando fonti digitali affidabili. La tecnologia rende piu semplice confrontare informazioni e non fermarsi alla prima risposta trovata.',
-  Dialogo: 'Il dialogo indica la comunicazione tra persone di culture e fedi diverse. Forum, videochiamate e traduttori possono avvicinare chi vive lontano, se usati con rispetto e attenzione.',
-  Testi: 'I testi sono documenti, libri sacri, spiegazioni e testimonianze disponibili anche online. Leggerli permette di capire meglio le regole e il significato di una religione, distinguendo fonti serie da contenuti superficiali.',
-  Regole: 'Le regole rappresentano pratiche, valori e comportamenti di una fede. Cercarle e capirle aiuta a scegliere in modo consapevole e a rispettare chi segue tradizioni diverse.',
-  Scelta: 'La scelta e la liberta di conoscere piu possibilita prima di decidere cosa sentire vicino a se. La tecnologia amplia le informazioni disponibili e rende la decisione piu personale e consapevole.',
-  Rispetto: 'Il rispetto e il principio che tiene insieme tutto: informarsi non significa giudicare o banalizzare. Online bisogna parlare delle credenze altrui con responsabilita, evitando offese e stereotipi.'
-};
-let relPointHitboxes = [];
 function drawReligionNet() {
   if(!relCtx) return;
   const w=relCanvas.width, h=relCanvas.height, t=Date.now()*0.001;
@@ -3260,7 +3223,6 @@ function drawReligionNet() {
   relCtx.fillStyle='#050a12'; relCtx.fillRect(0,0,w,h);
   const cx=w/2, cy=h/2, r=Math.min(w,h)*.31;
   const pts = relNodes.map((n,i)=>{ const a=i/relNodes.length*Math.PI*2+t*.18; return {label:n,x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r}; });
-  relPointHitboxes = pts.map(p => ({...p, radius: 28 * (window.devicePixelRatio || 1)}));
   relCtx.strokeStyle='rgba(0,255,136,.2)'; relCtx.lineWidth=1;
   pts.forEach((p,i)=>pts.forEach((q,j)=>{ if(j>i){ relCtx.beginPath(); relCtx.moveTo(p.x,p.y); relCtx.lineTo(q.x,q.y); relCtx.stroke(); }}));
   pts.forEach((p,i)=>{
@@ -3275,38 +3237,6 @@ function drawReligionNet() {
   requestAnimationFrame(drawReligionNet);
 }
 drawReligionNet();
-relCanvas?.addEventListener('click', e => {
-  const rect = relCanvas.getBoundingClientRect();
-  const scaleX = relCanvas.width / rect.width, scaleY = relCanvas.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX, y = (e.clientY - rect.top) * scaleY;
-  const point = relPointHitboxes.find(p => Math.hypot(p.x - x, p.y - y) <= p.radius);
-  if(point) openReligionPoint(point.label);
-});
-function openReligionPoint(label) {
-  const text = relMeanings[label] || 'Questo punto rappresenta un collegamento tra fede, tecnologia e consapevolezza digitale.';
-  closeReligionPoint();
-  const overlay = document.createElement('div');
-  overlay.id = 'religion-modal-overlay';
-  overlay.onclick = closeReligionPoint;
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:1800;display:flex;align-items:center;justify-content:center;padding:16px';
-  const modal = document.createElement('div');
-  modal.id = 'religion-modal';
-  modal.style.cssText = 'width:min(620px,94vw);max-height:78vh;overflow:auto;background:var(--bg2);border:1px solid var(--accent);border-radius:16px;padding:22px;box-shadow:0 0 32px color-mix(in srgb,var(--accent) 34%,transparent), inset 0 0 18px color-mix(in srgb,var(--accent) 8%,transparent)';
-  modal.onclick = e => e.stopPropagation();
-  modal.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
-      <h3 style="font-family:var(--title);color:var(--accent);margin:0;font-size:1.05rem">${escapeHtml(label)}</h3>
-      <button onclick="closeReligionPoint()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer">✕</button>
-    </div>
-    <div class="speakable-text" style="font-size:13px;line-height:1.9;color:var(--text)">${renderSpeakableText(text, 'it-IT')}</div>
-    <button onclick="toggleSpeakText('${text.replace(/'/g, "\\'")}', 'it-IT')" title="Ascolta / ferma il testo" style="float:right;margin-top:14px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:44px;height:44px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button>
-    <div style="clear:both"></div>`;
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
-function closeReligionPoint() {
-  document.getElementById('religion-modal-overlay')?.remove();
-}
 
 // ─── TIMER ───
 let timerInterval=null, timerSeconds=0, timerTotal=0, timerRunning=false;
@@ -4651,21 +4581,15 @@ const CIVICA_TRANSLATIONS = {
 
 let civicaLang = null; // null = no language chosen yet
 let civicaOpenIdx = null;
-let civicaTranslated = false;
 
 function setCivicaLang(lang) {
   civicaLang = lang;
-  civicaTranslated = false;
   const btnIt = document.getElementById('civica-btn-it');
   const btnFr = document.getElementById('civica-btn-fr');
   const btnEn = document.getElementById('civica-btn-en');
-  const slotFr = document.getElementById('civica-translate-slot-fr');
-  const slotEn = document.getElementById('civica-translate-slot-en');
   if(btnIt){ btnIt.style.background=lang==='it'?'var(--accent)':'var(--bg3)'; btnIt.style.color=lang==='it'?'#060a10':'var(--muted)'; btnIt.style.border=lang==='it'?'none':'1px solid var(--border)'; }
   if(btnFr){ btnFr.style.background=lang==='fr'?'#0055A4':'var(--bg3)'; btnFr.style.color=lang==='fr'?'#fff':'var(--muted)'; btnFr.style.border=lang==='fr'?'none':'1px solid var(--border)'; }
   if(btnEn){ btnEn.style.background=lang==='en'?'#012169':'var(--bg3)'; btnEn.style.color=lang==='en'?'#fff':'var(--muted)'; btnEn.style.border=lang==='en'?'none':'1px solid var(--border)'; }
-  if(slotFr) slotFr.style.display = lang === 'fr' ? 'block' : 'none';
-  if(slotEn) slotEn.style.display = lang === 'en' ? 'block' : 'none';
   const el = document.getElementById('civica-text');
   if(el){ el.style.opacity='0'; el.style.transform='translateX(12px)'; }
   setTimeout(()=>{
@@ -4675,43 +4599,27 @@ function setCivicaLang(lang) {
   closeCivicaModal();
 }
 
-function renderCivicaTranslateSlots() {
-  const slotFr = document.getElementById('civica-translate-slot-fr');
-  const slotEn = document.getElementById('civica-translate-slot-en');
-  const makeBtn = (label) => `<button onclick="toggleCivicaTranslation()" style="width:100%;background:${civicaTranslated?'var(--accent)':'var(--bg3)'};border:1px solid var(--accent);color:${civicaTranslated?'#061018':'var(--accent)'};padding:8px 10px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;box-shadow:0 0 12px color-mix(in srgb,var(--accent) 18%,transparent)">${label}</button>`;
-  if(slotFr) slotFr.innerHTML = civicaLang === 'fr' ? makeBtn(civicaTranslated ? '🇫🇷 Francese' : '🇮🇹 Italiano') : '';
-  if(slotEn) slotEn.innerHTML = civicaLang === 'en' ? makeBtn(civicaTranslated ? '🇬🇧 English' : '🇮🇹 Italiano') : '';
-}
-
-function toggleCivicaTranslation() {
-  civicaTranslated = !civicaTranslated;
-  renderCivica();
-}
-
 function renderCivica() {
   const el = document.getElementById('civica-text');
   const btnsEl = document.getElementById('civica-btns');
-  renderCivicaTranslateSlots();
   if(!civicaLang) {
     if(el) el.innerHTML = `<span style="color:var(--muted);font-style:italic">🌐 Scegli la materia da mostrare per iniziare.</span>`;
     if(btnsEl) btnsEl.innerHTML = '';
     return;
   }
-  const sourceData = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
-  const tr = CIVICA_TRANSLATIONS[civicaLang];
-  const data = civicaTranslated && tr
-    ? {
-        intro: tr.text,
-        sections: civicaLang === 'en'
-          ? [{ btn:'🇮🇹 Steve Jobs - traduzione', text: tr.text }]
-          : CIVICA_IT.sections
-      }
-    : sourceData;
+  const data = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   window.civicaCurrentIntro = data.intro;
-  const speakLang = civicaTranslated ? 'it-IT' : (civicaLang === 'en' ? 'en-US' : 'fr-FR');
-  if(el) el.innerHTML = `<div class="speakable-text">${renderSpeakableText(data.intro, speakLang)}</div><button onclick="toggleSpeakText(window.civicaCurrentIntro, '${speakLang}')" title="Ascolta / ferma il testo" style="float:right;margin-top:10px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button><div style="clear:both"></div>`;
+  if(el) el.innerHTML = `<div>${data.intro}</div><button onclick="speakText(window.civicaCurrentIntro, civicaLang === 'en' ? 'en-US' : 'fr-FR')" title="Ascolta il testo" style="float:right;margin-top:10px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button><div style="clear:both"></div>`;
   if(!btnsEl) return;
-  btnsEl.innerHTML = data.sections.map((s,i)=>`
+  const tr = CIVICA_TRANSLATIONS[civicaLang];
+  const translationButton = tr ? `
+    <div style="width:100%;display:flex;margin:0 0 4px">
+      <button onclick="openCivicaTranslation()"
+        style="background:linear-gradient(135deg,var(--bg3),color-mix(in srgb,var(--accent) 12%,var(--bg3)));border:1px solid var(--accent);color:var(--accent);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;box-shadow:0 0 14px color-mix(in srgb,var(--accent) 18%,transparent)">
+        ${tr.btn}
+      </button>
+    </div>` : '';
+  btnsEl.innerHTML = translationButton + data.sections.map((s,i)=>`
     <button onclick="openCivicaModal(${i})"
       id="civica-sec-btn-${i}"
       style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all 0.2s;box-shadow:0 0 0 rgba(0,255,136,0)"
@@ -4722,19 +4630,18 @@ function renderCivica() {
 }
 
 function openCivicaTranslation() {
-  toggleCivicaTranslation();
+  const tr = CIVICA_TRANSLATIONS[civicaLang];
+  if(!tr) return;
+  openCivicaTextModal(tr.title, tr.text);
 }
 
 function openCivicaModal(idx) {
-  const tr = CIVICA_TRANSLATIONS[civicaLang];
-  const data = civicaTranslated && tr
-    ? { sections: civicaLang === 'en' ? [{ btn:'🇮🇹 Steve Jobs - traduzione', text: tr.text }] : CIVICA_IT.sections }
-    : (civicaLang==='en' ? CIVICA_EN : CIVICA_FR);
+  const data = civicaLang==='en' ? CIVICA_EN : CIVICA_FR;
   const s = data.sections[idx];
-  openCivicaTextModal(s.btn, s.text, idx);
+  openCivicaTextModal(s.btn, s.text);
 }
 
-function openCivicaTextModal(modalTitle, modalText, activeIdx = null) {
+function openCivicaTextModal(modalTitle, modalText) {
   const overlay = document.getElementById('civica-modal-overlay');
   const modal = document.getElementById('civica-modal');
   const title = document.getElementById('civica-modal-title');
@@ -4742,11 +4649,10 @@ function openCivicaTextModal(modalTitle, modalText, activeIdx = null) {
   if(!modal) return;
   title.textContent = modalTitle;
   body.innerHTML = modalText.split('\n').map(line=>{
-    const lang = civicaTranslated ? 'it-IT' : (civicaLang === 'en' ? 'en-US' : 'fr-FR');
-    if(line.startsWith('•') || line.startsWith('*')) return `<div class="speakable-text" style="padding:4px 0 4px 16px;border-left:2px solid var(--accent);margin:4px 0;color:var(--text)">${renderSpeakableText(line.replace(/^[•*]\s*/,''), lang)}</div>`;
-    if(line.startsWith('📋') || line.match(/^[A-Z]/)) return `<div class="speakable-text" style="color:var(--accent);font-weight:700;margin-top:12px">${renderSpeakableText(line, lang)}</div>`;
-    return `<div class="speakable-text">${renderSpeakableText(line, lang)}</div>`;
-  }).join('') + `<button onclick="speakCivicaText()" title="Ascolta / ferma il testo" style="position:sticky;float:right;bottom:10px;margin-top:12px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:44px;height:44px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button>`;
+    if(line.startsWith('•') || line.startsWith('*')) return `<div style="padding:4px 0 4px 16px;border-left:2px solid var(--accent);margin:4px 0;color:var(--text)">${line.replace(/^[•*]\s*/,'')}</div>`;
+    if(line.startsWith('📋') || line.match(/^[A-Z]/)) return `<div style="color:var(--accent);font-weight:700;margin-top:12px">${line}</div>`;
+    return `<div>${line}</div>`;
+  }).join('') + `<button onclick="speakCivicaText()" title="Ascolta il testo" style="position:sticky;float:right;bottom:10px;margin-top:12px;background:var(--accent);color:#061018;border:none;border-radius:999px;width:44px;height:44px;cursor:pointer;font-size:18px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 35%,transparent)">🔊</button>`;
   overlay.style.display = 'flex';
   modal.style.display = 'block';
   modal.style.borderColor = 'var(--accent)';
@@ -4761,64 +4667,26 @@ function openCivicaTextModal(modalTitle, modalText, activeIdx = null) {
   });
   // Highlight active button
   document.querySelectorAll('[id^=civica-sec-btn-]').forEach((b,i)=>{
-    const isActive = i === activeIdx;
-    b.style.background = isActive ? 'rgba(0,255,136,0.1)' : 'var(--bg3)';
-    b.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
-    b.style.color = isActive ? 'var(--accent)' : 'var(--text)';
-    b.style.boxShadow = isActive ? '0 0 18px rgba(0,255,136,0.35)' : '0 0 0 rgba(0,255,136,0)';
-    b.style.animation = isActive ? 'civicaIgnite 2.8s ease-out 1, civicaIgnite 4.5s ease-in-out 3s infinite alternate' : '';
+    b.style.background = i===idx ? 'rgba(0,255,136,0.1)' : 'var(--bg3)';
+    b.style.borderColor = i===idx ? 'var(--accent)' : 'var(--border)';
+    b.style.color = i===idx ? 'var(--accent)' : 'var(--text)';
+    b.style.boxShadow = i===idx ? '0 0 18px rgba(0,255,136,0.35)' : '0 0 0 rgba(0,255,136,0)';
+    b.style.animation = i===idx ? 'civicaIgnite 2.8s ease-out 1, civicaIgnite 4.5s ease-in-out 3s infinite alternate' : '';
   });
 }
 
-let currentSpeechText = '';
-let currentSpeechLang = '';
-function escapeHtml(text) {
-  return String(text).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-function renderSpeakableText(text, lang) {
-  return escapeHtml(text).split(/(\s+)/).map((part,idx)=>{
-    if(!part.trim()) return part;
-    return `<span onclick="speakFromWord(this, '${lang}')" style="cursor:pointer;border-radius:4px;padding:0 1px">${part}</span>`;
-  }).join('');
-}
-function textFromWordSpan(span) {
-  const container = span.closest('.speakable-text');
-  if(!container) return span.textContent || '';
-  let started = false, parts = [];
-  container.querySelectorAll('span').forEach(s => {
-    if(s === span) started = true;
-    if(started) parts.push(s.textContent || '');
-  });
-  return parts.join(' ');
-}
-function speakFromWord(span, lang) {
-  const text = textFromWordSpan(span);
-  toggleSpeakText(text, lang);
-}
-function toggleSpeakText(text, lang) {
+function speakText(text, lang) {
   if(!('speechSynthesis' in window)) return;
-  const cleaned = String(text || '').replace('🔊','').trim();
-  const same = window.speechSynthesis.speaking && currentSpeechText === cleaned && currentSpeechLang === lang;
-  if(same) {
-    window.speechSynthesis.cancel();
-    currentSpeechText = '';
-    currentSpeechLang = '';
-    return;
-  }
   window.speechSynthesis.cancel();
-  currentSpeechText = cleaned;
-  currentSpeechLang = lang || '';
-  const u = new SpeechSynthesisUtterance(cleaned);
+  const u = new SpeechSynthesisUtterance(text);
   u.lang = lang || (civicaLang === 'en' ? 'en-US' : 'fr-FR');
   u.rate = 0.95;
-  u.onend = () => { currentSpeechText = ''; currentSpeechLang = ''; };
   window.speechSynthesis.speak(u);
 }
-function speakText(text, lang) { toggleSpeakText(text, lang); }
 function speakCivicaText() {
   const title = document.getElementById('civica-modal-title')?.textContent || '';
   const body = document.getElementById('civica-modal-body')?.innerText || '';
-  toggleSpeakText(`${title}. ${body.replace('🔊','')}`, civicaTranslated ? 'it-IT' : (civicaLang === 'en' ? 'en-US' : 'fr-FR'));
+  speakText(`${title}. ${body.replace('🔊','')}`, civicaLang === 'en' ? 'en-US' : 'fr-FR');
 }
 
 function closeCivicaModal() {
@@ -5104,7 +4972,7 @@ function getStandaloneInstrumentHtml(kind) {
   vol.oninput=()=>{window.vol=+vol.value;volv.textContent=vol.value+'%'}; expr.oninput=()=>{window.expr=+expr.value;exprv.textContent=expr.value+'%'}
   function toggleCtl(i){controls[i]=!controls[i];document.getElementById('ctl'+i).classList.toggle('active',controls[i]);status.textContent='Controllo: '+document.getElementById('ctl'+i).textContent}
   controls.forEach((v,i)=>document.getElementById('ctl'+i)?.classList.toggle('active',v));
-  function env(t,peak,dur,out){const a=ac(),g=a.createGain();t=Number.isFinite(t)?t:a.currentTime;peak=Number.isFinite(peak)?Math.max(.0001,peak):.2;dur=Number.isFinite(dur)&&dur>.04?dur:.5;g.connect(out||a.destination);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(peak,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+dur);return g}
+  function env(t,peak,dur,out){const a=ac(),g=a.createGain();g.connect(out||a.destination);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(peak,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+dur);return g}
   function note(freq=220,x=.5,y=.5,record=true){const a=ac(),now=a.currentTime,V=(+vol.value/100),E=(+expr.value/100);if(record&&rec)events.push({t:performance.now()-t0,freq,x,y,ctl:[...controls],vol:+vol.value,expr:+expr.value});status.textContent='Nota '+Math.round(freq)+' Hz · eventi '+events.length;
     if(mode==='organ'){const hs=[];if(controls[0])hs.push([1,1],[2,.25],[3,.12]);if(controls[1])hs.push([2,.55],[4,.18]);if(controls[2])hs.push([3,.28],[4,.22],[5,.16],[6,.1]);if(controls[4])hs.push([.5,.55]);hs.forEach(([m,amp])=>{const o=a.createOscillator(),g=env(now,amp*.42*V,3.2);o.type='sine';o.frequency.value=freq*m;if(controls[3]){const l=a.createOscillator(),lg=a.createGain();l.frequency.value=5;lg.gain.value=freq*m*.01;l.connect(lg);lg.connect(o.frequency);l.start(now);l.stop(now+3.2)}o.connect(g);o.start(now);o.stop(now+3.25)})}
     else if(mode==='bell'){[[.5,1,9],[1,.7,6],[1.19,.45,3.5],[1.5,.3,2.4],[2.76,.2,1.3]].forEach(([r,am,d])=>{const o=a.createOscillator(),g=env(now,am*V,d);o.type='sine';o.frequency.value=freq*r;o.connect(g);o.start(now);o.stop(now+d+.1)});shake=1;if(controls[1])[4,7,12].forEach((s,i)=>setTimeout(()=>note(freq*Math.pow(2,s/12),x,y,false),260*(i+1)))}
@@ -5752,4 +5620,3 @@ initSvevo();
 </script>
 </body>
 </html>
-
