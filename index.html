@@ -1860,16 +1860,33 @@ function swapFR() {
   frSwapped = !frSwapped;
   const inp = document.getElementById('trans-fr-input');
   const out = document.getElementById('trans-fr-output');
-  const b
-  
-  // ─── AI CHAT ───
+  const btn = document.getElementById('trans-fr-btn');
+  const ll = document.getElementById('fr-label-left');
+  const lr = document.getElementById('fr-label-right');
+  const tmp = inp.value;
+  inp.value = out.textContent === 'La traduzione apparirà qui...' ? '' : out.textContent;
+  out.textContent = tmp || 'La traduzione apparirà qui...';
+  if (frSwapped) {
+    ll.innerHTML = `${FLAG.it} ITALIANO`;
+    lr.innerHTML = `${FLAG.fr} FRANÇAIS`;
+    btn.textContent = '🌐 Traduci in Francese';
+    inp.placeholder = 'Scrivi in italiano...';
+  } else {
+    ll.innerHTML = `${FLAG.fr} FRANÇAIS`;
+    lr.innerHTML = `${FLAG.it} ITALIANO`;
+    btn.textContent = '🌐 Traduis en Italien';
+    inp.placeholder = 'Écrivez votre texte en français...';
+  }
+}
+
+// ─── AI CHAT ───
 // ⚠️  INSERISCI QUI LA TUA API KEY DI ANTHROPIC ⚠️
 // Ottienila su: https://console.anthropic.com → API Keys
-const ANTHROPIC_API_KEY = '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';;
+const ANTHROPIC_API_KEY = 'INSERISCI-QUI-LA-TUA-API-KEY'; // es. sk-ant-api03-...
 
 const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
 async function callClaude(system, userMsg, maxTok = 800) {
-  if (ANTHROPIC_API_KEY === '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') {
+  if (ANTHROPIC_API_KEY === 'INSERISCI-QUI-LA-TUA-API-KEY') {
     return '⚠️ API key non configurata. Inserisci la tua chiave Anthropic nella variabile ANTHROPIC_API_KEY nel codice HTML.';
   }
   const r = await fetch(CLAUDE_API, { method:'POST', headers:{
@@ -1922,25 +1939,7 @@ function addMsg(role, html, raw=false) {
   const box = document.getElementById('chat-messages'); box.appendChild(el); box.scrollTop = box.scrollHeight;
   return el;
 }
-document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });tn = document.getElementById('trans-fr-btn');
-  const ll = document.getElementById('fr-label-left');
-  const lr = document.getElementById('fr-label-right');
-  const tmp = inp.value;
-  inp.value = out.textContent === 'La traduzione apparirà qui...' ? '' : out.textContent;
-  out.textContent = tmp || 'La traduzione apparirà qui...';
-  if (frSwapped) {
-    ll.innerHTML = `${FLAG.it} ITALIANO`;
-    lr.innerHTML = `${FLAG.fr} FRANÇAIS`;
-    btn.textContent = '🌐 Traduci in Francese';
-    inp.placeholder = 'Scrivi in italiano...';
-  } else {
-    ll.innerHTML = `${FLAG.fr} FRANÇAIS`;
-    lr.innerHTML = `${FLAG.it} ITALIANO`;
-    btn.textContent = '🌐 Traduis en Italien';
-    inp.placeholder = 'Écrivez votre texte en français...';
-  }
-}
-
+document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 
 // ─── SVEVO vs AI ───
 const SVEVO_TEXT = `Oggi ho deciso di smettere di fumare. Era la millesima volta che prendevo questa decisione, e come le precedenti, nasceva da un momento di debolezza mascherata da forza. Mia moglie mi aveva guardato con quegli occhi che sanno tutto — quegli occhi che non accusano, ma pesano più di qualsiasi accusa. Avevo posato la sigaretta sul bordo del tavolo, con quella solennità ridicola con cui si depongono le armi, e avevo detto: L'ultima. Lei non aveva risposto. Sapeva, come sapevo io, che non era l'ultima. Era solo la penultima dell'ultima.`;
